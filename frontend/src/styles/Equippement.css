@@ -1,0 +1,321 @@
+.app {
+    display: flex;
+    height: 100vh;
+    font-family: Arial;
+}
+
+
+/* Sidebar */
+
+.sidebar {
+    width: 220px;
+    background: linear-gradient(#0a2e63, #0f4c8b);
+    color: white;
+    padding: 20px;
+}
+
+.logo {
+    width: 120px;
+}
+
+.menu-title {
+    font-size: 18px;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.menu-item {
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+
+/* Content */
+
+.content {
+    flex: 1;
+    background-color: #f2f5f8;
+}
+
+
+/* Top bar */
+
+.topbar {
+    background-color: #32425a;
+    color: white;
+    padding: 3px;
+    display: flex;
+    align-items: center;
+}
+
+
+/* Search box */
+
+.search-box {
+    margin: 10px;
+}
+
+.search-box input {
+    width: 200px;
+    padding: 10px;
+}
+
+
+/* Button */
+
+.add-btn {
+    margin-left: 20px;
+    padding: 5px 10px;
+    background-color: #0f4c8b;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+
+/* Big box */
+
+.big-box {
+    margin: 10px;
+    background-color: white;
+    height: 400px;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+
+/* Hamburger */
+
+.hamburger {
+    font-size: 24px;
+    cursor: pointer;
+    margin-right: 15px;
+}
+
+
+/* Sidebar collapsed */
+
+.sidebar.collapsed {
+    width: 60px;
+    padding: 10px;
+}
+
+.sidebar.collapsed .logo {
+    width: 40px;
+}
+
+
+/* Modal popup */
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    /* 🔥 IMPORTANT */
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    width: 450px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 10px;
+    z-index: 10000;
+    /* 🔥 IMPORTANT */
+}
+
+.modal-content input {
+    width: 100%;
+    margin: 5px 0;
+    padding: 8px;
+}
+
+.modal-actions {
+    margin-top: 10px;
+    text-align: right;
+}
+
+.modal-actions button {
+    margin-left: 10px;
+}
+
+.input-style {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.search-box input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.filter-btn {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.filter-btn:hover {
+    background: #f0f0f0;
+}
+
+.equip-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.equip-table th {
+    background: #1f3c88;
+    color: white;
+    padding: 10px;
+    text-align: left;
+}
+
+.equip-table td {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+}
+
+.equip-table tr:hover {
+    background: #f1f5ff;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    /* centre la pagination */
+    margin-top: 20px;
+    gap: 8px;
+    /* espace entre les boutons */
+    flex-wrap: wrap;
+}
+
+.page-btn {
+    background-color: #f0f0f0;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.page-btn:hover {
+    background-color: #4caf50;
+    /* couleur au survol */
+    color: white;
+    transform: scale(1.1);
+}
+
+.page-btn.active {
+    background-color: #2196f3;
+    /* couleur page active */
+    color: white;
+}
+
+.page-btn:disabled {
+    background-color: #ddd;
+    cursor: not-allowed;
+    color: #888;
+}
+
+.action-btn {
+    margin: 2px;
+    padding: 2px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+.action-btn.edit {
+    background-color: #2196f3;
+    color: white;
+}
+
+.action-btn.edit:hover {
+    background-color: #1976d2;
+}
+
+.action-btn.delete {
+    background-color: #f44336;
+    color: white;
+}
+
+.action-btn.delete:hover {
+    background-color: #d32f2f;
+}
+
+.action-btn.view {
+    background-color: #4caf50;
+    color: white;
+}
+
+.action-btn.view:hover {
+    background-color: #388e3c;
+}
+
+.dashboard {
+    padding: 20px;
+}
+
+.stat-box {
+    background: #222;
+    color: white;
+    padding: 20px;
+    width: 250px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.big-number {
+    font-size: 40px;
+    font-weight: bold;
+    color: #4caf50;
+}
+
+.chart-row {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.chart-box {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 450px;
+}

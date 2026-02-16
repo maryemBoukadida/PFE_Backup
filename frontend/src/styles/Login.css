@@ -1,0 +1,143 @@
+/* Login.css */
+
+
+/* Fond principal */
+
+.login-page {
+    position: relative;
+    height: 100vh;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('../bg3.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding-right: 80px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+
+/* Logo TAV */
+
+.login-logo {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 140px;
+    height: auto;
+    transition: transform 0.5s ease;
+}
+
+.login-logo:hover {
+    transform: scale(1.2) rotate(10deg);
+}
+
+
+/* Box du formulaire (Glassmorphism) */
+
+.login-box {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 40px;
+    width: 350px;
+    min-height: 450px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #fff;
+}
+
+
+/* Formulaire */
+
+.login-box h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    font-weight: 600;
+}
+
+.login-box form {
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* Inputs */
+
+.login-box input[type="email"],
+.login-box input[type="password"] {
+    padding: 12px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    font-size: 25px;
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.login-box input::placeholder {
+    color: #e0e0e0;
+}
+
+
+/* Checkbox */
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.checkbox-container input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+
+/* Bouton */
+
+.login-box button {
+    padding: 12px;
+    border-radius: 10px;
+    margin-top: 15px;
+    border: none;
+    background: linear-gradient(90deg, #275d9b, #3a89c9);
+    color: #fff;
+    font-size: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.login-box button:hover {
+    transform: scale(1.05);
+    background: linear-gradient(90deg, #3a89c9, #275d9b);
+}
+
+
+/* Mot de passe oublié */
+
+.login-box .forgot-password {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.login-box .forgot-password a {
+    color: #fff;
+    text-decoration: underline;
+}
+
+
+/* Message d'erreur */
+
+.login-box p {
+    margin-top: 15px;
+    color: #ff6b6b;
+    text-align: center;
+    font-weight: 500;
+}
