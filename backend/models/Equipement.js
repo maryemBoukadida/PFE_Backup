@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const EquipementSchema = new mongoose.Schema({
     designation_equipement: String,
     lieu_installation: String,
-    code_patrimoine: String,
+    code_patrimoine: { type: String, unique: true },
     adresse_ip: String,
     fournisseur: String,
     installateur: String,
@@ -14,9 +14,7 @@ const EquipementSchema = new mongoose.Schema({
     tel_office: String,
     fax: String,
     feuille: String,
-
-    // fichier Excel (on stocke juste le nom ou le chemin)
-    excel_file: { type: String }
-});
+    excel_file: String
+}, { timestamps: true });
 
 module.exports = mongoose.model("Equipement", EquipementSchema);

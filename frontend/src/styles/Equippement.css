@@ -54,30 +54,6 @@
 }
 
 
-/* Search box */
-
-.search-box {
-    margin: 10px;
-}
-
-.search-box input {
-    width: 200px;
-    padding: 10px;
-}
-
-
-/* Button */
-
-.add-btn {
-    margin-left: 20px;
-    padding: 5px 10px;
-    background-color: #0f4c8b;
-    color: white;
-    border: none;
-    border-radius: 5px;
-}
-
-
 /* Big box */
 
 .big-box {
@@ -318,4 +294,209 @@
     padding: 20px;
     border-radius: 10px;
     width: 450px;
+}
+
+
+/* ===============================
+   FORMULAIRE GMAO SOBRE
+=============================== */
+
+.modal {
+    background: rgba(0, 0, 0, 0.65);
+}
+
+
+/* Fenêtre */
+
+.modal-content {
+    background: #ffffff;
+    width: 480px;
+    padding: 20px;
+    border-radius: 4px;
+    border: 1px solid #cfd7e3;
+}
+
+
+/* Titre */
+
+.modal-content h3 {
+    font-size: 18px;
+    color: #1f3c88;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #cfd7e3;
+    padding-bottom: 8px;
+    text-align: center;
+}
+
+
+/* Inputs */
+
+.modal-content input,
+.modal-content select {
+    width: 100%;
+    padding: 8px 10px;
+    margin-bottom: 10px;
+    border: 2px solid #0f2948;
+    border-radius: 2px;
+    background: #fafafa;
+    font-size: 13px;
+}
+
+
+/* Focus */
+
+.modal-content input:focus,
+.modal-content select:focus {
+    background: white;
+    border-color: #1f3c88;
+    outline: none;
+}
+
+
+/* Boutons */
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 15px;
+    border-top: 1px solid #cfd7e3;
+    padding-top: 10px;
+}
+
+.modal-actions button {
+    padding: 6px 14px;
+    font-size: 13px;
+    border-radius: 2px;
+    border: none;
+    cursor: pointer;
+}
+
+
+/* Enregistrer */
+
+.modal-actions button:first-child {
+    background: #1f3c88;
+    color: white;
+}
+
+
+/* Annuler */
+
+.modal-actions button:last-child {
+    background: #e5e9f0;
+    color: #1f3c88;
+}
+
+
+/* ================================
+   BARRE OUTILS GMAO
+================================ */
+
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 15px;
+}
+
+
+/* zone recherche */
+
+.search-area {
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 1px solid #cfd7e3;
+    border-radius: 6px;
+    padding: 4px 8px;
+    width: 400px;
+}
+
+
+/* input */
+
+.search-area input {
+    border: none;
+    outline: none;
+    padding: 8px;
+    flex: 1;
+    font-size: 14px;
+}
+
+
+/* bouton filtre */
+
+.filter-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 4px;
+}
+
+.filter-btn:hover {
+    background: #e9eef6;
+}
+
+
+/* bouton ajouter */
+
+.add-btn {
+    background: linear-gradient(135deg, #1f3c88, #3f6ad8);
+    color: white;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+    transition: 0.2s ease;
+}
+
+.add-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.25);
+}
+
+
+/*suppreesion  */
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 20px 30px;
+    border-radius: 8px;
+    text-align: center;
+    min-width: 300px;
+}
+
+.modal-actions button {
+    margin: 10px;
+    padding: 6px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.modal-actions button:first-child {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.modal-actions button:last-child {
+    background-color: #f44336;
+    color: white;
 }
