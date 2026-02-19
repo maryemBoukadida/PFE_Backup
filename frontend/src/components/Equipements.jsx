@@ -3,7 +3,7 @@ import "../styles/Equippement.css";
 import FormAjoutEquip from "../Forms/FormAjoutEquip";
 import { FaSearch, FaFilter } from "react-icons/fa";
 import logo from "../tav5.png";
-import Dashboard from "./Dashboard";
+import Dashboard from "./Dashboard.jsx";
 
 
 import {
@@ -146,6 +146,10 @@ const totalPages = Math.ceil(filteredEquipements.length / itemsPerPage);
         </button>
       </div>
     <div className="content">
+      {activeMenu === "statistiques" ?(
+        <Dashboard />
+      ) : (
+        <>
           
         {/*tool bar */}  
       <div className="toolbar">
@@ -307,9 +311,11 @@ const totalPages = Math.ceil(filteredEquipements.length / itemsPerPage);
 
 
 
-
+</>
+      )}
 
 </div>
+        
 </div>
 </div>
 

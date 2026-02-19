@@ -1,44 +1,68 @@
 .dashboard-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    padding: 10px;
-    justify-content: flex-start;
+    padding: 20px;
+    background-color: #f4f7fb;
+    min-height: 100vh;
 }
 
-.dashboard-chart {
-    flex: 1 1 200px;
-    /* largeur flexible, minimum 200px */
-    max-width: 250px;
-    /* taille maximale réduite pour compacter le Doughnut */
-    position: relative;
+
+/* TITRES */
+
+.dashboard-title {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #1f3c88;
 }
 
-.doughnut-center {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    pointer-events: none;
+
+/* GRID */
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
 }
 
-.doughnut-center h2 {
-    margin: 0;
-    font-size: 14px;
-    font-weight: bold;
+
+/* CARD */
+
+.dashboard-card {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: 0.3s;
 }
 
-.doughnut-center p {
-    margin: 0;
-    font-size: 10px;
-    /* réduit la taille du texte "Équipements" */
+.dashboard-card:hover {
+    transform: translateY(-5px);
 }
 
-.doughnut-title {
-    text-align: center;
-    font-size: 14px;
-    /* taille du titre réduite */
-    margin-bottom: 8px;
-    font-weight: 500;
+
+/* TITRE CARD */
+
+.card-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+
+/* CHART CONTAINER */
+
+.chart-container {
+    width: 100%;
+    max-width: 220px;
+    height: 180px;
+    margin: auto;
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
 }

@@ -1,6 +1,6 @@
 const Equipement = require("../models/Equipement");
 
-// 🔹 Statistiques des équipements par lieu
+// 🔹 Statistiques par lieu
 exports.getStatsByLieu = async(req, res) => {
     try {
         const stats = await Equipement.aggregate([{
