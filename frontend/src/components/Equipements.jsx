@@ -4,13 +4,15 @@ import FormAjoutEquip from "../Forms/FormAjoutEquip";
 import { FaSearch, FaFilter } from "react-icons/fa";
 import logo from "../tav5.png";
 import Dashboard from "./Dashboard.jsx";
+import Inventaire from "./Inventaire.jsx";
 
 
 import {
   getEquipements,
   createEquipement,
   updateEquipement,
-  deleteEquipement
+  deleteEquipement, 
+  getFileByCode
 } from "./apiservices/api";
 
 export default function EquipementsComponent() {
@@ -24,7 +26,7 @@ export default function EquipementsComponent() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 7; // nombre d'équipements par page
+  const itemsPerPage = 6; // nombre d'équipements par page
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeMenu, setActiveMenu] = useState("statistiques"); // "statistiques" ou "gerer"
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
@@ -108,6 +110,15 @@ export default function EquipementsComponent() {
 const totalPages = Math.ceil(filteredEquipements.length / itemsPerPage);
 
 
+const handleViewDetails = async (code) => {
+    try {
+        const { fileUrl } = await getFileByCode(code);
+        window.open(fileUrl, "_blank"); // ouvre le fichier Excel dans un nouvel onglet
+    } catch (err) {
+        console.error(err);
+        alert(err.message);
+    }
+};
 
   return (
     <div className={`layout ${sidebarCollapsed ? "collapsed" :""}`}>
@@ -122,6 +133,9 @@ const totalPages = Math.ceil(filteredEquipements.length / itemsPerPage);
             <div className="menu-title" onClick={() => setIsSubMenuOpen(!isSubMenuOpen)}>
   Gestion Equipement
 </div>
+
+
+
 {isSubMenuOpen && (
   <div className="submenu">
     <div className={`submenu-item ${activeMenu === "statistiques" ? "active" : ""}`}
@@ -134,6 +148,11 @@ const totalPages = Math.ceil(filteredEquipements.length / itemsPerPage);
     </div>
   </div>
 )}
+<div className={`submenu-item ${activeMenu === "inventaire" ? "active" : ""}`}
+     onClick={() => setActiveMenu("inventaire")}>
+  Inventaire
+</div>
+
 
       </div>
     </div>
@@ -145,10 +164,16 @@ const totalPages = Math.ceil(filteredEquipements.length / itemsPerPage);
         >☰ 
         </button>
       </div>
+   
+
+
+
     <div className="content">
       {activeMenu === "statistiques" ?(
         <Dashboard />
-      ) : (
+      ) :  activeMenu === "inventaire" ? (
+        <Inventaire />
+      ):(
         <>
           
         {/*tool bar */}  
@@ -165,7 +190,7 @@ const totalPages = Math.ceil(filteredEquipements.length / itemsPerPage);
           </div>
           <button className="filter-btn">
             <FaFilter />
-          </button>
+          </button>*/
    
           
         </div>
@@ -210,6 +235,15 @@ const totalPages = Math.ceil(filteredEquipements.length / itemsPerPage);
                     onClick={()=>handleDeleteClick(eq)}>
                       Supprimer
                   </button>
+                  
+<button
+    className="action-btn view"
+    onClick={() => handleViewDetails(eq.code_patrimoine)}
+  >
+    Voir détails
+  </button>
+                  
+
                 </td>
               </tr>
             ))}

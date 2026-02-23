@@ -2,6 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/database");
 const statsRoutes = require("./routes/statsRoutes");
+const path = require("path");
+
 
 const app = express();
 
@@ -15,11 +17,19 @@ connectDB();
 // Route test
 app.get("/test", (req, res) => res.json({ message: "API fonctionne ✅" }));
 
+//authentification 
+app.use("/", require("./routes/authRoutes"));
+// Serve les fichiers statiques (Excel, images, etc.)
+app.use(express.static(path.join(__dirname, "uploads")));
+
 // Routes équipements — **chemin exact et router correct**
 app.use("/equipements", require("./routes/equipementRoutes"));
 
 // routes
 app.use("/api/equipements/stats", statsRoutes);
+//inventaire
+const inventaireRoutes = require("./routes/inventaireRoutes");
+app.use("/api/inventaire", inventaireRoutes);
 
 // Catch-all 404
 app.use((req, res) => res.status(404).send("Route introuvable ❌"));

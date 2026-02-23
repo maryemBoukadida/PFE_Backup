@@ -3,47 +3,52 @@ import axios from "axios";
 import logoTav from "../logoTav.png";
 import bg3 from "../bg3.png";
 import "../styles/Login.css"; 
+import { useNavigate } from "react-router-dom";
 function Login() {
-    const [email, setEmail] = useState("");
+    const [matricule, setMatricule] = useState("");
     const [password, setPassword] = useState("");
     const [isHuman, setIsHuman] = useState(false);
     const [message, setMessage] = useState("");
+    const navigate = useNavigate();
+const handleLogin = async (e) => {
+    e.preventDefault();
 
-   
-    const handleLogin = async (e) => {
-        e.preventDefault();
+    if (!isHuman) {
+        setMessage("Veuillez confirmer que vous êtes humain !");
+        return;
+    }
 
-        if (!isHuman) {
-            setMessage("Veuillez confirmer que vous êtes humain !");
-            return;
-        }
+    try {
+        const response = await axios.post("http://localhost:5000/login", {
+            matricule,
+            password
+        });
 
-        try {
-            await axios.post("http://localhost:5000/login", { email, password });
-            setMessage("Connexion réussie !");
-        } catch (err) {
-            setMessage("Erreur de connexion");
-        }
-    };
+        setMessage("Connexion réussie !");
+        navigate("/equipements");
 
-    return (
+        
+
+    } catch (err) {
+        setMessage(err.response?.data?.message || "Erreur de connexion");
+    }
+};
+
+ return (
         <div className="login-page">
-            <img src={logoTav} alt="Logo TAV"
-            className="login-logo"/>
-
+            <img src={logoTav} alt="Logo TAV" className="login-logo" />
             <div className="login-container">
                 <div className="login-box">
                     <h2>Connexion</h2>
                     <form onSubmit={handleLogin}>
                         <div>
-                            <input
-                                type="email"
-                                placeholder="Email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                            />
-                        </div>
+ <input
+    type="text"
+    placeholder="Matricule"
+    value={matricule}
+    onChange={(e) => setMatricule(e.target.value)}
+    required
+/>                    </div>
 
                         <div>
                             <input

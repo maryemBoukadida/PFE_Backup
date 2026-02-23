@@ -1,0 +1,244 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.inventaire-container {
+    padding: 5px 15px;
+    background: #f4f7fb;
+    font-family: "Segoe UI", sans-serif;
+    overflow-x: hidden;
+    margin: 0;
+}
+
+
+/* CARD */
+
+.inventaire-card {
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+}
+
+
+/* HEADER */
+
+.inventaire-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.inventaire-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f3c88;
+    margin: 0;
+}
+
+
+/* SELECT */
+
+.inventaire-select {
+    padding: 8px 35px 8px 12px;
+    border-radius: 10px;
+    border: 1px solid #dcdfe6;
+    background: linear-gradient(145deg, #ffffff, #f1f3f9);
+    font-size: 14px;
+    font-weight: 500;
+    color: #1f3c88;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.3s ease;
+    appearance: none;
+    /* enlève style par défaut */
+    position: relative;
+}
+
+
+/* Hover */
+
+.inventaire-select:hover {
+    border-color: #1f3c88;
+    box-shadow: 0 2px 6px rgba(31, 60, 136, 0.1);
+}
+
+
+/* Focus (quand tu cliques) */
+
+.inventaire-select:focus {
+    border-color: #1f3c88;
+    box-shadow: 0 0 0 3px rgba(31, 60, 136, 0.15);
+}
+
+
+/* Ajouter une flèche custom */
+
+.inventaire-select {
+    background-image: url("data:image/svg+xml;utf8,<svg fill='%231f3c88' height='20' viewBox='0 0 20 20' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M5 7l5 5 5-5H5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+}
+
+
+/* TABLE */
+
+.inventaire-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.inventaire-table thead {
+    background-color: #1f3c88;
+    color: white;
+}
+
+.inventaire-table th {
+    padding: 12px;
+    text-align: left;
+    font-size: 14px;
+}
+
+.inventaire-table td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+}
+
+
+/* ROW HOVER */
+
+.inventaire-table tbody tr:hover {
+    background-color: #f1f5ff;
+    transition: 0.2s;
+}
+
+
+/* EMPTY STATE */
+
+.no-data {
+    text-align: center;
+    padding: 20px;
+    color: #888;
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 768px) {
+    .inventaire-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 15px;
+    gap: 5px;
+}
+
+.pagination button {
+    padding: 8px 10px;
+    border: none;
+    border-radius: 8px;
+    background-color: #1f3c88;
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.pagination button:hover {
+    background-color: #163172;
+}
+
+.pagination button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.pagination span {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+
+/*style cards */
+
+.stats-cards {
+    display: flex;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    justify-content: flex-start;
+    margin-bottom: 5px;
+}
+
+.card {
+    flex: 0 0 150px;
+    padding: 10px;
+    max-width: 250px;
+    border-radius: 12px;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s;
+}
+
+.card-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.card-icon {
+    font-size: 45px;
+}
+
+.card h3 {
+    margin-bottom: 10px;
+}
+
+.card p {
+    font-size: 24px;
+}
+
+.card.red {
+    background: #e74c3c;
+}
+
+.card.orange {
+    background: #f39c12;
+}
+
+.card.green {
+    background: #2ecc71;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+}
+
+
+/*filter donnes*/
+
+.red-row {
+    background-color: #f8d7da;
+    /* rouge clair */
+}
+
+.orange-row {
+    background-color: #fff3cd;
+    /* orange clair */
+}
+
+.green-row {
+    background-color: #d4edda;
+    /* vert clair */
+}

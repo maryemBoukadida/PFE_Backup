@@ -69,7 +69,7 @@
 
 /* Inputs */
 
-.login-box input[type="email"],
+.login-box input[type="matricule"],
 .login-box input[type="password"] {
     padding: 12px;
     margin-bottom: 20px;

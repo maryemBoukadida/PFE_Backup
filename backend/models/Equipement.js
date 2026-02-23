@@ -14,7 +14,8 @@ const EquipementSchema = new mongoose.Schema({
     tel_office: String,
     fax: String,
     feuille: String,
-    excel_file: String
+    excel_file: String,
+    pdf_file: String
 }, { timestamps: true });
 
 module.exports = mongoose.model("Equipement", EquipementSchema);
