@@ -129,6 +129,7 @@
     padding: 20px;
     border-radius: 4px;
     border: 1px solid #cfd7e3;
+    overflow: auto;
 }
 
 
@@ -149,8 +150,8 @@
 .modal-content input,
 .modal-content select {
     width: 100%;
-    padding: 8px 10px;
-    margin-bottom: 10px;
+    padding: 5px 7px;
+    margin-bottom: 8px;
     border: 2px solid #0f2948;
     border-radius: 2px;
     background: #fafafa;

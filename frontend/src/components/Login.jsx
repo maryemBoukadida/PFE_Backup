@@ -4,12 +4,14 @@ import logoTav from "../logoTav.png";
 import bg3 from "../bg3.png";
 import "../styles/Login.css"; 
 import { useNavigate } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 function Login() {
     const [matricule, setMatricule] = useState("");
     const [password, setPassword] = useState("");
     const [isHuman, setIsHuman] = useState(false);
     const [message, setMessage] = useState("");
     const navigate = useNavigate();
+    const [showPassword, setShowPassword] = useState(false);
 const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -24,8 +26,16 @@ const handleLogin = async (e) => {
             password
         });
 
-        setMessage("Connexion réussie !");
-        navigate("/equipements");
+        const role = response.data.role;
+
+setMessage("Connexion réussie !");
+
+// Redirection selon le rôle
+if (role === "admin") {
+    navigate("/equipements");
+} else if (role === "technicien") {
+    navigate("/technicien"); // même si page vide pour l'instant
+}
 
         
 
@@ -51,13 +61,22 @@ const handleLogin = async (e) => {
 />                    </div>
 
                         <div>
-                            <input
-                                type="password"
-                                placeholder="Mot de passe"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                            />
+<div className="password-container">
+    <input
+        type={showPassword ? "text" : "password"}
+        placeholder="Mot de passe"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+    />
+
+    <span
+        className="eye-icon"
+        onClick={() => setShowPassword(!showPassword)}
+    >
+        {showPassword ? <FaEyeSlash /> : <FaEye />}
+    </span>
+</div>
                         </div>
 
                         <div>

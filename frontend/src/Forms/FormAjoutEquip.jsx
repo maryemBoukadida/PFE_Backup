@@ -17,6 +17,8 @@ function FormAjoutEquip({ closeModal }) {
     tel_office: "",
     fax: "",
     feuille: "",
+    quantite: "",
+    type_stock: "PHG",
     excel_file: ""
   });
 
@@ -57,6 +59,24 @@ function FormAjoutEquip({ closeModal }) {
       <input name="gsm" placeholder="GSM" onChange={handleChange} />
       <input name="tel_office" placeholder="Tel office" onChange={handleChange} />
       <input name="fax" placeholder="Fax" onChange={handleChange} />
+
+      {/* ✅ Quantité */}
+      <input 
+        type="number"
+        name="quantite"
+        placeholder="Quantité"
+        onChange={handleChange}
+        min="0"
+        required
+      />
+      {/* ✅ Type de stock */}
+      <select name="type_stock" onChange={handleChange} value={formData.type_stock}>
+        <option value="PHG">PG</option>
+        <option value="AGL">AGL</option>
+        <option value="BALISAGE">Balisage</option>
+      </select>
+
+
 
       <div className="modal-actions">
         <button type="submit">Enregistrer</button>
