@@ -1,4 +1,4 @@
-const mongoose = require("mongoose"); // ✅ OBLIGATOIRE
+const mongoose = require("mongoose");
 
 const inspectionTechSchema = new mongoose.Schema({
     matricule: { type: String, required: true },
@@ -8,15 +8,19 @@ const inspectionTechSchema = new mongoose.Schema({
     inspections: [{
         zone: String,
         element: String,
+
         matin: {
             etat: String,
             observation: String,
             intervention: String,
+            nbrNF: { type: Number, default: 0 } // ✅ AJOUT
         },
+
         nuit: {
             etat: String,
             observation: String,
             intervention: String,
+            nbrNF: { type: Number, default: 0 } // ✅ AJOUT
         },
     }, ],
 

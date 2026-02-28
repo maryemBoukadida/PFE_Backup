@@ -121,3 +121,18 @@ body {
     background-color: #f8d7da;
     color: #c0392b;
 }
+
+th,
+td {
+    transition: all 0.3s ease;
+}
+
+
+/*veouillage*/
+
+input[disabled],
+select[disabled] {
+    background-color: #eee;
+    color: #555;
+    cursor: not-allowed;
+}

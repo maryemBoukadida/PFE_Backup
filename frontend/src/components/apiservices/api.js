@@ -112,7 +112,9 @@ export const createInspection = async(inspection) => {
 
     return data;
 };
+// technicien
 // gett all inspections
+
 export const getInspections = async() => {
     const res = await fetch(INSPECTION_API);
 
@@ -123,6 +125,8 @@ export const getInspections = async() => {
 
     return res.json();
 };
+
+// envoyer Inpetion Tech
 export const envoyerInspectionTech = async(inspection) => {
     const res = await fetch(`${INSPECTION_TECH_API}/envoyer`, {
         method: "POST",
