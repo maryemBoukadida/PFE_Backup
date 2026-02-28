@@ -18,7 +18,7 @@ function FormAjoutEquip({ closeModal }) {
     fax: "",
     feuille: "",
     quantite: "",
-    type_stock: "PHG",
+    type_stock: "PG",
     excel_file: ""
   });
 
@@ -28,7 +28,7 @@ function FormAjoutEquip({ closeModal }) {
       [e.target.name]: e.target.value
     });
   };
-
+/*
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -42,6 +42,20 @@ function FormAjoutEquip({ closeModal }) {
       console.error(error);
     }
   };
+*/
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const res = await createEquipement(formData);
+    alert(res.message || "Équipement ajouté avec succès");
+    closeModal(formData.type_stock); // ✅ envoie le type au parent
+  } catch (err) {
+    alert(err.message);
+    console.error(err);
+  }
+};
+
+
 
   return (
     <form onSubmit={handleSubmit}>
@@ -71,9 +85,9 @@ function FormAjoutEquip({ closeModal }) {
       />
       {/* ✅ Type de stock */}
       <select name="type_stock" onChange={handleChange} value={formData.type_stock}>
-        <option value="PHG">PG</option>
+        <option value="PG">PG</option>
         <option value="AGL">AGL</option>
-        <option value="BALISAGE">Balisage</option>
+        <option value="BALISAGE">BALISAGE</option>
       </select>
 
 

@@ -1,6 +1,9 @@
 // backend/controllers/equipementController.js
 const Equipement = require("../models/Equipement.js");
 const InventairePG = require("../models/InventairePG"); // adapte selon ton modèle
+//type de stock
+const InventaireBalisage = require("../models/InventaireBalisage");
+const InventaireAGL = require("../models/InventaireAGL");
 
 // 🔹 Récupérer tous les équipements
 exports.getAll = async(req, res) => {
@@ -27,6 +30,7 @@ exports.create = async(req, res) => {
     }
 };
 */
+/*
 exports.createEquipement = async(req, res) => {
     try {
         const newEquipement = new Equipement(req.body);
@@ -46,6 +50,55 @@ exports.createEquipement = async(req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+*/
+exports.createEquipement = async(req, res) => {
+    try {
+        const { type_stock, quantite, designation_equipement, code_patrimoine } = req.body;
+
+        // Création de l'équipement
+        const newEquipement = new Equipement(req.body);
+        await newEquipement.save();
+
+        // 🔥 Création automatique dans la collection correspondant au type_stock
+        switch (type_stock) {
+            case "PG":
+                await InventairePG.create({
+                    code_oracle: code_patrimoine,
+                    reference: code_patrimoine,
+                    designation: designation_equipement,
+                    stock_actuel: Number(quantite) || 0
+                });
+                break;
+
+            case "BALISAGE":
+                await InventaireBalisage.create({
+                    code: code_patrimoine,
+                    designation: designation_equipement,
+                    quantite: Number(quantite) || 0
+                });
+                break;
+
+            case "AGL":
+                await InventaireAGL.create({
+                    code: code_patrimoine,
+                    designations: [designation_equipement],
+                    quantite: Number(quantite) || 0
+                });
+                break;
+
+            default:
+                console.warn("⚠️ type_stock inconnu :", type_stock);
+                break;
+        }
+
+        res.status(201).json({ message: "Équipement + inventaire créés ✅" });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // 🔹 Supprimer un équipement par code_patrimoine
 // DELETE par ID Mongo
 exports.remove = async(req, res) => {

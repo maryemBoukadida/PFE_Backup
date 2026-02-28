@@ -4,6 +4,8 @@ import axios from "axios";
 const API_URL = "http://localhost:5000/equipements";
 
 const INVENTAIRE_API = "http://localhost:5000/api/inventaire";
+const INSPECTION_API = "http://localhost:5000/api/inspections";
+const INSPECTION_TECH_API = "http://localhost:5000/api/inspections/tech";
 
 // 🔹 Récupérer tous les équipements
 export const getEquipements = async() => {
@@ -89,12 +91,48 @@ export const getAllInventaires = async(type) => {
     return res.data;
 };
 
-export const createInventaire = async(type, data) => {
-    const res = await axios.post(`${INVENTAIRE_API}/${type}`, data);
-    return res.data;
-};
+// inspections 
+export const createInspection = async(inspection) => {
+    const res = await fetch(INSPECTION_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(inspection),
+    });
 
-export const deleteInventaire = async(type, id) => {
-    const res = await axios.delete(`${INVENTAIRE_API}/${type}/${id}`);
-    return res.data;
+    const text = await res.text();
+    let data = {};
+
+    try {
+        data = JSON.parse(text);
+    } catch {
+        throw new Error(`Erreur serveur: ${text}`);
+    }
+
+    if (!res.ok) throw new Error(data.message || "Erreur création inspection");
+
+    return data;
+};
+// gett all inspections
+export const getInspections = async() => {
+    const res = await fetch(INSPECTION_API);
+
+    if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        throw new Error(`Erreur récupération inspections: ${text}`);
+    }
+
+    return res.json();
+};
+export const envoyerInspectionTech = async(inspection) => {
+    const res = await fetch(`${INSPECTION_TECH_API}/envoyer`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(inspection),
+    });
+
+    const text = await res.text();
+    let data = {};
+    try { data = JSON.parse(text); } catch {}
+    if (!res.ok) throw new Error(data.message || "Erreur serveur");
+    return data;
 };

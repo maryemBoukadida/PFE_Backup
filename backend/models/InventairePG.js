@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const inventairePGSchema = new mongoose.Schema({
-    code_oracle: { type: String, required: true },
+    code_oracle: { type: String, required: true, unique: true },
     reference: { type: String, required: true },
     designation: { type: String, required: true },
     stock_actuel: { type: Number, required: true },

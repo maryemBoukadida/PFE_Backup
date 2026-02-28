@@ -7,5 +7,5 @@ const generateHash = async() => {
 };
 
 generateHash();
-// mot de pass admin:123456
-//mot de pass technicien : tech123
+// mot de pass admin:123456  //matricule A001
+//mot de pass technicien : tech123 //matricule A002

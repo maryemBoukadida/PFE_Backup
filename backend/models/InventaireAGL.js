@@ -6,4 +6,5 @@ const inventaireAGLSchema = new mongoose.Schema({
     designations: [{ type: String }],
 }, { collection: "inventaireAGL" });
 
-module.exports = mongoose.model("InventaireAGL", inventaireAGLSchema);
+//module.exports = mongoose.model("InventaireAGL", inventaireAGLSchema);*/
+module.exports = mongoose.models.InventaireAGL || mongoose.model("InventaireAGL", inventaireAGLSchema);

@@ -1,0 +1,256 @@
+/* 🌐 Global */
+
+.inspection-container {
+    padding: 25px;
+    background-color: #f4f6f9;
+    min-height: 100vh;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+
+/* 🧾 Titre */
+
+.inspection-container h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+
+/* Inputs & Select */
+
+.inspection-header select,
+.inspection-header input[type="date"] {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #dcdcdc;
+    outline: none;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.inspection-header select:focus,
+.inspection-header input:focus {
+    border-color: #3498db;
+}
+
+
+/* 🔘 Multi-select */
+
+.multi-select label {
+    margin-right: 10px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+
+/* 📊 Table */
+
+.inspection-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+
+/* Header */
+
+.inspection-table thead {
+    background-color: #34495e;
+    color: white;
+}
+
+.inspection-table th {
+    padding: 12px;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+
+/* Rows */
+
+.inspection-table td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    text-align: center;
+    font-size: 14px;
+}
+
+
+/* Alternance lignes */
+
+.inspection-table tbody tr:nth-child(even) {
+    background-color: #f9fbfd;
+}
+
+
+/* Hover */
+
+.inspection-table tbody tr:hover {
+    background-color: #eef5ff;
+}
+
+
+/* Inputs dans tableau */
+
+.inspection-table input,
+.inspection-table select {
+    width: 100%;
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 13px;
+}
+
+
+/* Focus */
+
+.inspection-table input:focus,
+.inspection-table select:focus {
+    border-color: #2980b9;
+}
+
+
+/* ✅ OK */
+
+.inspection-table select[value="OK"] {
+    background-color: #d4edda;
+    color: #2e7d32;
+    font-weight: bold;
+}
+
+
+/* ❌ HS */
+
+.inspection-table select[value="HS"] {
+    background-color: #f8d7da;
+    color: #c0392b;
+    font-weight: bold;
+}
+
+
+/* 🔄 Pagination */
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    gap: 15px;
+}
+
+
+/* Boutons pagination */
+
+.pagination button {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 8px;
+    background-color: #3498db;
+    color: white;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.pagination button:hover {
+    background-color: #2980b9;
+}
+
+.pagination button:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+
+/* Texte page */
+
+.pagination span {
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+
+/* 💾 Bouton valider */
+
+.save-btn {
+    display: block;
+    margin: 25px auto;
+    padding: 12px 25px;
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.save-btn:hover {
+    background-color: #1e8449;
+}
+
+
+/* 📱 Responsive */
+
+@media (max-width: 768px) {
+    .inspection-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .inspection-table {
+        font-size: 12px;
+    }
+    .inspection-table th,
+    .inspection-table td {
+        padding: 8px;
+    }
+}
+
+
+/* Style général */
+
+.etat-select {
+    padding: 6px;
+    border-radius: 6px;
+    border: 2px solid #ccc;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+
+/* ✅ OK = Vert */
+
+.etat-ok {
+    border-color: #27ae60;
+    background-color: #d4edda;
+    color: #1e8449;
+}
+
+
+/* ❌ HS = Rouge */
+
+.etat-hs {
+    border-color: #e74c3c;
+    background-color: #f8d7da;
+    color: #c0392b;
+}
+
+
+/*style boutton ajouter ligne */
+
+.add-btn {
+    background: #007bff;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.add-btn:hover {
+    background: #0056b3;
+}
