@@ -7,27 +7,46 @@ export default function Notifications() {
 
   const fetchNotifications = async () => {
     try {
-    const res = await fetch("http://localhost:5000/api/inspections/tech/notifications");      const data = await res.json();
+      const res = await fetch(
+        "http://localhost:5000/api/inspections/tech/notifications",
+      );
+      const data = await res.json();
       setNotifications(data);
     } catch (err) {
       console.error(err);
     }
   };
-useEffect(() => {
-  const loadNotifications = async () => {
-    await fetchNotifications();
-  };
+  useEffect(() => {
+    const loadNotifications = async () => {
+      await fetchNotifications();
+    };
 
-  loadNotifications();
-}, []);
-  const voirFiche = async (id) => {
-    try {
-      const res = await fetch(`http://localhost:5000/api/inspections/${id}`);      const data = await res.json();
-      setSelectedFiche(data);
-    } catch (err) {
-      console.error(err);
+    loadNotifications();
+  }, []);
+const voirFiche = async (id) => {
+  try {
+    // ✅ Utiliser la route tech correcte
+    const res = await fetch(`http://localhost:5000/api/inspections/tech/${id}`);
+    
+    if (!res.ok) {
+      console.error("Erreur récupération fiche :", res.status);
+      return;
     }
-  };
+
+    const data = await res.json();
+    console.log("FICHE RECUE 👉", data);
+
+    setSelectedFiche(data);
+
+    // Marquer la notification comme lue
+    await fetch(`http://localhost:5000/api/inspections/tech/notifications/${id}/read`, {
+      method: "PUT",
+    });
+
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   const validerFiche = async (id) => {
     try {
@@ -64,29 +83,61 @@ useEffect(() => {
       {selectedFiche && (
         <div className="modal">
           <div className="modal-content large">
-            <h3>Fiche Inspection {selectedFiche.matricule}</h3>
+            <h3>Fiche Inspection journaliere de balisage {selectedFiche.matricule}</h3>
+              <p>📅 Date : {new Date(selectedFiche.date).toLocaleString()}</p>
+      <p>📌 Période : {selectedFiche.periode}</p>
             <table>
               <thead>
                 <tr>
                   <th>Zone</th>
                   <th>Élément</th>
-                  <th>Matin</th>
-                  <th>Nuit</th>
+
+                  <th>État Matin</th>
+                  <th>Nbr NF</th>
+                  <th>Observation</th>
+                  <th>Intervention</th>
+
+                  <th>État Nuit</th>
+                  <th>Nbr NF</th>
+                  <th>Observation</th>
+                  <th>Intervention</th>
                 </tr>
               </thead>
+
               <tbody>
-                {selectedFiche.inspections.map((item, i) => (
-                  <tr key={i}>
-                    <td>{item.zone}</td>
-                    <td>{item.element}</td>
-                    <td>{item.matin?.etat}</td>
-                    <td>{item.nuit?.etat}</td>
-                  </tr>
-                ))}
-              </tbody>
+  {selectedFiche.inspections.length === 0 ? (
+    <tr>
+      <td colSpan="10" style={{ textAlign: "center" }}>
+        Aucune inspection envoyée
+      </td>
+    </tr>
+  ) : (
+    selectedFiche.inspections.map((item, i) => (
+      <tr key={i}>
+        <td>{item.zone}</td>
+        <td>{item.element}</td>
+
+        {/* MATIN */}
+        <td>{item.matin?.etat || ""}</td>
+        <td>{item.matin?.nbrNF || 0}</td>
+        <td>{item.matin?.observation || ""}</td>
+        <td>{item.matin?.intervention || ""}</td>
+
+        {/* NUIT */}
+        <td>{item.nuit?.etat || ""}</td>
+        <td>{item.nuit?.nbrNF || 0}</td>
+        <td>{item.nuit?.observation || ""}</td>
+        <td>{item.nuit?.intervention || ""}</td>
+      </tr>
+    ))
+  )}
+</tbody>
             </table>
+         
             <div className="modal-actions">
-              <button onClick={() => validerFiche(selectedFiche._id)}>✅ Valider</button>
+              <button onClick={() => validerFiche(selectedFiche._id)}>
+                ✅ Valider
+              </button>
               <button onClick={() => setSelectedFiche(null)}>❌ Fermer</button>
             </div>
           </div>

@@ -1,19 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { getInspections, envoyerInspectionTech} from "./apiservices/api";
+import { getInspections, envoyerInspectionTech } from "./apiservices/api";
 import "../styles/InspectionTech.css";
 
 export default function InspectionTech() {
   const [periode, setPeriode] = useState("JOURNALIERE");
-  const [inspectionsData, setInspectionsData] = useState([]);
+  const [inspectionsData, setInspectionsData] = useState([]); // tableau de fiches complètes
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 5;
 
-  const allRows = inspectionsData.flatMap((insp, index) =>
-    insp.inspections.map((item, i) => ({
+  // Flatten toutes les inspections pour le tableau
+  const allRows = inspectionsData.flatMap((fiche, inspIndex) =>
+    fiche.inspections.map((item, itemIndex) => ({
       ...item,
-      inspIndex: index,
-      itemIndex: i,
-    })),
+      inspIndex,
+      itemIndex,
+      ficheId: fiche._id,
+      matricule: fiche.matricule,
+    }))
   );
 
   const indexOfLastRow = currentPage * rowsPerPage;
@@ -21,107 +24,123 @@ export default function InspectionTech() {
   const currentRows = allRows.slice(indexOfFirstRow, indexOfLastRow);
   const totalPages = Math.ceil(allRows.length / rowsPerPage);
 
-  //condition verrouillage
+  // verrouillage
   const [technicienType, setTechnicienType] = useState("matin");
-  //const currentHour = new Date().getHours(); // retourne l'heure 0-23
-  //Pour tester le verrouillage, simule 20h
-  const currentHour = 22; // ou 21, 22…
-  
+  const currentHour = 22;
+
   const hasMatinHS = allRows.some((item) => item.matin?.etat === "HS");
   const hasNuitHS = allRows.some((item) => item.nuit?.etat === "HS");
-  
-  // etat fiche envoyer
+
   const [ficheEnvoyee, setFicheEnvoyee] = useState(false);
-/*
+
+  // 🔹 Récupération des fiches
   useEffect(() => {
     const fetchData = async () => {
       try {
-const data = await getInspections("A002", periode);
-        setInspectionsData(data);
+        const data = await getInspections("A002", periode);
+        console.log("Données récupérées :", data); // <-- Ajoute cette ligne
+
+        if (data) {
+          // Toujours garder un tableau de fiches
+          setInspectionsData(Array.isArray(data) ? data : [data]);
+        } else {
+          const base = await getInspections();
+          setInspectionsData(base);
+        }
       } catch (err) {
         console.error(err);
       }
     };
+
     fetchData();
-  }, []);
-*/
-//use effect 
-useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const data = await getInspections("A002", periode);
+  }, [periode]);
 
-      if (data && data.inspections) {
-        setInspectionsData(data.inspections);
-      } else {
-        // fallback : charger modèle admin si aucune sauvegarde
-        const base = await getInspections();
-        setInspectionsData(base);
-      }
-
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  fetchData();
-}, [periode]);
-  // fonction envoie notif
-  const handleEnvoyer = async () => {
-    try {
-      const data = await envoyerInspectionTech({
-        matricule: "A002",
-        periode,
-        inspections: inspectionsData,
-      });
-      alert(data.message || "Fiche envoyée !");
-      setFicheEnvoyee(true);
-    } catch (err) {
-      console.error(err);
-      alert(err.message || "Erreur serveur");
-    }
-  };
-  
-  // fonction corrigée pour le verrouillage
+  // 🔹 Vérrouillage par heure
   const isLocked = (cellType, periodeJour) => {
-    // Si la fiche est envoyée, tout est verrouillé
     if (ficheEnvoyee) return true;
-
-    // Avant 20h
-    if (currentHour < 20) {
-      // Seules les colonnes du matin sont déverrouillées
-      // Les colonnes de nuit sont verrouillées
-      return periodeJour === "nuit";
-    } 
-    // À partir de 20h
-    else {
-      // Les colonnes du matin sont verrouillées
-      // Les colonnes de nuit sont déverrouillées
-      return periodeJour === "matin";
-    }
+    if (currentHour < 20) return periodeJour === "nuit";
+    return periodeJour === "matin";
   };
+// 🔹 Enregistrer / Envoyer la fiche complète
+const handleEnvoyer = async () => {
+  try {
+    // Préparer les données avant envoi
+    const ficheAEnvoyer = {
+      ...inspectionsData[0],
+      matricule: inspectionsData[0].matricule || "A002", // remplacer par le technicien connecté
+      date: inspectionsData[0].date || new Date(),
+      sauvegardeSeule: false,
+      inspections: inspectionsData[0].inspections.map((i) => ({
+        ...i,
+        matin: {
+          ...i.matin,
+          nbrNF: Number(i.matin?.nbrNF) || 0,
+          etat: i.matin?.etat || "",
+          observation: i.matin?.observation || "",
+          intervention: i.matin?.intervention || "",
+        },
+        nuit: {
+          ...i.nuit,
+          nbrNF: Number(i.nuit?.nbrNF) || 0,
+          etat: i.nuit?.etat || "",
+          observation: i.nuit?.observation || "",
+          intervention: i.nuit?.intervention || "",
+        },
+        zone: i.zone || "",
+        element: i.element || "",
+      })),
+    };
 
-  // bouton enregistrer
-  const handleEnregistrer = async () => {
-    try {
-      await envoyerInspectionTech({
-        matricule: "A002",
-        periode,
-        inspections: inspectionsData,
-        sauvegardeSeule: true,
-      });
-      alert("Travail enregistré !");
-    } catch (err) {
-      console.error(err);
-      alert(err.message || "Erreur serveur");
-    }
-  };
+    console.log("Données envoyées au serveur (Envoyer) :", ficheAEnvoyer);
+    const data = await envoyerInspectionTech(ficheAEnvoyer);
+    alert(data.message || "Fiche envoyée !");
+    setFicheEnvoyee(true);
+  } catch (err) {
+    console.error("Erreur serveur :", err);
+    alert(err.message || "Erreur serveur");
+  }
+};
 
+const handleEnregistrer = async () => {
+  try {
+    // Préparer les données avant envoi
+    const ficheAEnvoyer = {
+      ...inspectionsData[0],
+      matricule: inspectionsData[0].matricule || "A002",
+      date: inspectionsData[0].date || new Date(),
+      sauvegardeSeule: true,
+      inspections: inspectionsData[0].inspections.map((i) => ({
+        ...i,
+        matin: {
+          ...i.matin,
+          nbrNF: Number(i.matin?.nbrNF) || 0,
+          etat: i.matin?.etat || "",
+          observation: i.matin?.observation || "",
+          intervention: i.matin?.intervention || "",
+        },
+        nuit: {
+          ...i.nuit,
+          nbrNF: Number(i.nuit?.nbrNF) || 0,
+          etat: i.nuit?.etat || "",
+          observation: i.nuit?.observation || "",
+          intervention: i.nuit?.intervention || "",
+        },
+        zone: i.zone || "",
+        element: i.element || "",
+      })),
+    };
+
+    console.log("Données envoyées au serveur (Enregistrer) :", ficheAEnvoyer);
+    await envoyerInspectionTech(ficheAEnvoyer);
+    alert("Travail enregistré !");
+  } catch (err) {
+    console.error("Erreur serveur :", err);
+    alert(err.message || "Erreur serveur");
+  }
+};
   return (
     <div className="inspection-container">
       <h2>Fiche inspection journalière balisage</h2>
-
-      
 
       {/* 🔹 Filtres */}
       <div className="inspection-header">
@@ -168,20 +187,14 @@ useEffect(() => {
                       item.matin?.etat === "OK"
                         ? "etat-ok"
                         : item.matin?.etat === "HS"
-                          ? "etat-hs"
-                          : ""
+                        ? "etat-hs"
+                        : ""
                     }`}
                     value={item.matin?.etat || ""}
                     onChange={(e) => {
                       const newData = [...inspectionsData];
                       newData[index].inspections[i].matin.etat = e.target.value;
-
-                      if (e.target.value === "HS") {
-                        newData[index].inspections[i].matin.nbrNF = "";
-                      } else {
-                        newData[index].inspections[i].matin.nbrNF = "";
-                      }
-
+                      if (e.target.value !== "HS") newData[index].inspections[i].matin.nbrNF = 0;
                       setInspectionsData(newData);
                     }}
                     disabled={isLocked("etat", "matin")}
@@ -192,7 +205,6 @@ useEffect(() => {
                   </select>
                 </td>
 
-                {/* ✅ Nbr NF MATIN (affiché seulement si HS) */}
                 {hasMatinHS && (
                   <td>
                     {item.matin?.etat === "HS" && (
@@ -202,8 +214,7 @@ useEffect(() => {
                         value={item.matin?.nbrNF || ""}
                         onChange={(e) => {
                           const newData = [...inspectionsData];
-                          newData[index].inspections[i].matin.nbrNF =
-                            e.target.value;
+                          newData[index].inspections[i].matin.nbrNF = e.target.value;
                           setInspectionsData(newData);
                         }}
                         disabled={isLocked("nbrNF", "matin")}
@@ -219,8 +230,7 @@ useEffect(() => {
                       value={item.matin?.observation || ""}
                       onChange={(e) => {
                         const newData = [...inspectionsData];
-                        newData[index].inspections[i].matin.observation =
-                          e.target.value;
+                        newData[index].inspections[i].matin.observation = e.target.value;
                         setInspectionsData(newData);
                       }}
                       disabled={isLocked("observation", "matin")}
@@ -235,8 +245,7 @@ useEffect(() => {
                       value={item.matin?.intervention || ""}
                       onChange={(e) => {
                         const newData = [...inspectionsData];
-                        newData[index].inspections[i].matin.intervention =
-                          e.target.value;
+                        newData[index].inspections[i].matin.intervention = e.target.value;
                         setInspectionsData(newData);
                       }}
                       disabled={isLocked("intervention", "matin")}
@@ -251,20 +260,14 @@ useEffect(() => {
                       item.nuit?.etat === "OK"
                         ? "etat-ok"
                         : item.nuit?.etat === "HS"
-                          ? "etat-hs"
-                          : ""
+                        ? "etat-hs"
+                        : ""
                     }`}
                     value={item.nuit?.etat || ""}
                     onChange={(e) => {
                       const newData = [...inspectionsData];
                       newData[index].inspections[i].nuit.etat = e.target.value;
-
-                      if (e.target.value === "HS") {
-                        newData[index].inspections[i].nuit.nbrNF = "";
-                      } else {
-                        newData[index].inspections[i].nuit.nbrNF = "";
-                      }
-
+                      if (e.target.value !== "HS") newData[index].inspections[i].nuit.nbrNF = 0;
                       setInspectionsData(newData);
                     }}
                     disabled={isLocked("etat", "nuit")}
@@ -275,7 +278,6 @@ useEffect(() => {
                   </select>
                 </td>
 
-                {/* ✅ Nbr NF NUIT */}
                 {hasNuitHS && (
                   <td>
                     {item.nuit?.etat === "HS" && (
@@ -285,8 +287,7 @@ useEffect(() => {
                         value={item.nuit?.nbrNF || ""}
                         onChange={(e) => {
                           const newData = [...inspectionsData];
-                          newData[index].inspections[i].nuit.nbrNF =
-                            e.target.value;
+                          newData[index].inspections[i].nuit.nbrNF = e.target.value;
                           setInspectionsData(newData);
                         }}
                         disabled={isLocked("nbrNF", "nuit")}
@@ -302,8 +303,7 @@ useEffect(() => {
                       value={item.nuit?.observation || ""}
                       onChange={(e) => {
                         const newData = [...inspectionsData];
-                        newData[index].inspections[i].nuit.observation =
-                          e.target.value;
+                        newData[index].inspections[i].nuit.observation = e.target.value;
                         setInspectionsData(newData);
                       }}
                       disabled={isLocked("observation", "nuit")}
@@ -318,8 +318,7 @@ useEffect(() => {
                       value={item.nuit?.intervention || ""}
                       onChange={(e) => {
                         const newData = [...inspectionsData];
-                        newData[index].inspections[i].nuit.intervention =
-                          e.target.value;
+                        newData[index].inspections[i].nuit.intervention = e.target.value;
                         setInspectionsData(newData);
                       }}
                       disabled={isLocked("intervention", "nuit")}
@@ -332,7 +331,7 @@ useEffect(() => {
         </tbody>
       </table>
 
-      {/* 🔹 Bouton Envoyer en dehors du tableau */}
+      {/* 🔹 Boutons */}
       <div className="send-container">
         <button className="save-btn" onClick={handleEnregistrer}>
           Enregistrer
@@ -341,6 +340,8 @@ useEffect(() => {
           Envoyer
         </button>
       </div>
+
+      {/* 🔹 Pagination */}
       <div className="pagination">
         <button
           onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
@@ -348,15 +349,11 @@ useEffect(() => {
         >
           Précédent
         </button>
-
         <span>
           Page {currentPage} / {totalPages}
         </span>
-
         <button
-          onClick={() =>
-            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-          }
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
           disabled={currentPage === totalPages}
         >
           Suivant

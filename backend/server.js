@@ -30,13 +30,16 @@ app.use("/api/equipements/stats", statsRoutes);
 //inventaire
 const inventaireRoutes = require("./routes/inventaireRoutes");
 app.use("/api/inventaire", inventaireRoutes);
+
+// route inspections technciien
+const inspecTechRouter = require("./routes/inspec_tech_routes");
+app.use("/api/inspections/tech", inspecTechRouter);
+
 // inspections 
 const inspectionRoutes = require("./routes/inspectionRoutes"); // chemin correct
 app.use("/api/inspections", inspectionRoutes);
 
 
-const inspecTechRouter = require("./routes/inspec_tech_routes");
-app.use("/api/inspections/tech", inspecTechRouter);
 // Catch-all 404
 app.use((req, res) => res.status(404).send("Route introuvable ❌"));
 

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { envoyerInspection, getNotifications, getFicheById, validerFiche } = require("../controllers/inspections_techController");
+const { envoyerInspection, getNotifications, getFicheById, validerFiche } = require("../controllers/inspectionstechController");
 
 // 🔹 Envoyer une fiche (technicien)
 router.post("/envoyer", envoyerInspection);
