@@ -1,8 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
-const planningRoutes = require('./routes/planningRoutes');
+const planningRoutes = require('./routes/planningRoutes'); // ← Utilisez le bon nom
 const planningHebdoRoutes = require('./routes/planningHebdoRoutes');
+const authRoutes = require('./routes/authRoutes');
 const fs = require('fs');
 
 require('dotenv').config();
@@ -11,7 +12,6 @@ connectDB();
 
 const app = express();
 
-// CORS - Accepter toutes les origines
 app.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -27,25 +27,42 @@ app.use((req, res, next) => {
     next();
 });
 
-// Routes
-app.use('/api/planning', planningRoutes);
-app.use('/api/planning-hebdo', planningHebdoRoutes);
+// Routes - CORRIGÉ
+app.use('/api/planning', planningRoutes);         // ← Pour le planning annuel
+app.use('/api/planning-hebdo', planningHebdoRoutes); // ← Pour le planning hebdo
+app.use('/api', authRoutes);
+
+// Route de test
+app.get('/api/test', (req, res) => {
+    res.json({ 
+        success: true, 
+        message: 'API fonctionne correctement',
+        time: new Date().toISOString()
+    });
+});
 
 app.get('/', (req, res) => {
     res.json({ 
-        message: 'API GMAO - Planning Annuel & Hebdomadaire',
-        version: '1.0.0',
-        status: 'OK'
+        message: 'API GMAO',
+        endpoints: {
+            test: '/api/test',
+            login: '/api/login',
+            planning: '/api/planning',
+            planningHebdo: '/api/planning-hebdo'
+        }
     });
 });
 
+// 404
 app.use('*', (req, res) => {
     res.status(404).json({ 
         success: false, 
-        error: 'Route non trouvée' 
+        error: 'Route non trouvée',
+        path: req.originalUrl
     });
 });
 
+// Error handler
 app.use((err, req, res, next) => {
     console.error('❌ Erreur serveur:', err.stack);
     res.status(500).json({
@@ -54,44 +71,13 @@ app.use((err, req, res, next) => {
     });
 });
 
-const DEFAULT_PORT = process.env.PORT || 5000;
-
-// ✅ VERSION CORRIGÉE - Essaie les ports 5000, 5001, 5002, 5003
-const tryPort = (port, maxAttempts = 10) => {
-    return new Promise((resolve, reject) => {
-        if (port > DEFAULT_PORT + maxAttempts) {
-            reject(new Error(`Aucun port disponible entre ${DEFAULT_PORT} et ${port-1}`));
-            return;
-        }
-
-        const server = app.listen(port)
-            .on('listening', () => {
-                console.log('\n🚀 ==================================');
-                console.log(`   ✅ Serveur démarré sur le port ${port}`);
-                console.log(`   📁 Environnement: ${process.env.NODE_ENV || 'development'}`);
-                console.log(`   📍 API Annuel: http://localhost:${port}/api/planning`);
-                console.log(`   📍 API Hebdo: http://localhost:${port}/api/planning-hebdo`);
-                console.log('=================================\n');
-                
-                // Sauvegarder le port pour le frontend
-                fs.writeFileSync('.port', port.toString());
-                
-                resolve(server);
-            })
-            .on('error', (err) => {
-                if (err.code === 'EADDRINUSE') {
-                    console.log(`❌ Port ${port} utilisé, essai du port ${port + 1}...`);
-                    server.close();
-                    resolve(tryPort(port + 1, maxAttempts));
-                } else {
-                    reject(err);
-                }
-            });
-    });
-};
-
-// Démarrer avec le port par défaut
-tryPort(DEFAULT_PORT).catch(err => {
-    console.error('❌ Impossible de démarrer le serveur:', err);
-    process.exit(1);
+const PORT = 5001;
+app.listen(PORT, () => {
+    console.log('\n🚀 ==================================');
+    console.log(`   ✅ Serveur démarré sur le port ${PORT}`);
+    console.log(`   📍 Test: http://localhost:${PORT}/api/test`);
+    console.log(`   📍 Login: http://localhost:${PORT}/api/login`);
+    console.log(`   📍 Planning: http://localhost:${PORT}/api/planning`);
+    console.log(`   📍 Planning Hebdo: http://localhost:${PORT}/api/planning-hebdo`);
+    console.log('=================================\n');
 });

@@ -6,7 +6,7 @@ const {
     deletePlanningHebdo,
     deletePlanningByYear,
     getPlanningByWeek
-} = require('../controllers/planningHebdoController');
+} = require('../controllers/planningHebdoController');  // ← Doit correspondre
 
 router.route('/')
     .get(getPlanningHebdo)
