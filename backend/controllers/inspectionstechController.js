@@ -76,18 +76,3 @@ exports.getFicheById = async(req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
-
-// 🔹 Valider fiche (admin)
-exports.validerFiche = async(req, res) => {
-    try {
-        const { inspectionId } = req.body;
-        await Inspection.findByIdAndUpdate(inspectionId, { status: "Validée" });
-
-        // 🔹 Marquer notification comme lue
-        await Notification.updateMany({ dataId: inspectionId }, { read: true });
-
-        res.json({ message: "Fiche validée ✅" });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-};

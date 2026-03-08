@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from "react";
-import "../styles/Equippement.css";
-import FormAjoutEquip from "../Forms/FormAjoutEquip";
-import { FaSearch, FaFilter } from "react-icons/fa";
-import logo from "../tav5.png";
-import Dashboard from "./Dashboard.jsx";
-import Inventaire from "./Inventaire.jsx";
-import GestionInspections from "./GestionInspections.jsx";
-import Notifications from "./Notifications.jsx";
+import React, { useState, useEffect } from 'react';
+import '../styles/Equippement.css';
+import FormAjoutEquip from '../Forms/FormAjoutEquip';
+import { FaSearch, FaFilter } from 'react-icons/fa';
+import logo from '../tav5.png';
+import Dashboard from './Dashboard.jsx';
+import Inventaire from './Inventaire.jsx';
+import GestionInspections from './GestionInspections.jsx';
+import Notifications from './Notifications.jsx';
+import Historiques from './Historiques.jsx';
 
 import {
   getEquipements,
@@ -15,12 +16,12 @@ import {
   deleteEquipement,
   getFileByCode,
   getAllInventaires,
-} from "./apiservices/api";
+} from './apiservices/api';
 
 export default function EquipementsComponent() {
   const [equipements, setEquipements] = useState([]);
   const [formData, setFormData] = useState({});
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [currentId, setCurrentId] = useState(null);
@@ -28,14 +29,16 @@ export default function EquipementsComponent() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6; // nombre d'équipements par page
+  const itemsPerPage = 6;
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [activeMenu, setActiveMenu] = useState("statistiques"); // "statistiques" ou "gerer"
+  const [activeMenu, setActiveMenu] = useState('statistiques');
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
-  const [inventaireType, setInventaireType] = useState("");
+  const [isInspectionSubMenuOpen, setIsInspectionSubMenuOpen] = useState(false);
+  const [inspectionSubMenuActive, setInspectionSubMenuActive] =
+    useState('inspections'); // "inspections" ou "historiques"
+  const [inventaireType, setInventaireType] = useState('');
   const [inventaires, setInventaires] = useState([]);
-  const [inspectionMode, setInspectionMode] = useState(false);
-const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState([]);
 
   // 🔹 Charger tous les équipements
   const loadEquipements = async () => {
@@ -43,36 +46,36 @@ const [notifications, setNotifications] = useState([]);
       const data = await getEquipements();
       setEquipements(data);
     } catch (err) {
-      console.error("Erreur chargement :", err);
-      alert("❌ Impossible de charger les équipements");
+      console.error('Erreur chargement :', err);
+      alert('❌ Impossible de charger les équipements');
     }
   };
 
   useEffect(() => {
     loadEquipements();
   }, []);
-// Charger les notifications depuis l'API
-useEffect(() => {
-  const fetchNotifs = async () => {
-    try {
-      const res = await fetch("/api/inspections/notifications");
-      const data = await res.json();
-      setNotifications(data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-  fetchNotifs();
-}, []);
+  // Charger les notifications depuis l'API
+  useEffect(() => {
+    const fetchNotifs = async () => {
+      try {
+        const res = await fetch('/api/inspections/notifications');
+        const data = await res.json();
+        setNotifications(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchNotifs();
+  }, []);
   // 🔹 Création ou modification
   const handleSubmit = async () => {
     try {
       if (editMode && currentId) {
         await updateEquipement(currentId, formData);
-        alert("Équipement modifié ✅");
+        alert('Équipement modifié ✅');
       } else {
         const data = await createEquipement(formData);
-        alert(data.message || "Équipement créé ✅");
+        alert(data.message || 'Équipement créé ✅');
       }
 
       setShowForm(false);
@@ -80,8 +83,8 @@ useEffect(() => {
       setCurrentId(null);
       loadEquipements();
     } catch (err) {
-      console.error("Erreur fetch :", err);
-      alert(err.message || "❌ Erreur serveur");
+      console.error('Erreur fetch :', err);
+      alert(err.message || '❌ Erreur serveur');
     }
   };
 
@@ -96,13 +99,13 @@ useEffect(() => {
 
     try {
       const data = await deleteEquipement(deleteTarget._id);
-      alert(data.message || "Équipement supprimé ✅");
+      alert(data.message || 'Équipement supprimé ✅');
       setShowDeleteModal(false);
       setDeleteTarget(null);
       loadEquipements();
     } catch (err) {
-      console.error("Erreur suppression :", err);
-      alert(err.message || "❌ Impossible de contacter le serveur");
+      console.error('Erreur suppression :', err);
+      alert(err.message || '❌ Impossible de contacter le serveur');
     }
   };
 
@@ -117,9 +120,9 @@ useEffect(() => {
 
   // 🔹 Filtrage recherche
   const filteredEquipements = equipements.filter((eq) =>
-    (eq.designation_equipement || "")
+    (eq.designation_equipement || '')
       .toLowerCase()
-      .includes(search.toLowerCase()),
+      .includes(search.toLowerCase())
   );
 
   // 🔹 Pagination
@@ -127,7 +130,7 @@ useEffect(() => {
   const indexOfFirst = indexOfLast - itemsPerPage;
   const currentEquipements = filteredEquipements.slice(
     indexOfFirst,
-    indexOfLast,
+    indexOfLast
   );
   // Nombre total de pages
   const totalPages = Math.ceil(filteredEquipements.length / itemsPerPage);
@@ -135,7 +138,7 @@ useEffect(() => {
   const handleViewDetails = async (code) => {
     try {
       const { fileUrl } = await getFileByCode(code);
-      window.open(fileUrl, "_blank"); // ouvre le fichier Excel dans un nouvel onglet
+      window.open(fileUrl, '_blank'); // ouvre le fichier Excel dans un nouvel onglet
     } catch (err) {
       console.error(err);
       alert(err.message);
@@ -143,7 +146,7 @@ useEffect(() => {
   };
 
   return (
-    <div className={`layout ${sidebarCollapsed ? "collapsed" : ""}`}>
+    <div className={`layout ${sidebarCollapsed ? 'collapsed' : ''}`}>
       {/*sidebar*/}
       <div className="sidebar">
         <div className="logo">
@@ -161,37 +164,63 @@ useEffect(() => {
           {isSubMenuOpen && (
             <div className="submenu">
               <div
-                className={`submenu-item ${activeMenu === "statistiques" ? "active" : ""}`}
-                onClick={() => setActiveMenu("statistiques")}
+                className={`submenu-item ${activeMenu === 'statistiques' ? 'active' : ''}`}
+                onClick={() => setActiveMenu('statistiques')}
               >
                 Statistiques
               </div>
               <div
-                className={`submenu-item ${activeMenu === "gerer" ? "active" : ""}`}
-                onClick={() => setActiveMenu("gerer")}
+                className={`submenu-item ${activeMenu === 'gerer' ? 'active' : ''}`}
+                onClick={() => setActiveMenu('gerer')}
               >
                 Gérer Équipements
               </div>
             </div>
           )}
           <div
-            className={`submenu-item ${activeMenu === "inventaire" ? "active" : ""}`}
-            onClick={() => setActiveMenu("inventaire")}
+            className={`submenu-item ${activeMenu === 'inventaire' ? 'active' : ''}`}
+            onClick={() => setActiveMenu('inventaire')}
           >
             Inventaire
           </div>
           <div
-            className={`submenu-item ${activeMenu === "inspection" ? "active" : ""}`}
-            onClick={() => setActiveMenu("inspection")}
+            className={`menu-title ${inspectionSubMenuActive ? 'active' : ''}`}
+            onClick={() => setIsInspectionSubMenuOpen(!isInspectionSubMenuOpen)}
           >
             Gestion Inspections
           </div>
-<div 
-  className={`submenu-item ${activeMenu === "notification" ? "active" : ""}`}
-  onClick={() => setActiveMenu("notification")}
->
-  Notification {notifications.length > 0 && <span className="notif-badge">{notifications.length}</span>}
-</div>
+
+          {isInspectionSubMenuOpen && (
+            <div className="submenu">
+              <div
+                className={`submenu-item ${inspectionSubMenuActive === 'inspections' ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveMenu('inspection');
+                  setInspectionSubMenuActive('inspections');
+                }}
+              >
+                Inspections
+              </div>
+              <div
+                className={`submenu-item ${inspectionSubMenuActive === 'historiques' ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveMenu('inspection');
+                  setInspectionSubMenuActive('historiques');
+                }}
+              >
+                Historiques
+              </div>
+            </div>
+          )}
+          <div
+            className={`submenu-item ${activeMenu === 'notification' ? 'active' : ''}`}
+            onClick={() => setActiveMenu('notification')}
+          >
+            Notification{' '}
+            {notifications.length > 0 && (
+              <span className="notif-badge">{notifications.length}</span>
+            )}
+          </div>
         </div>
       </div>
       {/**Main */}
@@ -207,16 +236,19 @@ useEffect(() => {
         </div>
 
         <div className="content">
-          {activeMenu === "statistiques" ? (
+          {activeMenu === 'statistiques' ? (
             <Dashboard />
-          ) : activeMenu === "inventaire" ? (
+          ) : activeMenu === 'inventaire' ? (
             <Inventaire
               inventaires={inventaires}
               loadInventaires={loadInventaires}
             />
-          ) : activeMenu === "inspection" ? (
+          ) : activeMenu === 'inspection' ? (
+            inspectionSubMenuActive === 'inspections' ? (
             <GestionInspections />
-          ) : activeMenu === "notification" ? (
+            ):(
+              <Historiques />)
+          ) : activeMenu === 'notification' ? (
             <Notifications />
           ) : (
             <>
@@ -308,7 +340,7 @@ useEffect(() => {
                   {Array.from({ length: totalPages }, (_, i) => (
                     <button
                       key={i}
-                      className={`page-btn ${currentPage === i + 1 ? "active" : ""}`}
+                      className={`page-btn ${currentPage === i + 1 ? 'active' : ''}`}
                       onClick={() => setCurrentPage(i + 1)}
                     >
                       {i + 1}
@@ -330,7 +362,7 @@ useEffect(() => {
                 <div className="modal">
                   <div className="modal-content">
                     <p>
-                      Confirmer la suppression de{" "}
+                      Confirmer la suppression de{' '}
                       {deleteTarget.designation_equipement} ?
                     </p>
                     <div className="modal-actions">
@@ -348,10 +380,10 @@ useEffect(() => {
               {showForm && (
                 <div className="modal">
                   <div className="modal-content">
-                    <h3>{editMode ? "Modifier" : "Créer"} un équipement</h3>
+                    <h3>{editMode ? 'Modifier' : 'Créer'} un équipement</h3>
                     <input
                       placeholder="Désignation"
-                      value={formData.designation_equipement || ""}
+                      value={formData.designation_equipement || ''}
                       onChange={(e) =>
                         setFormData({
                           ...formData,
@@ -361,7 +393,7 @@ useEffect(() => {
                     />
                     <input
                       placeholder="Code patrimoine"
-                      value={formData.code_patrimoine || ""}
+                      value={formData.code_patrimoine || ''}
                       onChange={(e) =>
                         setFormData({
                           ...formData,
@@ -372,7 +404,7 @@ useEffect(() => {
                     />
                     <input
                       placeholder="Lieu installation"
-                      value={formData.lieu_installation || ""}
+                      value={formData.lieu_installation || ''}
                       onChange={(e) =>
                         setFormData({
                           ...formData,
@@ -382,7 +414,7 @@ useEffect(() => {
                     />
                     <div className="modal-actions">
                       <button onClick={handleSubmit}>
-                        {editMode ? "Modifier" : "Créer"}
+                        {editMode ? 'Modifier' : 'Créer'}
                       </button>
                       <button onClick={() => setShowForm(false)}>
                         Annuler

@@ -6,6 +6,7 @@ const API_URL = "http://localhost:5000/equipements";
 const INVENTAIRE_API = "http://localhost:5000/api/inventaire";
 const INSPECTION_API = "http://localhost:5000/api/inspections";
 const INSPECTION_TECH_API = "http://localhost:5000/api/inspections/tech";
+const FICHE_PAPI_API = "http://localhost:5000/api/fiche_papi";
 
 // 🔹 Récupérer tous les équipements
 export const getEquipements = async() => {
@@ -126,12 +127,15 @@ export const getInspections = async() => {
     return res.json();
 };
 
-// envoyer Inpetion Tech
+
 export const envoyerInspectionTech = async(inspection) => {
     const res = await fetch(`${INSPECTION_TECH_API}/envoyer`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(inspection),
+        body: JSON.stringify({
+            ...inspection,
+            type: "JOURNALIERE", // 
+        }),
     });
 
     const text = await res.text();
@@ -139,4 +143,57 @@ export const envoyerInspectionTech = async(inspection) => {
     try { data = JSON.parse(text); } catch {}
     if (!res.ok) throw new Error(data.message || "Erreur serveur");
     return data;
+};
+
+// 🔹 récupérer toutes les fiches
+export const fetchFiches = async() => {
+    const res = await axios.get(FICHE_PAPI_API);
+    return res.data;
+};
+
+// 🔹 update fiche
+export const updateFiche = async(id, data) => {
+    const res = await axios.put(`${FICHE_PAPI_API}/${id}`, data);
+    return res.data;
+};
+
+// 🔹 envoyer fiche
+export const sendFiche = async(id) => {
+    const res = await axios.put(`${FICHE_PAPI_API}/send/${id}`);
+    return res.data;
+};
+
+// 🔹 notifications
+export const fetchNotifications = async() => {
+    const res = await axios.get(`${FICHE_PAPI_API}/notifications`);
+    return res.data;
+};
+
+// 🔹 Valider fiche (historique)
+export const sendFicheHist = async(ficheId) => {
+    try {
+        const res = await fetch(`${FICHE_PAPI_API}/valider/${ficheId}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+        });
+
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const data = await res.json();
+        console.log("🟢 Validation response:", data);
+        return data;
+    } catch (err) {
+        console.error("❌ Erreur sendFicheHist:", err);
+        throw err;
+    }
+};
+// 🔹 NOUVEAU : Récupérer l'historique des fiches validées
+export const getHistorique = async() => {
+    try {
+        const res = await fetch(`${INSPECTION_API}/historiques`);
+        if (!res.ok) throw new Error("Erreur récupération historique");
+        return await res.json();
+    } catch (err) {
+        console.error(err);
+        return [];
+    }
 };

@@ -1,0 +1,133 @@
+/* Conteneur principal */
+
+.container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background-color: #f5f7fa;
+}
+
+
+/* Titres */
+
+h2 {
+    text-align: center;
+    color: #2c3e50;
+}
+
+h3 {
+    color: #34495e;
+}
+
+h4 {
+    margin-top: 20px;
+    color: #2980b9;
+}
+
+
+/* Carte fiche */
+
+.fiche-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 40px;
+}
+
+
+/* Table */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+
+/* Header table */
+
+thead {
+    background-color: #2980b9;
+    color: white;
+}
+
+th,
+td {
+    border: 1px solid #ddd;
+    text-align: center;
+    padding: 8px;
+}
+
+
+/* Ligne hover */
+
+tbody tr:hover {
+    background-color: #f2f2f2;
+}
+
+
+/* Inputs */
+
+input,
+textarea {
+    width: 100%;
+    padding: 5px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    text-align: center;
+}
+
+textarea {
+    resize: none;
+    height: 60px;
+}
+
+
+/* Section info */
+
+.info-section {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #ecf0f1;
+    border-radius: 10px;
+}
+
+.info-section div {
+    margin-bottom: 10px;
+}
+
+
+/* Boutons */
+
+button {
+    margin-right: 10px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+
+/* Bouton save */
+
+button:first-of-type {
+    background-color: #27ae60;
+    color: white;
+}
+
+button:first-of-type:hover {
+    background-color: #219150;
+}
+
+
+/* Bouton send */
+
+button:last-of-type {
+    background-color: #e67e22;
+    color: white;
+}
+
+button:last-of-type:hover {
+    background-color: #ca6f1e;
+}

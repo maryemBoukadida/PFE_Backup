@@ -17,6 +17,7 @@ connectDB();
 // Route test
 app.get("/test", (req, res) => res.json({ message: "API fonctionne ✅" }));
 
+
 //authentification 
 app.use("/", require("./routes/authRoutes"));
 // Serve les fichiers statiques (Excel, images, etc.)
@@ -38,6 +39,16 @@ app.use("/api/inspections/tech", inspecTechRouter);
 // inspections 
 const inspectionRoutes = require("./routes/inspectionRoutes"); // chemin correct
 app.use("/api/inspections", inspectionRoutes);
+
+//ficheroute *
+// ✅ Route PAPI
+const fichePapiRoutes = require("./routes/fichePapiRoutes");
+app.use("/api/fiche_papi", fichePapiRoutes);
+
+// historique fiche papi 
+const historiquePapiRoutes = require("./routes/historiquePapiRoutes");
+
+app.use("/api/fiche_papi", historiquePapiRoutes);
 
 
 // Catch-all 404
