@@ -1,0 +1,100 @@
+/* Conteneur principal */
+
+.fiche-dgs-container {
+    max-width: 1000px;
+    margin: 20px auto;
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+
+/* Titre */
+
+.fiche-dgs-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+
+/* Table */
+
+.fiche-dgs-container table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.fiche-dgs-container table th,
+.fiche-dgs-container table td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+}
+
+.fiche-dgs-container table th {
+    background-color: #007BFF;
+    color: white;
+    font-weight: 600;
+}
+
+.fiche-dgs-container table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+
+/* Select & input */
+
+.fiche-dgs-container select,
+.fiche-dgs-container input[type="text"],
+.fiche-dgs-container input[type="date"],
+.fiche-dgs-container textarea {
+    width: 90%;
+    padding: 6px;
+    margin: 2px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.fiche-dgs-container textarea {
+    width: 100%;
+    min-height: 60px;
+    resize: vertical;
+}
+
+
+/* Highlight RAS */
+
+.fiche-dgs-container input[placeholder="Observation"][value="RAS"] {
+    background-color: #d4edda;
+    color: #155724;
+    font-weight: bold;
+}
+
+
+/* Hover row */
+
+.fiche-dgs-container table tbody tr:hover {
+    background-color: #e9f5ff;
+}
+
+
+/* Responsive */
+
+@media (max-width: 768px) {
+    .fiche-dgs-container table th,
+    .fiche-dgs-container table td {
+        font-size: 12px;
+        padding: 6px;
+    }
+    .fiche-dgs-container select,
+    .fiche-dgs-container input[type="text"],
+    .fiche-dgs-container input[type="date"],
+    .fiche-dgs-container textarea {
+        font-size: 12px;
+    }
+}

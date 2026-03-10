@@ -1,0 +1,139 @@
+/* Conteneur général */
+
+.fiche-container {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 25px 30px;
+    background-color: #f9f9f9;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    font-family: 'Arial', sans-serif;
+}
+
+
+/* Titre */
+
+.fiche-container h2 {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 25px;
+    color: #1e3a8a;
+    /* bleu professionnel */
+}
+
+
+/* Date à côté du titre */
+
+.fiche-container h2 span {
+    font-size: 16px;
+    color: #444;
+    margin-left: 15px;
+}
+
+
+/* Tableau */
+
+.fiche-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 25px;
+}
+
+.fiche-table th,
+.fiche-table td {
+    border: 1px solid #ccc;
+    padding: 10px 12px;
+    text-align: center;
+}
+
+.fiche-table th {
+    background-color: #1e3a8a;
+    color: white;
+    font-weight: 600;
+}
+
+.fiche-table tr:nth-child(even) {
+    background-color: #f0f4ff;
+}
+
+.fiche-table tr:hover {
+    background-color: #e0e7ff;
+}
+
+
+/* Inputs et select */
+
+.fiche-container input[type="text"],
+.fiche-container input[type="date"],
+.fiche-container select {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #aaa;
+    border-radius: 5px;
+    outline: none;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+.fiche-container input:focus,
+.fiche-container select:focus {
+    border-color: #1e3a8a;
+}
+
+
+/* Labels */
+
+.fiche-container label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #1f2937;
+}
+
+
+/* Bloc signature */
+
+.signature-block {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.signature-block .signatureCanvas {
+    border: 1px solid #1e3a8a;
+    border-radius: 6px;
+}
+
+.signature-block button {
+    padding: 6px 14px;
+    margin: 10px 5px 0 5px;
+    border: none;
+    background-color: #1e3a8a;
+    color: white;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.signature-block button:hover {
+    background-color: #3b82f6;
+}
+
+
+/* Image de la signature */
+
+.signature-block img {
+    margin-top: 10px;
+    border: 1px solid #1e3a8a;
+    border-radius: 6px;
+    max-width: 100%;
+    height: auto;
+}
+
+
+/* Bloc des inputs en dessous du tableau */
+
+.input-group {
+    margin-bottom: 15px;
+}

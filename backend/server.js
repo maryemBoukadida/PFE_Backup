@@ -45,13 +45,29 @@ app.use("/api/inspections", inspectionRoutes);
 const fichePapiRoutes = require("./routes/fichePapiRoutes");
 app.use("/api/fiche_papi", fichePapiRoutes);
 
+const notificationRoutes = require("./routes/notificationRoutes");
+app.use("/api/notifications", notificationRoutes);
 // historique fiche papi 
 const historiquePapiRoutes = require("./routes/historiquePapiRoutes");
 
 app.use("/api/fiche_papi", historiquePapiRoutes);
 
+// fiche piste
+const fichePisteRoutes = require("./routes/fichePisteRoutes");
 
+app.use("/api/fiche-piste", fichePisteRoutes);
+
+// fiche DGS
+const ficheDGSRoutes = require("./routes/ficheDGSRoutes");
+app.use("/api/fiche-dgs", ficheDGSRoutes);
+//
+// fiche feux obstacles
+const ficheFeuxObstaclesRoutes = require("./routes/ficheFeuxObstaclesRoutes");
+app.use("/api/feux-obstacles", ficheFeuxObstaclesRoutes);
+
+//
 // Catch-all 404
+
 app.use((req, res) => res.status(404).send("Route introuvable ❌"));
 
 app.listen(5000, () => console.log("🚀 Serveur sur http://localhost:5000"));

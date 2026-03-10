@@ -1,0 +1,242 @@
+.fiche-container {
+    max-width: 1100px;
+    margin: 20px auto;
+    font-family: 'Arial', sans-serif;
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+
+/* Pagination zones transformée en cards */
+
+.pagination {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.pagination button {
+    padding: 12px 22px;
+    border: none;
+    border-radius: 25px;
+    background-color: #3498db;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.pagination button:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+}
+
+.pagination button.active {
+    background-color: #2ecc71;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.pagination {
+    overflow-x: auto;
+    padding-bottom: 5px;
+}
+
+.zone-fiche {
+    background: rgb(143, 154, 226);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+
+/* Grille des vérifications */
+
+.verifications-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    /* 4 cartes par ligne */
+    gap: 10px;
+    margin-top: 20px;
+}
+
+
+/* Carte d’une vérification */
+
+.verif-card {
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 12px;
+    width: 200px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.verif-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.verif-card select,
+.verif-card input {
+    width: 90%;
+    margin: 7px 0;
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+
+/* Bord piste style card */
+
+.bord-piste {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+    background: #fff3cd;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+
+/* Observations et technicien */
+
+.observations,
+.technicien-input,
+.date-input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+
+/* Boutons enregistrer/envoyer */
+
+.save-btn {
+    padding: 12px 28px;
+    margin-top: 15px;
+    background-color: #e67e22;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: all 0.2s ease;
+}
+
+.save-btn:hover {
+    background-color: #d35400;
+    transform: translateY(-2px);
+}
+
+.zone-complete {
+    background-color: #27ae60 !important;
+}
+
+
+/**/
+
+
+/* Pagination globale */
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+
+/* grille des zones */
+
+.zones-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    flex: 1;
+}
+
+
+/* bouton zone */
+
+.zone-btn {
+    background: #3498db;
+    color: white;
+    border-radius: 10px;
+    padding: 10px;
+    cursor: pointer;
+    text-align: center;
+    position: relative;
+    transition: 0.2s;
+}
+
+.zone-btn:hover {
+    transform: translateY(-2px);
+}
+
+
+/* zone active */
+
+.active-zone {
+    background: #f39c12;
+}
+
+
+/* zone complétée */
+
+.zone-complete {
+    background: #27ae60;
+}
+
+
+/* numéro zone */
+
+.zone-number {
+    display: block;
+    font-weight: bold;
+}
+
+
+/* nom zone */
+
+.zone-name {
+    font-size: 12px;
+}
+
+
+/* check */
+
+.zone-check {
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    font-size: 14px;
+}
+
+
+/* boutons navigation */
+
+.nav-btn {
+    padding: 10px 15px;
+    border: none;
+    background: #2c3e50;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.nav-btn:disabled {
+    background: #bdc3c7;
+    cursor: not-allowed;
+}

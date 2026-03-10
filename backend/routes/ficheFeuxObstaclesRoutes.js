@@ -1,0 +1,21 @@
+const express = require("express");
+const router = express.Router();
+
+// Import correct du contrôleur
+const ficheFeuxObstaclesController = require("../controllers/ficheFeuxObstaclesController");
+//const notifFeuxController = require("../controllers/notifFeuxObstaclesController");
+
+// GET fiche
+router.get("/", ficheFeuxObstaclesController.getFicheFeuxObstacles);
+
+// PUT : enregistrer la fiche
+router.put("/enregistrer/:id", ficheFeuxObstaclesController.enregistrerFicheFeuxObstacles);
+
+// POST : envoyer la fiche → crée notification
+router.post("/envoyer/:id", ficheFeuxObstaclesController.envoyerFicheFeuxObstacles);
+
+
+// Pour récupérer toutes les notifications
+router.get("/:id", ficheFeuxObstaclesController.getFicheDGSById);
+
+module.exports = router;

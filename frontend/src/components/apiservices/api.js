@@ -7,7 +7,9 @@ const INVENTAIRE_API = "http://localhost:5000/api/inventaire";
 const INSPECTION_API = "http://localhost:5000/api/inspections";
 const INSPECTION_TECH_API = "http://localhost:5000/api/inspections/tech";
 const FICHE_PAPI_API = "http://localhost:5000/api/fiche_papi";
-
+const FICHE_PISTE_API = "http://localhost:5000/api/fiche-piste";
+const FICHE_DGS_API = "http://localhost:5000/api/fiche-dgs";
+const FICHE_FEUX_OBSTACLES_API = "http://localhost:5000/api/feux-obstacles";
 // 🔹 Récupérer tous les équipements
 export const getEquipements = async() => {
     const res = await fetch(API_URL);
@@ -196,4 +198,81 @@ export const getHistorique = async() => {
         console.error(err);
         return [];
     }
+};
+
+// =======================
+// FICHE PISTE
+// =======================
+
+// récupérer fiche piste
+export const getFichePiste = async() => {
+    const res = await axios.get(FICHE_PISTE_API);
+    return res.data;
+};
+
+// modifier fiche piste
+export const updateFichePiste = async(id, data) => {
+    const res = await axios.put(`${FICHE_PISTE_API}/${id}`, data);
+    return res.data;
+};
+// envoyer fiche piste
+export const envoyerFichePiste = async(id) => {
+
+    const response = await fetch(`${FICHE_PISTE_API}/envoyer/${id}`, {
+        method: "POST"
+    });
+
+    return response.json();
+};
+// =======================
+// FICHE DGS
+// =======================
+// récupérer fiche DGS
+export const getFicheDGS = async() => {
+    const res = await axios.get(FICHE_DGS_API);
+    return res.data;
+};
+// enregistrer fiche DGS (brouillon)
+export const enregistrerFicheDGS = async(id, data) => {
+    const response = await fetch(`${FICHE_DGS_API}/enregistrer/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    });
+    return response.json();
+};
+// envoyer fiche DGS
+export const envoyerFicheDGS = async(id) => {
+
+    const response = await fetch(`${FICHE_DGS_API}/envoyer/${id}`, {
+        method: "POST"
+    });
+
+    return response.json();
+};
+// =======================
+// FICHE FeuxObstacles
+// =======================
+///get donne
+export const getFicheFeuxObstacles = async() => {
+    const res = await axios.get(FICHE_FEUX_OBSTACLES_API);
+    return res.data;
+};
+//enregistrer 
+export const enregistrerFicheFeuxObstacles = async(id, data) => {
+    const response = await fetch(`${FICHE_FEUX_OBSTACLES_API}/enregistrer/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    });
+    return response.json();
+};
+//envoyer 
+export const envoyerFicheFeuxObstacles = async(id) => {
+
+    const response = await fetch(`${FICHE_FEUX_OBSTACLES_API}/envoyer/${id}`, {
+        method: "POST"
+    });
+
+    return response.json();
 };
