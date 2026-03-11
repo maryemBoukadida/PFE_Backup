@@ -11,7 +11,8 @@ const FICHE_PISTE_API = "http://localhost:5000/api/fiche-piste";
 const FICHE_DGS_API = "http://localhost:5000/api/fiche-dgs";
 const FICHE_FEUX_OBSTACLES_API = "http://localhost:5000/api/feux-obstacles";
 const FICHE_LVP_API = "http://localhost:5000/api/fiche-lvp";
-
+const FICHE_REGULATEURES_API = "http://localhost:5000/api/fiche-regulateures";
+const FICHE_POSTES_API = "http://localhost:5000/api/fiche-postes";
 // 🔹 Récupérer tous les équipements
 export const getEquipements = async() => {
     const res = await fetch(API_URL);
@@ -314,4 +315,41 @@ export const envoyerFicheLVP = async(id) => {
         console.error(err);
         throw err;
     }
+};
+// =======================
+// FICHE Regulateures 
+// =======================
+export const getFicheRegulateures = async() => {
+    const res = await axios.get(FICHE_REGULATEURES_API);
+    return res.data;
+};
+
+export const enregistrerFicheRegulateures = async(id, data) => {
+    const res = await axios.put(`${FICHE_REGULATEURES_API}/${id}`, data);
+    return res.data;
+};
+
+export const envoyerFicheRegulateures = async(id) => {
+    const res = await axios.put(`${FICHE_REGULATEURES_API}/envoyer/${id}`);
+    return res.data;
+};
+// =======================
+// FICHE postes
+// =======================
+export const getFichePostes = async() => {
+    const response = await fetch(FICHE_POSTES_API);
+
+    if (!response.ok) {
+        throw new Error("Erreur récupération fiche postes");
+    }
+
+    return response.json();
+};
+export const enregistrerFichePostes = async(id, data) => {
+    const res = await axios.put(`${FICHE_POSTES_API}/${id}`, data);
+    return res.data;
+};
+export const envoyerFichePostes = async(id) => {
+    const res = await axios.put(`${FICHE_POSTES_API}/envoyer/${id}`);
+    return res.data;
 };

@@ -1,0 +1,158 @@
+    /* ===== Page ===== */
+    
+    body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background-color: #f4f6f8;
+        margin: 0;
+    }
+    /* ===== Titre ===== */
+    
+    .titleContainer {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    .titleContainer h2 {
+        color: #003366;
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+    
+    .dateTitle {
+        font-size: 16px;
+        color: #666;
+    }
+    /* ===== Tableau ===== */
+    
+    .ficheTable {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    }
+    /* entête */
+    
+    .ficheTable thead {
+        background: #003366;
+        color: white;
+    }
+    
+    .ficheTable th {
+        padding: 10px;
+        border: 1px solid #dcdcdc;
+        text-align: center;
+        font-weight: 600;
+    }
+    /* lignes */
+    
+    .ficheTable td {
+        border: 1px solid #dcdcdc;
+        padding: 8px;
+        vertical-align: middle;
+    }
+    /* alternance ligne */
+    
+    .ficheTable tbody tr:nth-child(even) {
+        background: #f9fbfc;
+    }
+    /* cellule poste */
+    
+    .posteCell {
+        background: #2a7d8c;
+        color: white;
+        font-weight: bold;
+        text-align: center;
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
+        letter-spacing: 1px;
+        font-size: 14px;
+    }
+    /* colonne element */
+    
+    .elementCell {
+        font-weight: 600;
+        color: #b00000;
+        background: #f5e3d6;
+    }
+    /* ===== Inputs ===== */
+    
+    input {
+        width: 60%;
+        padding: 2px 6px;
+        border: 1px solid #cfd8dc;
+        border-radius: 4px;
+        font-size: 11px;
+        box-sizing: border-box;
+    }
+    
+    textarea {
+        width: 50%;
+        min-height: 20px;
+        max-height: 60px;
+        padding: 3px 5px;
+        border: 1px solid #cfd8dc;
+        border-radius: 4px;
+        resize: vertical;
+        font-size: 12px;
+    }
+    /* focus */
+    
+    input:focus,
+    textarea:focus {
+        outline: none;
+        border-color: #2a7d8c;
+        box-shadow: 0 0 3px rgba(42, 125, 140, 0.4);
+    }
+    /* ===== Informations bas ===== */
+    
+    .infos {
+        margin-top: 25px;
+        background: white;
+        padding: 20px;
+        border: 1px solid #dcdcdc;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+    
+    .infos label {
+        display: block;
+        font-weight: 600;
+        margin-top: 10px;
+        margin-bottom: 5px;
+        color: #003366;
+    }
+    
+    .infos textarea {
+        min-height: 70px;
+    }
+    /* ===== Signature ===== */
+    
+    .signatureCanvas {
+        border: 2px dashed #999;
+        background: white;
+    }
+    
+    button {
+        background: #003366;
+        color: white;
+        border: none;
+        padding: 8px 18px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+    }
+    
+    button:hover {
+        background: #00509e;
+    }
+    /* ===== Responsive ===== */
+    
+    @media screen and (max-width: 900px) {
+        .ficheTable th,
+        .ficheTable td {
+            font-size: 12px;
+            padding: 6px;
+        }
+        textarea {
+            min-height: 40px;
+        }
+    }

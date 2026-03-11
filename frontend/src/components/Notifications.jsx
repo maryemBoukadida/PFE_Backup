@@ -13,6 +13,9 @@ export default function Notifications() {
   const FICHE_DGS_API = 'http://localhost:5000/api/fiche-dgs';
   const FICHE_FEUX_API = 'http://localhost:5000/api/feux-obstacles';
   const FICHE_LVP_API = 'http://localhost:5000/api/fiche-lvp';
+  const FICHE_REGULATEURES_API = 'http://localhost:5000/api/fiche-regulateures';
+  const FICHE_POSTES_API = 'http://localhost:5000/api/fiche-postes';
+
   // ===================== CHARGER NOTIFICATIONS =====================
   const fetchNotifications = async () => {
     try {
@@ -28,17 +31,26 @@ export default function Notifications() {
       const res4 = await fetch(
         'http://localhost:5000/api/fiche-lvp/notifications'
       );
-
+      const res5 = await fetch(
+        'http://localhost:5000/api/fiche-regulateures/notifications'
+      );
+      const res6 = await fetch(
+        'http://localhost:5000/api/fiche-postes/notifications'
+      );
       const data1 = res1.ok ? await res1.json() : [];
       const data2 = res2.ok ? await res2.json() : [];
       const data3 = res3.ok ? await res3.json() : [];
       const data4 = res4.ok ? await res4.json() : [];
+      const data5 = res5.ok ? await res5.json() : [];
+      const data6 = res6.ok ? await res6.json() : [];
 
       setNotifications([
         ...(Array.isArray(data1) ? data1 : []),
         ...(Array.isArray(data2) ? data2 : []),
         ...(Array.isArray(data3) ? data3 : []),
         ...(Array.isArray(data4) ? data4 : []),
+        ...(Array.isArray(data5) ? data5 : []),
+        ...(Array.isArray(data6) ? data6 : []),
       ]);
     } catch (err) {
       console.error('Erreur notifications :', err);
@@ -148,6 +160,43 @@ export default function Notifications() {
       console.error('Erreur voir fiche LVP :', err);
     }
   };
+  //voir fiche regulateuress
+  const voirFicheRegulateures = async (ficheId, notifId) => {
+    try {
+      const res = await fetch(`${FICHE_REGULATEURES_API}/${ficheId}`);
+      if (!res.ok)
+        return console.error('Erreur récupération fiche régulateures');
+      const data = await res.json();
+      setSelectedFiche(data); // exemple
+
+      if (notifId) {
+        await fetch(`http://localhost:5000/api/notifications/${notifId}/read`, {
+          method: 'PUT',
+        });
+        fetchNotifications();
+      }
+    } catch (err) {
+      console.error('Erreur voir fiche régulateures :', err);
+    }
+  };
+  //voir fiche POSTES
+  const voirFichePostes = async (ficheId, notifId) => {
+    try {
+      const res = await fetch(`${FICHE_POSTES_API}/${ficheId}`);
+      if (!res.ok) return console.error('Erreur récupération fiche postes');
+      const data = await res.json();
+      setSelectedFiche(data); // exemple
+
+      if (notifId) {
+        await fetch(`http://localhost:5000/api/notifications/${notifId}/read`, {
+          method: 'PUT',
+        });
+        fetchNotifications();
+      }
+    } catch (err) {
+      console.error('Erreur voir fiche postes :', err);
+    }
+  };
 
   // ===================== VALIDER FICHE =====================
   const validerFiche = async (id) => {
@@ -169,6 +218,12 @@ export default function Notifications() {
         body = { ficheId: id };
       } else if (selectedFiche?.lvp) {
         url = 'http://localhost:5000/api/fiche-lvp/valider';
+        body = { ficheId: id };
+      } else if (selectedFiche?.regulateures) {
+        url = 'http://localhost:5000/api/fiche-regulateures/valider';
+        body = { ficheId: id };
+      } else if (selectedFiche?.postes) {
+        url = 'http://localhost:5000/api/fiche-postes/valider';
         body = { ficheId: id };
       } else {
         url = 'http://localhost:5000/api/inspections/valider';
@@ -303,84 +358,74 @@ export default function Notifications() {
       });
       doc.save(`Fiche_Piste_${new Date(selectedFiche.date).toISOString()}.pdf`);
       // ================= LVP =================
-      // ================= LVP =================
-    }else if (selectedFiche?.feuxLVPEast || selectedFiche?.feuxLVPWest) {
+    } else if (selectedFiche?.feuxLVPEast || selectedFiche?.feuxLVPWest) {
+      doc.text('Fiche LVP Mensuelle', 14, 15);
+      doc.setFontSize(11);
 
-  doc.text("Fiche LVP Mensuelle", 14, 15);
-  doc.setFontSize(11);
+      doc.text(
+        `📅 Date : ${new Date(selectedFiche.date).toLocaleDateString()}`,
+        14,
+        22
+      );
 
-  doc.text(
-    `📅 Date : ${new Date(selectedFiche.date).toLocaleDateString()}`,
-    14,
-    22
-  );
+      doc.text(`👨‍🔧 Technicien : ${selectedFiche.technicien || ''}`, 14, 28);
 
-  doc.text(
-    `👨‍🔧 Technicien : ${selectedFiche.technicien || ""}`,
-    14,
-    28
-  );
+      const tableColumn = [
+        'Position',
+        'Etat Général',
+        'Interventions',
+        'Observations',
+      ];
 
-  const tableColumn = [
-    "Position",
-    "Etat Général",
-    "Interventions",
-    "Observations"
-  ];
+      // -------- Feux Est --------
+      if (selectedFiche.feuxLVPEast?.length > 0) {
+        doc.text('Feux LVP Est', 14, 40);
 
-  // -------- Feux Est --------
-  if (selectedFiche.feuxLVPEast?.length > 0) {
+        const rowsEast = selectedFiche.feuxLVPEast.map((f) => [
+          f.position || '',
+          f.etatGeneralBalise || '',
+          f.interventions || '',
+          f.observations || '',
+        ]);
 
-    doc.text("Feux LVP Est", 14, 40);
+        autoTable(doc, {
+          head: [tableColumn],
+          body: rowsEast,
+          startY: 45,
+          theme: 'grid',
+          headStyles: { fillColor: [52, 152, 219], textColor: 255 },
+          styles: { fontSize: 10 },
+        });
+      }
 
-    const rowsEast = selectedFiche.feuxLVPEast.map((f) => [
-      f.position || "",
-      f.etatGeneralBalise || "",
-      f.interventions || "",
-      f.observations || ""
-    ]);
+      // -------- Feux Ouest --------
+      if (selectedFiche.feuxLVPWest?.length > 0) {
+        const startY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 10 : 45;
 
-    autoTable(doc, {
-      head: [tableColumn],
-      body: rowsEast,
-      startY: 45,
-      theme: "grid",
-      headStyles: { fillColor: [52, 152, 219], textColor: 255 },
-      styles: { fontSize: 10 }
-    });
-  }
+        doc.text('Feux LVP Ouest', 14, startY);
 
-  // -------- Feux Ouest --------
-  if (selectedFiche.feuxLVPWest?.length > 0) {
+        const rowsWest = selectedFiche.feuxLVPWest.map((f) => [
+          f.position || '',
+          f.etatGeneralBalise || '',
+          f.interventions || '',
+          f.observations || '',
+        ]);
 
-    const startY = doc.lastAutoTable
-      ? doc.lastAutoTable.finalY + 10
-      : 45;
-
-    doc.text("Feux LVP Ouest", 14, startY);
-
-    const rowsWest = selectedFiche.feuxLVPWest.map((f) => [
-      f.position || "",
-      f.etatGeneralBalise || "",
-      f.interventions || "",
-      f.observations || ""
-    ]);
-
-    autoTable(doc, {
-      head: [tableColumn],
-      body: rowsWest,
-      startY: startY + 5,
-      theme: "grid",
-      headStyles: { fillColor: [52, 152, 219], textColor: 255 },
-      styles: { fontSize: 10 }
-    });
-  }
-  doc.text(
-    `📝 Observations générales : ${selectedFiche.observationsGenerales || ""}`,
-    14,
-    34
-  );
-  doc.save(`Fiche_LVP_${new Date(selectedFiche.date).toISOString()}.pdf`);
+        autoTable(doc, {
+          head: [tableColumn],
+          body: rowsWest,
+          startY: startY + 5,
+          theme: 'grid',
+          headStyles: { fillColor: [52, 152, 219], textColor: 255 },
+          styles: { fontSize: 10 },
+        });
+      }
+      doc.text(
+        `📝 Observations générales : ${selectedFiche.observationsGenerales || ''}`,
+        14,
+        34
+      );
+      doc.save(`Fiche_LVP_${new Date(selectedFiche.date).toISOString()}.pdf`);
 
       // ================= FEUX OBSTACLES =================
     } else if (selectedFiche?.installations?.length > 0) {
@@ -426,6 +471,178 @@ export default function Notifications() {
 
       doc.save(
         `Fiche_Feux_Obstacles_${new Date(selectedFiche.date).toISOString()}.pdf`
+      );
+      // ================= regulateuresss =================
+    } else if (selectedFiche?.boucles?.length > 0) {
+      doc.text('Fiche Régulateures Mensuelle', 14, 15);
+      doc.setFontSize(11);
+      doc.text(
+        `📅 Date : ${new Date(selectedFiche.date).toLocaleDateString()}`,
+        14,
+        22
+      );
+      doc.text(`👨‍🔧 Technicien : ${selectedFiche.technicien || ''}`, 14, 28);
+      doc.text(
+        `📝 Observations générales : ${selectedFiche.observationsGenerales || ''}`,
+        14,
+        34
+      );
+
+      const tableColumn = [
+        'Zone',
+        'Boucle',
+        'Type / Puissance',
+        'ISOLEMENT',
+        'CHARGE',
+        'B1',
+        'B2',
+        'B3',
+        'B4',
+        'B5',
+        'A',
+        'V',
+        'TÉLÉCOMMANDE',
+        'AFFICHEUR',
+        'CLAVIER',
+      ];
+      const tableRows = (selectedFiche.boucles || []).map((b) => [
+        b.zone || '',
+        b.BOUCLE || '',
+        b.typePuissance || '',
+        b.ISOLEMENT || '',
+        b.charge || '',
+        b.Iout?.B1 || '',
+        b.Iout?.B2 || '',
+        b.Iout?.B3 || '',
+        b.Iout?.B4 || '',
+        b.Iout?.B5 || '',
+        b.InVin?.A || '',
+        b.InVin?.V || '',
+        b.telecommande || '',
+        b.afficheur || '',
+        b.clavier || '',
+      ]);
+
+      autoTable(doc, {
+        head: [tableColumn],
+        body: tableRows,
+        startY: 40,
+        theme: 'grid',
+        headStyles: { fillColor: [52, 152, 219], textColor: 255 },
+        styles: { fontSize: 8 },
+      });
+
+      doc.save(
+        `Fiche_Regulateures_${new Date(selectedFiche.date).toISOString()}.pdf`
+      );
+      //inspectionss
+    } // ===================== EXPORT PDF POSTE =====================
+    else if (selectedFiche?.posteSST1?.length > 0) {
+      doc.text('Fiche Poste Mensuelle - SST1', 14, 15);
+      doc.setFontSize(11);
+      doc.text(
+        `📅 Date : ${selectedFiche.date ? new Date(selectedFiche.date).toLocaleDateString() : ''}`,
+        14,
+        22
+      );
+      doc.text(`👨‍🔧 Technicien : ${selectedFiche.technicien || ''}`, 14, 28);
+      doc.text(
+        `📝 Observations générales : ${selectedFiche.observationsGenerales || ''}`,
+        14,
+        34
+      );
+
+      const tableColumn = [
+        'Poste',
+        'Élément',
+        'État',
+        'Interventions',
+        'Observations',
+      ];
+
+      const tableRows = selectedFiche.posteSST1.map((row) => [
+        'posteSST1',
+        row.element || '',
+        row.etat || '',
+        row.interventions || '',
+        row.observations || '',
+      ]);
+
+      autoTable(doc, {
+        head: [tableColumn],
+        body: tableRows,
+        startY: 40,
+        theme: 'grid',
+        headStyles: { fillColor: [52, 152, 219], textColor: 255 },
+        styles: { fontSize: 10 },
+      });
+
+      doc.save(
+        `Fiche_Poste_SST1_${selectedFiche.date ? new Date(selectedFiche.date).toISOString() : 'date_inconnue'}.pdf`
+      );
+    }
+    // ===================== EXPORT PDF POSTES =====================
+    else if (
+      selectedFiche?.posteSST1?.length > 0 ||
+      selectedFiche?.posteSST2?.length > 0 ||
+      selectedFiche?.posteTC?.length > 0
+    ) {
+      doc.text('Fiche Poste Mensuelle', 14, 15);
+      doc.setFontSize(11);
+      doc.text(
+        `📅 Date : ${
+          selectedFiche.date
+            ? new Date(selectedFiche.date).toLocaleDateString()
+            : ''
+        }`,
+        14,
+        22
+      );
+      doc.text(`👨‍🔧 Technicien : ${selectedFiche.technicien || ''}`, 14, 28);
+      doc.text(
+        `📝 Observations générales : ${selectedFiche.observationsGenerales || ''}`,
+        14,
+        34
+      );
+
+      const tableColumn = [
+        'Poste',
+        'Élément',
+        'État',
+        'Interventions',
+        'Observations',
+      ];
+      const tableRows = [];
+
+      // Fonction pour ajouter chaque poste
+      const addRows = (posteName, data) => {
+        if (!data || data.length === 0) return;
+        data.forEach((row, i) => {
+          tableRows.push([
+            i === 0 ? posteName : '', // Poste seulement sur la première ligne (rowSpan visuel)
+            row.element || '',
+            row.etat || '',
+            row.interventions || '',
+            row.observations || '',
+          ]);
+        });
+      };
+
+      addRows('posteSST1', selectedFiche.posteSST1);
+      addRows('posteSST2', selectedFiche.posteSST2);
+      addRows('posteTC', selectedFiche.posteTC);
+
+      autoTable(doc, {
+        head: [tableColumn],
+        body: tableRows,
+        startY: 40,
+        theme: 'grid',
+        headStyles: { fillColor: [52, 152, 219], textColor: 255 },
+        styles: { fontSize: 10 },
+      });
+
+      doc.save(
+        `Fiche_Postes_${selectedFiche.date ? new Date(selectedFiche.date).toISOString() : 'date_inconnue'}.pdf`
       );
     } else {
       doc.text(
@@ -507,6 +724,11 @@ export default function Notifications() {
                     voirFicheFeux(ficheId, n._id);
                   } else if (n.type?.toLowerCase() === 'lvp') {
                     voirFicheLVP(ficheId, n._id);
+                  } else if (n.type?.toLowerCase() === 'fiche_regulateures') {
+                    voirFicheRegulateures(ficheId, n._id);
+                  } else if (n.type?.toLowerCase() === 'fiche_postes') {
+                    // <-- ajout pour postes
+                    voirFichePostes(ficheId, n._id);
                   } else {
                     voirFiche(ficheId);
                   }
@@ -693,66 +915,138 @@ export default function Notifications() {
             ) : selectedFiche.feuxLVPEast || selectedFiche.feuxLVPWest ? (
               <>
                 <h3>Fiche LVP Mensuelle</h3>
-                <p>📅 Date : {new Date(selectedFiche.date).toLocaleDateString()}</p>
+                <p>
+                  📅 Date : {new Date(selectedFiche.date).toLocaleDateString()}
+                </p>
                 <p>👨‍🔧 Technicien : {selectedFiche.technicien || ''}</p>
 
                 {/* Feux LVP Est */}
-                {selectedFiche.feuxLVPEast && selectedFiche.feuxLVPEast.length > 0 && (
-                  <div>
-                    <h4>Feux Est</h4>
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>Position</th>
-                          <th>État Général</th>
-                          <th>Interventions</th>
-                          <th>Observations</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {selectedFiche.feuxLVPEast.map((f, i) => (
-                          <tr key={i}>
-                            <td>{f.position}</td>
-                            <td>{f.etatGeneralBalise || ''}</td>
-                            <td>{f.interventions || ''}</td>
-                            <td>{f.observations || ''}</td>
+                {selectedFiche.feuxLVPEast &&
+                  selectedFiche.feuxLVPEast.length > 0 && (
+                    <div>
+                      <h4>Feux Est</h4>
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Position</th>
+                            <th>État Général</th>
+                            <th>Interventions</th>
+                            <th>Observations</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+                        </thead>
+                        <tbody>
+                          {selectedFiche.feuxLVPEast.map((f, i) => (
+                            <tr key={i}>
+                              <td>{f.position}</td>
+                              <td>{f.etatGeneralBalise || ''}</td>
+                              <td>{f.interventions || ''}</td>
+                              <td>{f.observations || ''}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
 
                 {/* Feux LVP Ouest */}
-                {selectedFiche.feuxLVPWest && selectedFiche.feuxLVPWest.length > 0 && (
-                  <div>
-                    <h4>Feux Ouest</h4>
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>Position</th>
-                          <th>État Général</th>
-                          <th>Interventions</th>
-                          <th>Observations</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {selectedFiche.feuxLVPWest.map((f, i) => (
-                          <tr key={i}>
-                            <td>{f.position}</td>
-                            <td>{f.etatGeneralBalise || ''}</td>
-                            <td>{f.interventions || ''}</td>
-                            <td>{f.observations || ''}</td>
+                {selectedFiche.feuxLVPWest &&
+                  selectedFiche.feuxLVPWest.length > 0 && (
+                    <div>
+                      <h4>Feux Ouest</h4>
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Position</th>
+                            <th>État Général</th>
+                            <th>Interventions</th>
+                            <th>Observations</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+                        </thead>
+                        <tbody>
+                          {selectedFiche.feuxLVPWest.map((f, i) => (
+                            <tr key={i}>
+                              <td>{f.position}</td>
+                              <td>{f.etatGeneralBalise || ''}</td>
+                              <td>{f.interventions || ''}</td>
+                              <td>{f.observations || ''}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
 
                 <div className="modal-actions">
-                  <button onClick={() => validerFiche(selectedFiche._id)}>✅ Valider</button>
-                  <button onClick={() => setSelectedFiche(null)}>❌ Fermer</button>
+                  <button onClick={() => validerFiche(selectedFiche._id)}>
+                    ✅ Valider
+                  </button>
+                  <button onClick={() => setSelectedFiche(null)}>
+                    ❌ Fermer
+                  </button>
+                  <button onClick={exportPDF}>📄 Exporter PDF</button>
+                </div>
+              </>
+            ) : selectedFiche.boucles?.length > 0 ? (
+              <>
+                <h3>Fiche Régulateures Mensuelle</h3>
+                <p>
+                  📅 Date : {new Date(selectedFiche.date).toLocaleDateString()}
+                </p>
+                <p>👨‍🔧 Technicien : {selectedFiche.technicienOperateur || ''}</p>{' '}
+                <p>
+                  📝 Observations générales :
+                  {selectedFiche.observationsGenerales || ''}
+                </p>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Zone</th>
+                      <th>Boucle</th>
+                      <th>Type / Puissance</th>
+                      <th>ISOLEMENT</th>
+                      <th>CHARGE</th>
+                      <th>B1</th>
+                      <th>B2</th>
+                      <th>B3</th>
+                      <th>B4</th>
+                      <th>B5</th>
+                      <th>A</th>
+                      <th>V</th>
+                      <th>TÉLÉCOMMANDE</th>
+                      <th>AFFICHEUR</th>
+                      <th>CLAVIER</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {(selectedFiche.boucles || []).map((b, i) => (
+                      <tr key={i}>
+                        <td>{b.zone}</td>
+                        <td>{b.BOUCLE}</td>
+                        <td>{b.typePuissance}</td>
+                        <td>{b.ISOLEMENT}</td>
+                        <td>{b.charge}</td>
+                        <td>{b.Iout?.B1}</td>
+                        <td>{b.Iout?.B2}</td>
+                        <td>{b.Iout?.B3}</td>
+                        <td>{b.Iout?.B4}</td>
+                        <td>{b.Iout?.B5}</td>
+                        <td>{b.InVin?.A}</td>
+                        <td>{b.InVin?.V}</td>
+                        <td>{b.telecommande}</td>
+                        <td>{b.afficheur}</td>
+                        <td>{b.clavier}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div className="modal-actions">
+                  <button onClick={() => validerFiche(selectedFiche._id)}>
+                    ✅ Valider
+                  </button>
+                  <button onClick={() => setSelectedFiche(null)}>
+                    ❌ Fermer
+                  </button>
                   <button onClick={exportPDF}>📄 Exporter PDF</button>
                 </div>
               </>
@@ -800,6 +1094,91 @@ export default function Notifications() {
                     ❌ Fermer
                   </button>
 
+                  <button onClick={exportPDF}>📄 Exporter PDF</button>
+                </div>
+              </>
+            ) : selectedFiche.posteSST1 ||
+              selectedFiche.posteSST2 ||
+              selectedFiche.posteTC ? (
+              <>
+                <h3>Fiche Poste Mensuelle</h3>
+                <p>
+                  📅 Date :{' '}
+                  {selectedFiche.date
+                    ? new Date(selectedFiche.date).toLocaleDateString()
+                    : ''}
+                </p>
+                <p>👨‍🔧 Technicien : {selectedFiche.technicien || ''}</p>
+                <p>
+                  📝 Observations générales :{' '}
+                  {selectedFiche.observationsGenerales || ''}
+                </p>
+
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Poste</th>
+                      <th>Élément</th>
+                      <th>État</th>
+                      <th>Interventions</th>
+                      <th>Observations</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedFiche.posteSST1 &&
+                      selectedFiche.posteSST1.map((row, i) => (
+                        <tr key={`SST1-${i}`}>
+                          {i === 0 && (
+                            <td rowSpan={selectedFiche.posteSST1.length}>
+                              posteSST1
+                            </td>
+                          )}
+                          <td>{row.element}</td>
+                          <td>{row.etat}</td>
+                          <td>{row.interventions}</td>
+                          <td>{row.observations}</td>
+                        </tr>
+                      ))}
+
+                    {selectedFiche.posteSST2 &&
+                      selectedFiche.posteSST2.map((row, i) => (
+                        <tr key={`SST2-${i}`}>
+                          {i === 0 && (
+                            <td rowSpan={selectedFiche.posteSST2.length}>
+                              posteSST2
+                            </td>
+                          )}
+                          <td>{row.element}</td>
+                          <td>{row.etat}</td>
+                          <td>{row.interventions}</td>
+                          <td>{row.observations}</td>
+                        </tr>
+                      ))}
+
+                    {selectedFiche.posteTC &&
+                      selectedFiche.posteTC.map((row, i) => (
+                        <tr key={`TC-${i}`}>
+                          {i === 0 && (
+                            <td rowSpan={selectedFiche.posteTC.length}>
+                              posteTC
+                            </td>
+                          )}
+                          <td>{row.element}</td>
+                          <td>{row.etat}</td>
+                          <td>{row.interventions}</td>
+                          <td>{row.observations}</td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+
+                <div className="modal-actions">
+                  <button onClick={() => validerFiche(selectedFiche._id)}>
+                    ✅ Valider
+                  </button>
+                  <button onClick={() => setSelectedFiche(null)}>
+                    ❌ Fermer
+                  </button>
                   <button onClick={exportPDF}>📄 Exporter PDF</button>
                 </div>
               </>

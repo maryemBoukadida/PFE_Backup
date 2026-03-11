@@ -6,7 +6,8 @@ import FichePisteMensuelle from './FichePisteMensuelle';
 import FicheDGSMensuelle from './FicheDGSMensuelle';
 import FicheFeuxObstaclesMensuelle from './FicheFeuxObstaclesMensuelle';
 import FicheLVPMensuelle from './FicheLVPMensuelle'; // 🔹 important
-
+import FicheRegulateuresMensuelle from './FicheRegulateuresMensuelle';
+import FichePostesMensuelle from './FichePostesMensuelle';
 export default function InspectionTech() {
   const [periode, setPeriode] = useState('JOURNALIERE');
   const [typeFiche, setTypeFiche] = useState('');
@@ -27,6 +28,7 @@ export default function InspectionTech() {
     { value: 'FEUX DOBSTACLES', label: 'Feux d obstacles' },
     { value: 'LVP', label: 'LVP' },
     { value: 'REGULATEURES', label: 'Approche des Regulateures' },
+    { value: 'POSTES', label: 'Postes' },
   ];
 
   // 🔹 Récupération des inspections depuis l’API
@@ -122,7 +124,11 @@ export default function InspectionTech() {
         <FicheLVPMensuelle />
       ) : periode === 'MENSUELLE' && typeFiche === 'DGS' ? (
         <FicheDGSMensuelle />
-      ) : periode === 'MENSUELLE' && typeFiche === 'FEUX DOBSTACLES' ? (
+      ) : periode === 'MENSUELLE' && typeFiche === 'REGULATEURES' ? (
+        <FicheRegulateuresMensuelle />
+      ) :periode === 'MENSUELLE' && typeFiche === 'POSTES' ? (
+        <FichePostesMensuelle />
+     ): periode === 'MENSUELLE' && typeFiche === 'FEUX DOBSTACLES' ? (
         <FicheFeuxObstaclesMensuelle />
       ) : (
         // 🔹 Interface journalière / hebdo / annuelle

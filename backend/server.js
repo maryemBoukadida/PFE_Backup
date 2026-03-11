@@ -68,6 +68,13 @@ app.use("/api/feux-obstacles", ficheFeuxObstaclesRoutes);
 //LVP 
 const ficheLVPRoutes = require('./routes/ficheLVPRoutes');
 app.use('/api/fiche-lvp', ficheLVPRoutes);
+// regulateures 
+const ficheRegulateuresRoutes = require("./routes/ficheRegulateuresRoutes");
+app.use("/api/fiche-regulateures", ficheRegulateuresRoutes);
+// fiche postes
+const fichePosteRoutes = require("./routes/fichePosteRoutes");
+app.use("/api/fiche-postes", fichePosteRoutes);
+
 
 // Catch-all 404
 
