@@ -65,6 +65,17 @@ exports.envoyerFicheFeuxObstacles = async(req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
+// GET toutes les fiches LVP
+exports.getAllFiches = async(req, res) => {
+    try {
+        const fiches = await FicheLVP.find();
+        res.json(fiches);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Erreur serveur' });
+    }
+};
+
 exports.getFicheDGSById = async(req, res) => {
     try {
         const fiche = await FicheFeuxObstacles.findById(req.params.id);

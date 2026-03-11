@@ -12,6 +12,7 @@ export default function Notifications() {
   const FICHE_PISTE_API = 'http://localhost:5000/api/fiche-piste';
   const FICHE_DGS_API = 'http://localhost:5000/api/fiche-dgs';
   const FICHE_FEUX_API = 'http://localhost:5000/api/feux-obstacles';
+  const FICHE_LVP_API = 'http://localhost:5000/api/fiche-lvp';
   // ===================== CHARGER NOTIFICATIONS =====================
   const fetchNotifications = async () => {
     try {
@@ -24,15 +25,20 @@ export default function Notifications() {
       const res3 = await fetch(
         'http://localhost:5000/api/feux-obstacles/notifications'
       );
+      const res4 = await fetch(
+        'http://localhost:5000/api/fiche-lvp/notifications'
+      );
 
       const data1 = res1.ok ? await res1.json() : [];
       const data2 = res2.ok ? await res2.json() : [];
       const data3 = res3.ok ? await res3.json() : [];
+      const data4 = res4.ok ? await res4.json() : [];
 
       setNotifications([
         ...(Array.isArray(data1) ? data1 : []),
         ...(Array.isArray(data2) ? data2 : []),
         ...(Array.isArray(data3) ? data3 : []),
+        ...(Array.isArray(data4) ? data4 : []),
       ]);
     } catch (err) {
       console.error('Erreur notifications :', err);
@@ -124,6 +130,24 @@ export default function Notifications() {
       console.error(err);
     }
   };
+  const voirFicheLVP = async (ficheId, notifId) => {
+    try {
+      const res = await fetch(`${FICHE_LVP_API}/${ficheId}`);
+      if (!res.ok) return console.error('Erreur récupération fiche LVP');
+      const data = await res.json();
+      setSelectedFiche(data);
+
+      // Marquer la notification comme lue
+      if (notifId) {
+        await fetch(`http://localhost:5000/api/notifications/${notifId}/read`, {
+          method: 'PUT',
+        });
+        fetchNotifications();
+      }
+    } catch (err) {
+      console.error('Erreur voir fiche LVP :', err);
+    }
+  };
 
   // ===================== VALIDER FICHE =====================
   const validerFiche = async (id) => {
@@ -142,6 +166,9 @@ export default function Notifications() {
         body = { ficheId: id };
       } else if (selectedFiche?.feuxObstacles) {
         url = 'http://localhost:5000/api/feux-obstacles/valider';
+        body = { ficheId: id };
+      } else if (selectedFiche?.lvp) {
+        url = 'http://localhost:5000/api/fiche-lvp/valider';
         body = { ficheId: id };
       } else {
         url = 'http://localhost:5000/api/inspections/valider';
@@ -173,7 +200,7 @@ export default function Notifications() {
 
     const doc = new jsPDF();
     doc.setFontSize(14);
-
+    // ================= PAPI =================
     if (selectedFiche?.verifications) {
       doc.text(`Fiche PAPI Mensuelle`, 14, 15);
       doc.setFontSize(11);
@@ -275,6 +302,131 @@ export default function Notifications() {
         styles: { fontSize: 10 },
       });
       doc.save(`Fiche_Piste_${new Date(selectedFiche.date).toISOString()}.pdf`);
+      // ================= LVP =================
+      // ================= LVP =================
+    }else if (selectedFiche?.feuxLVPEast || selectedFiche?.feuxLVPWest) {
+
+  doc.text("Fiche LVP Mensuelle", 14, 15);
+  doc.setFontSize(11);
+
+  doc.text(
+    `📅 Date : ${new Date(selectedFiche.date).toLocaleDateString()}`,
+    14,
+    22
+  );
+
+  doc.text(
+    `👨‍🔧 Technicien : ${selectedFiche.technicien || ""}`,
+    14,
+    28
+  );
+
+  const tableColumn = [
+    "Position",
+    "Etat Général",
+    "Interventions",
+    "Observations"
+  ];
+
+  // -------- Feux Est --------
+  if (selectedFiche.feuxLVPEast?.length > 0) {
+
+    doc.text("Feux LVP Est", 14, 40);
+
+    const rowsEast = selectedFiche.feuxLVPEast.map((f) => [
+      f.position || "",
+      f.etatGeneralBalise || "",
+      f.interventions || "",
+      f.observations || ""
+    ]);
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: rowsEast,
+      startY: 45,
+      theme: "grid",
+      headStyles: { fillColor: [52, 152, 219], textColor: 255 },
+      styles: { fontSize: 10 }
+    });
+  }
+
+  // -------- Feux Ouest --------
+  if (selectedFiche.feuxLVPWest?.length > 0) {
+
+    const startY = doc.lastAutoTable
+      ? doc.lastAutoTable.finalY + 10
+      : 45;
+
+    doc.text("Feux LVP Ouest", 14, startY);
+
+    const rowsWest = selectedFiche.feuxLVPWest.map((f) => [
+      f.position || "",
+      f.etatGeneralBalise || "",
+      f.interventions || "",
+      f.observations || ""
+    ]);
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: rowsWest,
+      startY: startY + 5,
+      theme: "grid",
+      headStyles: { fillColor: [52, 152, 219], textColor: 255 },
+      styles: { fontSize: 10 }
+    });
+  }
+  doc.text(
+    `📝 Observations générales : ${selectedFiche.observationsGenerales || ""}`,
+    14,
+    34
+  );
+  doc.save(`Fiche_LVP_${new Date(selectedFiche.date).toISOString()}.pdf`);
+
+      // ================= FEUX OBSTACLES =================
+    } else if (selectedFiche?.installations?.length > 0) {
+      doc.text(`Fiche Feux Obstacles`, 14, 15);
+      doc.setFontSize(11);
+
+      doc.text(
+        `📅 Date : ${new Date(selectedFiche.date).toLocaleDateString()}`,
+        14,
+        22
+      );
+
+      doc.text(`👨‍🔧 Technicien : ${selectedFiche.technicien || ''}`, 14, 28);
+
+      doc.text(
+        `📝 Observation générale : ${selectedFiche.observationGenerale || ''}`,
+        14,
+        34
+      );
+
+      const tableColumn = [
+        'Lieu installation',
+        'Alimentation',
+        'Lampe',
+        'Observations',
+      ];
+
+      const tableRows = (selectedFiche.installations || []).map((f) => [
+        f.lieuInstallation || '',
+        f.alimentation || '',
+        f.lampe || '',
+        f.observations || '',
+      ]);
+
+      autoTable(doc, {
+        head: [tableColumn],
+        body: tableRows,
+        startY: 40,
+        theme: 'grid',
+        headStyles: { fillColor: [52, 152, 219], textColor: 255 },
+        styles: { fontSize: 10 },
+      });
+
+      doc.save(
+        `Fiche_Feux_Obstacles_${new Date(selectedFiche.date).toISOString()}.pdf`
+      );
     } else {
       doc.text(
         `Fiche Inspection journalière ${selectedFiche.matricule}`,
@@ -351,8 +503,10 @@ export default function Notifications() {
                     voirFichePiste(ficheId, n._id);
                   } else if (n.type === 'fiche_dgs') {
                     voirFicheDGS(ficheId, n._id);
-                  } else if (n.type.toLowerCase() === 'feuxobstacles') {
+                  } else if (n.type?.toLowerCase() === 'feuxobstacles') {
                     voirFicheFeux(ficheId, n._id);
+                  } else if (n.type?.toLowerCase() === 'lvp') {
+                    voirFicheLVP(ficheId, n._id);
                   } else {
                     voirFiche(ficheId);
                   }
@@ -533,6 +687,72 @@ export default function Notifications() {
                   <button onClick={() => setSelectedFiche(null)}>
                     ❌ Fermer
                   </button>
+                  <button onClick={exportPDF}>📄 Exporter PDF</button>
+                </div>
+              </>
+            ) : selectedFiche.feuxLVPEast || selectedFiche.feuxLVPWest ? (
+              <>
+                <h3>Fiche LVP Mensuelle</h3>
+                <p>📅 Date : {new Date(selectedFiche.date).toLocaleDateString()}</p>
+                <p>👨‍🔧 Technicien : {selectedFiche.technicien || ''}</p>
+
+                {/* Feux LVP Est */}
+                {selectedFiche.feuxLVPEast && selectedFiche.feuxLVPEast.length > 0 && (
+                  <div>
+                    <h4>Feux Est</h4>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Position</th>
+                          <th>État Général</th>
+                          <th>Interventions</th>
+                          <th>Observations</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {selectedFiche.feuxLVPEast.map((f, i) => (
+                          <tr key={i}>
+                            <td>{f.position}</td>
+                            <td>{f.etatGeneralBalise || ''}</td>
+                            <td>{f.interventions || ''}</td>
+                            <td>{f.observations || ''}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {/* Feux LVP Ouest */}
+                {selectedFiche.feuxLVPWest && selectedFiche.feuxLVPWest.length > 0 && (
+                  <div>
+                    <h4>Feux Ouest</h4>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Position</th>
+                          <th>État Général</th>
+                          <th>Interventions</th>
+                          <th>Observations</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {selectedFiche.feuxLVPWest.map((f, i) => (
+                          <tr key={i}>
+                            <td>{f.position}</td>
+                            <td>{f.etatGeneralBalise || ''}</td>
+                            <td>{f.interventions || ''}</td>
+                            <td>{f.observations || ''}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                <div className="modal-actions">
+                  <button onClick={() => validerFiche(selectedFiche._id)}>✅ Valider</button>
+                  <button onClick={() => setSelectedFiche(null)}>❌ Fermer</button>
                   <button onClick={exportPDF}>📄 Exporter PDF</button>
                 </div>
               </>

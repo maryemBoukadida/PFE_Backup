@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { getInspections, envoyerInspectionTech } from './apiservices/api';
 import '../styles/InspectionTech.css';
 import FichePapiMensuelle from './FichePapiMensuelle';
-import FichePisteMensuelle from "./FichePisteMensuelle";
-import FicheDGSMensuelle from "./FicheDGSMensuelle";
-import FicheFeuxObstaclesMensuelle from "./FicheFeuxObstaclesMensuelle";  
-
+import FichePisteMensuelle from './FichePisteMensuelle';
+import FicheDGSMensuelle from './FicheDGSMensuelle';
+import FicheFeuxObstaclesMensuelle from './FicheFeuxObstaclesMensuelle';
+import FicheLVPMensuelle from './FicheLVPMensuelle'; // 🔹 important
 
 export default function InspectionTech() {
   const [periode, setPeriode] = useState('JOURNALIERE');
@@ -25,6 +25,8 @@ export default function InspectionTech() {
     { value: 'VOIES DE CERCULATION', label: 'Voies de circulation' },
     { value: 'DGS', label: 'DGS' },
     { value: 'FEUX DOBSTACLES', label: 'Feux d obstacles' },
+    { value: 'LVP', label: 'LVP' },
+    { value: 'REGULATEURES', label: 'Approche des Regulateures' },
   ];
 
   // 🔹 Récupération des inspections depuis l’API
@@ -112,22 +114,27 @@ export default function InspectionTech() {
   return (
     <div className="inspection-container">
       {/* 🔹 Affichage des fiches mensuelles séparées */}
-      {periode === "MENSUELLE" && typeFiche === "PAPI" ? (
+      {periode === 'MENSUELLE' && typeFiche === 'PAPI' ? (
         <FichePapiMensuelle />
-      ) : periode === "MENSUELLE" && typeFiche === "PISTE" ? (
+      ) : periode === 'MENSUELLE' && typeFiche === 'PISTE' ? (
         <FichePisteMensuelle />
-      ) : periode === "MENSUELLE" && typeFiche === "DGS" ? (
+      ) : periode === 'MENSUELLE' && typeFiche === 'LVP' ? (
+        <FicheLVPMensuelle />
+      ) : periode === 'MENSUELLE' && typeFiche === 'DGS' ? (
         <FicheDGSMensuelle />
-      ) : periode === "MENSUELLE" && typeFiche === "FEUX DOBSTACLES" ? (
+      ) : periode === 'MENSUELLE' && typeFiche === 'FEUX DOBSTACLES' ? (
         <FicheFeuxObstaclesMensuelle />
-        ) : (
+      ) : (
         // 🔹 Interface journalière / hebdo / annuelle
         <>
           <h2>Fiche inspection journalière balisage</h2>
 
           {/* 🔹 Filtres */}
           <div className="inspection-header">
-            <select value={periode} onChange={(e) => setPeriode(e.target.value)}>
+            <select
+              value={periode}
+              onChange={(e) => setPeriode(e.target.value)}
+            >
               <option value="JOURNALIERE">Journalière</option>
               <option value="HEBDOMADAIRE">Hebdomadaire</option>
               <option value="MENSUELLE">Mensuelle</option>
@@ -135,7 +142,10 @@ export default function InspectionTech() {
             </select>
 
             {periode === 'MENSUELLE' && (
-              <select value={typeFiche} onChange={(e) => setTypeFiche(e.target.value)}>
+              <select
+                value={typeFiche}
+                onChange={(e) => setTypeFiche(e.target.value)}
+              >
                 <option value="">-- Type fiche --</option>
                 {typesFiches.map((t) => (
                   <option key={t.value} value={t.value}>
@@ -178,8 +188,10 @@ export default function InspectionTech() {
                         value={item.matin?.etat || ''}
                         onChange={(e) => {
                           const newData = [...inspectionsData];
-                          newData[index].inspections[i].matin.etat = e.target.value;
-                          if (e.target.value !== 'HS') newData[index].inspections[i].matin.nbrNF = 0;
+                          newData[index].inspections[i].matin.etat =
+                            e.target.value;
+                          if (e.target.value !== 'HS')
+                            newData[index].inspections[i].matin.nbrNF = 0;
                           setInspectionsData(newData);
                         }}
                         disabled={isLocked('etat', 'matin')}
@@ -199,7 +211,8 @@ export default function InspectionTech() {
                             value={item.matin?.nbrNF || ''}
                             onChange={(e) => {
                               const newData = [...inspectionsData];
-                              newData[index].inspections[i].matin.nbrNF = e.target.value;
+                              newData[index].inspections[i].matin.nbrNF =
+                                e.target.value;
                               setInspectionsData(newData);
                             }}
                             disabled={isLocked('nbrNF', 'matin')}
@@ -214,7 +227,8 @@ export default function InspectionTech() {
                         value={item.matin?.observation || ''}
                         onChange={(e) => {
                           const newData = [...inspectionsData];
-                          newData[index].inspections[i].matin.observation = e.target.value;
+                          newData[index].inspections[i].matin.observation =
+                            e.target.value;
                           setInspectionsData(newData);
                         }}
                         disabled={isLocked('observation', 'matin')}
@@ -227,7 +241,8 @@ export default function InspectionTech() {
                         value={item.matin?.intervention || ''}
                         onChange={(e) => {
                           const newData = [...inspectionsData];
-                          newData[index].inspections[i].matin.intervention = e.target.value;
+                          newData[index].inspections[i].matin.intervention =
+                            e.target.value;
                           setInspectionsData(newData);
                         }}
                         disabled={isLocked('intervention', 'matin')}
@@ -241,8 +256,10 @@ export default function InspectionTech() {
                         value={item.nuit?.etat || ''}
                         onChange={(e) => {
                           const newData = [...inspectionsData];
-                          newData[index].inspections[i].nuit.etat = e.target.value;
-                          if (e.target.value !== 'HS') newData[index].inspections[i].nuit.nbrNF = 0;
+                          newData[index].inspections[i].nuit.etat =
+                            e.target.value;
+                          if (e.target.value !== 'HS')
+                            newData[index].inspections[i].nuit.nbrNF = 0;
                           setInspectionsData(newData);
                         }}
                         disabled={isLocked('etat', 'nuit')}
@@ -262,7 +279,8 @@ export default function InspectionTech() {
                             value={item.nuit?.nbrNF || ''}
                             onChange={(e) => {
                               const newData = [...inspectionsData];
-                              newData[index].inspections[i].nuit.nbrNF = e.target.value;
+                              newData[index].inspections[i].nuit.nbrNF =
+                                e.target.value;
                               setInspectionsData(newData);
                             }}
                             disabled={isLocked('nbrNF', 'nuit')}
@@ -277,7 +295,8 @@ export default function InspectionTech() {
                         value={item.nuit?.observation || ''}
                         onChange={(e) => {
                           const newData = [...inspectionsData];
-                          newData[index].inspections[i].nuit.observation = e.target.value;
+                          newData[index].inspections[i].nuit.observation =
+                            e.target.value;
                           setInspectionsData(newData);
                         }}
                         disabled={isLocked('observation', 'nuit')}
@@ -290,7 +309,8 @@ export default function InspectionTech() {
                         value={item.nuit?.intervention || ''}
                         onChange={(e) => {
                           const newData = [...inspectionsData];
-                          newData[index].inspections[i].nuit.intervention = e.target.value;
+                          newData[index].inspections[i].nuit.intervention =
+                            e.target.value;
                           setInspectionsData(newData);
                         }}
                         disabled={isLocked('intervention', 'nuit')}
@@ -304,15 +324,33 @@ export default function InspectionTech() {
 
           {/* 🔹 Boutons */}
           <div className="send-container">
-            <button className="save-btn" onClick={handleEnregistrer}>Enregistrer</button>
-            <button className="send-btn" onClick={handleEnvoyer}>Envoyer</button>
+            <button className="save-btn" onClick={handleEnregistrer}>
+              Enregistrer
+            </button>
+            <button className="send-btn" onClick={handleEnvoyer}>
+              Envoyer
+            </button>
           </div>
 
           {/* 🔹 Pagination */}
           <div className="pagination">
-            <button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1}>Précédent</button>
-            <span>Page {currentPage} / {totalPages}</span>
-            <button onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages}>Suivant</button>
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Précédent
+            </button>
+            <span>
+              Page {currentPage} / {totalPages}
+            </span>
+            <button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+            >
+              Suivant
+            </button>
           </div>
         </>
       )}

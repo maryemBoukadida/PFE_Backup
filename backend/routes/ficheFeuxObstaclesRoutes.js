@@ -3,7 +3,6 @@ const router = express.Router();
 
 // Import correct du contrôleur
 const ficheFeuxObstaclesController = require("../controllers/ficheFeuxObstaclesController");
-//const notifFeuxController = require("../controllers/notifFeuxObstaclesController");
 
 // GET fiche
 router.get("/", ficheFeuxObstaclesController.getFicheFeuxObstacles);

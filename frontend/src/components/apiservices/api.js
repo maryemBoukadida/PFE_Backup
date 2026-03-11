@@ -10,6 +10,8 @@ const FICHE_PAPI_API = "http://localhost:5000/api/fiche_papi";
 const FICHE_PISTE_API = "http://localhost:5000/api/fiche-piste";
 const FICHE_DGS_API = "http://localhost:5000/api/fiche-dgs";
 const FICHE_FEUX_OBSTACLES_API = "http://localhost:5000/api/feux-obstacles";
+const FICHE_LVP_API = "http://localhost:5000/api/fiche-lvp";
+
 // 🔹 Récupérer tous les équipements
 export const getEquipements = async() => {
     const res = await fetch(API_URL);
@@ -275,4 +277,41 @@ export const envoyerFicheFeuxObstacles = async(id) => {
     });
 
     return response.json();
+};
+// =======================
+// FICHE FeuxLVP 
+// =======================
+export const getFicheLVP = async() => {
+    try {
+        const res = await fetch(FICHE_LVP_API);
+        if (!res.ok) throw new Error("Erreur lors de la récupération de la fiche LVP");
+        return await res.json();
+    } catch (err) {
+        console.error(err);
+        throw err;
+    }
+};
+//enregiterement
+export const enregistrerFicheLVP = async(id, data) => {
+    const response = await fetch(`${FICHE_LVP_API}/enregistrer/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    });
+    return response.json();
+};
+//envoiee
+export const envoyerFicheLVP = async(id) => {
+    try {
+        const response = await fetch(`${FICHE_LVP_API}/envoyer/${id}`, {
+            method: "POST"
+        });
+
+        if (!response.ok) throw new Error("Erreur lors de l'envoi de la fiche LVP");
+
+        return await response.json();
+    } catch (err) {
+        console.error(err);
+        throw err;
+    }
 };

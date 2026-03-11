@@ -65,7 +65,10 @@ app.use("/api/fiche-dgs", ficheDGSRoutes);
 const ficheFeuxObstaclesRoutes = require("./routes/ficheFeuxObstaclesRoutes");
 app.use("/api/feux-obstacles", ficheFeuxObstaclesRoutes);
 
-//
+//LVP 
+const ficheLVPRoutes = require('./routes/ficheLVPRoutes');
+app.use('/api/fiche-lvp', ficheLVPRoutes);
+
 // Catch-all 404
 
 app.use((req, res) => res.status(404).send("Route introuvable ❌"));
