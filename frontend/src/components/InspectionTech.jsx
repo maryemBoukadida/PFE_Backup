@@ -10,6 +10,8 @@ import FicheRegulateuresMensuelle from './FicheRegulateuresMensuelle';
 import FichePostesMensuelle from './FichePostesMensuelle';
 import FicheAidesRadiosMensuelle from './FicheAidesRadiosMensuelle';
 import FicheFeuxEncastresSemesterielle from './FicheFeuxEncastresSemesterielle';
+import FicheSemesRegulateures from "./FicheSemesRegulateures";
+
 export default function InspectionTech() {
   const [periode, setPeriode] = useState('JOURNALIERE');
   const [typeFiche, setTypeFiche] = useState('');
@@ -35,6 +37,7 @@ export default function InspectionTech() {
   ];
   const typesFichesSemestrielles = [
   { value: 'FEUX ENCASTRES', label: 'Feux Encastres' },
+  { value: 'REGULATEURES', label: 'Regulateures' },
 ];
 
   // 🔹 Récupération des inspections depuis l’API
@@ -138,6 +141,8 @@ export default function InspectionTech() {
         <FicheAidesRadiosMensuelle />
       ) : periode === 'SEMESTRIELLE' && typeFiche === 'FEUX ENCASTRES' ? (
         <FicheFeuxEncastresSemesterielle />
+      ): periode === 'SEMESTRIELLE' && typeFiche === 'REGULATEURES' ? (
+        <FicheSemesRegulateures/>  
       ) : periode === 'MENSUELLE' && typeFiche === 'FEUX DOBSTACLES' ? (
         <FicheFeuxObstaclesMensuelle />
       ) : (

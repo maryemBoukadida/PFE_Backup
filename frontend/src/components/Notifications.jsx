@@ -17,6 +17,8 @@ export default function Notifications() {
   const FICHE_POSTES_API = 'http://localhost:5000/api/fiche-postes';
   const FICHE_AIDES_RADIOS_API = 'http://localhost:5000/api/fiche-aides-radios';
   const FICHE_FEUXEN_API = 'http://localhost:5000/api/fiche-feux-encastres';
+  const FICHE_REGULATEURS_API =
+    'http://localhost:5000/api/fiche-semes-regulateures';
 
   // ===================== CHARGER NOTIFICATIONS =====================
   const fetchNotifications = async () => {
@@ -45,6 +47,9 @@ export default function Notifications() {
       const res8 = await fetch(
         'http://localhost:5000/api/fiche-feux-encastres/notifications'
       );
+      const res9 = await fetch(
+        'http://localhost:5000/api/fiche-semes-regulateures/notifications'
+      );
       const data1 = res1.ok ? await res1.json() : [];
       const data2 = res2.ok ? await res2.json() : [];
       const data3 = res3.ok ? await res3.json() : [];
@@ -53,6 +58,7 @@ export default function Notifications() {
       const data6 = res6.ok ? await res6.json() : [];
       const data7 = res7.ok ? await res7.json() : [];
       const data8 = res8.ok ? await res8.json() : [];
+      const data9 = res9.ok ? await res9.json() : [];
 
       setNotifications([
         ...(Array.isArray(data1) ? data1 : []),
@@ -63,6 +69,7 @@ export default function Notifications() {
         ...(Array.isArray(data6) ? data6 : []),
         ...(Array.isArray(data7) ? data7 : []),
         ...(Array.isArray(data8) ? data8 : []),
+        ...(Array.isArray(data9) ? data9 : []),
       ]);
     } catch (err) {
       console.error('Erreur notifications :', err);
@@ -128,13 +135,6 @@ export default function Notifications() {
       const data = await res.json();
       setSelectedFiche(data);
 
-      // Marquer la notification comme lue
-      if (notifId) {
-        await fetch(`http://localhost:5000/api/notifications/${notifId}/read`, {
-          method: 'PUT',
-        });
-        fetchNotifications();
-      }
     } catch (err) {
       console.error(err);
     }
@@ -159,15 +159,7 @@ export default function Notifications() {
       const res = await fetch(`${FICHE_LVP_API}/${ficheId}`);
       if (!res.ok) return console.error('Erreur récupération fiche LVP');
       const data = await res.json();
-      setSelectedFiche(data);
-
-      // Marquer la notification comme lue
-      if (notifId) {
-        await fetch(`http://localhost:5000/api/notifications/${notifId}/read`, {
-          method: 'PUT',
-        });
-        fetchNotifications();
-      }
+      setSelectedFiche(data);    
     } catch (err) {
       console.error('Erreur voir fiche LVP :', err);
     }
@@ -181,12 +173,7 @@ export default function Notifications() {
       const data = await res.json();
       setSelectedFiche(data); // exemple
 
-      if (notifId) {
-        await fetch(`http://localhost:5000/api/notifications/${notifId}/read`, {
-          method: 'PUT',
-        });
-        fetchNotifications();
-      }
+     
     } catch (err) {
       console.error('Erreur voir fiche régulateures :', err);
     }
@@ -199,12 +186,7 @@ export default function Notifications() {
       const data = await res.json();
       setSelectedFiche(data); // exemple
 
-      if (notifId) {
-        await fetch(`http://localhost:5000/api/notifications/${notifId}/read`, {
-          method: 'PUT',
-        });
-        fetchNotifications();
-      }
+   
     } catch (err) {
       console.error('Erreur voir fiche postes :', err);
     }
@@ -224,31 +206,44 @@ export default function Notifications() {
     }
   };
   // voir fiche feux encastres
-const voirFicheFeuxEncastres = async (ficheId, notifId) => {
-  try {
-    // Récupérer la fiche par son ID
-    const res = await fetch(`${FICHE_FEUXEN_API}/${ficheId}`);
-    if (!res.ok) {
-      console.error('Erreur récupération fiche feux encastrés');
-      return;
+  const voirFicheFeuxEncastres = async (ficheId, notifId) => {
+    try {
+      // Récupérer la fiche par son ID
+      const res = await fetch(`${FICHE_FEUXEN_API}/${ficheId}`);
+      if (!res.ok) {
+        console.error('Erreur récupération fiche feux encastrés');
+        return;
+      }
+
+      const data = await res.json();
+
+      // stocker la fiche + l'ID de notification pour marquer comme lu
+      setSelectedFiche({ ...data, notifId });
+
+      
+    } catch (err) {
+      console.error('Erreur voir fiche feux encastrés :', err);
     }
+  };
 
-    const data = await res.json();
-
-    // stocker la fiche + l'ID de notification pour marquer comme lu
-    setSelectedFiche({ ...data, notifId });
-
-    // Marquer la notification comme lue
-    if (notifId) {
-      await fetch(`http://localhost:5000/api/notifications/${notifId}/read`, {
-        method: 'PUT',
-      });
-      fetchNotifications();
+  const voirFicheSemesRegulateures = async (ficheId, notifId) => {
+    try {
+      // Récupérer la fiche par son ID
+      const res = await fetch(`${FICHE_REGULATEURS_API}/${ficheId}`);
+      if (!res.ok) {
+        console.error('Erreur récupération fiche régulateurs');
+        return;
+      }
+      const data = await res.json();
+      // Stocker la fiche + l'ID de notification pour marquer comme lu
+      setSelectedFiche({ ...data, notifId });
+     
+    } catch (err) {
+      console.error('Erreur voir fiche régulateurs :', err);
     }
-  } catch (err) {
-    console.error('Erreur voir fiche feux encastrés :', err);
-  }
-};
+  };
+  
+
   // ===================== VALIDER FICHE =====================
   const validerFiche = async (id, notifId = null) => {
     try {
@@ -281,6 +276,9 @@ const voirFicheFeuxEncastres = async (ficheId, notifId) => {
         body = { ficheId: id };
       } else if (selectedFiche?.feuxEncastres) {
         url = 'http://localhost:5000/api/fiche_feux_encastres/valider';
+        body = { ficheId: id };
+      } else if (selectedFiche?.regul) {
+        url = 'http://localhost:5000/api/fiche-semes-regulateures/valider';
         body = { ficheId: id };
       } else {
         url = 'http://localhost:5000/api/inspections/valider';
@@ -822,78 +820,81 @@ const voirFicheFeuxEncastres = async (ficheId, notifId) => {
         `Fiche_Aides_Radios_${selectedFiche.date ? new Date(selectedFiche.date).toISOString() : 'date_inconnue'}.pdf`
       );
     }
-// ===================== EXPORT PDF FEUX ENCASTRES =====================
-else if (selectedFiche?.feuxEncastres) {
-  doc.text('Fiche Feux Encastrés Semestrielle', 14, 15);
-  doc.setFontSize(11);
+    // ===================== EXPORT PDF FEUX ENCASTRES =====================
+    else if (selectedFiche?.feuxEncastres) {
+      doc.text('Fiche Feux Encastrés Semestrielle', 14, 15);
+      doc.setFontSize(11);
 
-  doc.text(
-    `📅 Date : ${selectedFiche.date ? new Date(selectedFiche.date).toLocaleDateString() : ''}`,
-    14,
-    22
-  );
-  doc.text(
-    `👨‍🔧 Technicien : ${selectedFiche.technicienOperateurs || ''}`,
-    14,
-    28
-  );
-  doc.text(
-    `📝 Observations générales : ${selectedFiche.observationsGenerales || ''}`,
-    14,
-    34
-  );
+      doc.text(
+        `📅 Date : ${selectedFiche.date ? new Date(selectedFiche.date).toLocaleDateString() : ''}`,
+        14,
+        22
+      );
+      doc.text(
+        `👨‍🔧 Technicien : ${selectedFiche.technicienOperateurs || ''}`,
+        14,
+        28
+      );
+      doc.text(
+        `📝 Observations générales : ${selectedFiche.observationsGenerales || ''}`,
+        14,
+        34
+      );
 
-  const tableColumn = [
-    'Emplacement',
-    'Élément',
-    'État',
-    'Interventions',
-    'Observations',
-  ];
-  const tableRows = [];
+      const tableColumn = [
+        'Emplacement',
+        'Élément',
+        'État',
+        'Interventions',
+        'Observations',
+      ];
+      const tableRows = [];
 
-  // Parcours des emplacements
-  Object.keys(selectedFiche.feuxEncastres).forEach((emp) => {
-    const fields = selectedFiche.feuxEncastres[emp];
-    Object.keys(fields).forEach((field, index) => {
-      const row = fields[field];
-      tableRows.push([
-        index === 0 ? emp : '', // Emplacement seulement sur la première ligne
-        field,
-        row.etat || '',
-        row.intervention || '',
-        row.observations || '',
-      ]);
-    });
-  });
+      // Parcours des emplacements
+      Object.keys(selectedFiche.feuxEncastres).forEach((emp) => {
+        const fields = selectedFiche.feuxEncastres[emp];
+        Object.keys(fields).forEach((field, index) => {
+          const row = fields[field];
+          tableRows.push([
+            index === 0 ? emp : '', // Emplacement seulement sur la première ligne
+            field,
+            row.etat || '',
+            row.intervention || '',
+            row.observations || '',
+          ]);
+        });
+      });
 
-  autoTable(doc, {
-    head: [tableColumn],
-    body: tableRows,
-    startY: 40,
-    theme: 'grid',
-    headStyles: { fillColor: [52, 152, 219], textColor: 255 },
-    styles: { fontSize: 10 },
-  });
+      autoTable(doc, {
+        head: [tableColumn],
+        body: tableRows,
+        startY: 40,
+        theme: 'grid',
+        headStyles: { fillColor: [52, 152, 219], textColor: 255 },
+        styles: { fontSize: 10 },
+      });
 
-  // Ajouter la signature si elle existe
-  if (selectedFiche.signature) {
-    const imgProps = doc.getImageProperties(selectedFiche.signature);
-    const pdfWidth = doc.internal.pageSize.getWidth();
-    const imgWidth = 100;
-    const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
-    const startY = doc.lastAutoTable.finalY + 10;
-    doc.text('Signature :', 14, startY + 6);
-    doc.addImage(selectedFiche.signature, 'PNG', 14, startY + 10, imgWidth, imgHeight);
-  }
+      // Ajouter la signature si elle existe
+      if (selectedFiche.signature) {
+        const imgProps = doc.getImageProperties(selectedFiche.signature);
+        const pdfWidth = doc.internal.pageSize.getWidth();
+        const imgWidth = 100;
+        const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+        const startY = doc.lastAutoTable.finalY + 10;
+        doc.text('Signature :', 14, startY + 6);
+        doc.addImage(
+          selectedFiche.signature,
+          'PNG',
+          14,
+          startY + 10,
+          imgWidth,
+          imgHeight
+        );
+      }
 
-  doc.save(
-    `Fiche_Feux_Encastres_${selectedFiche.date ? new Date(selectedFiche.date).toISOString() : 'date_inconnue'}.pdf`
-  );
-
-
-
-
+      doc.save(
+        `Fiche_Feux_Encastres_${selectedFiche.date ? new Date(selectedFiche.date).toISOString() : 'date_inconnue'}.pdf`
+      );
     } else {
       doc.text(
         `Fiche Inspection journalière ${selectedFiche.matricule}`,
@@ -982,6 +983,8 @@ else if (selectedFiche?.feuxEncastres) {
                     voirFicheAidesRadios(ficheId, n._id);
                   } else if (n.type?.toLowerCase() === 'fiche_feux_encastres') {
                     voirFicheFeuxEncastres(ficheId, n._id);
+                  } else if (n.type?.toLowerCase() === 'fiche_regulateurs') {
+                    voirFicheSemesRegulateures(ficheId, n._id);
                   } else {
                     voirFiche(ficheId);
                   }
@@ -1488,6 +1491,130 @@ else if (selectedFiche?.feuxEncastres) {
                     ❌ Fermer
                   </button>
 
+                  <button onClick={exportPDF}>📄 Exporter PDF</button>
+                </div>
+              </>
+            ) : // ================= semesteille regulateures =================
+            // ================= REGULATEURS =================
+            selectedFiche?.boucles ? (
+              <>
+                <h3>Fiche d'inspection Semestrielle Régulateurs</h3>
+
+                {/* Informations générales */}
+                <p>
+                  📅 Date :{' '}
+                  {selectedFiche.date
+                    ? new Date(selectedFiche.date).toLocaleDateString()
+                    : ''}
+                </p>
+                <p>
+                  👨‍🔧 Technicien : {selectedFiche.Technicien_Operateurs || ''}
+                </p>
+                <p>
+                  📝 Observations générales : {selectedFiche.observations || ''}
+                </p>
+
+                {/* Vérifications générales */}
+                <div className="verifications-generales">
+                  <h4>Vérifications générales</h4>
+                  <p>
+                    Remontées défaut :{' '}
+                    {selectedFiche.verifications_generales?.Remontees_defaut ||
+                      ''}
+                  </p>
+                  <p>
+                    État général :{' '}
+                    {selectedFiche.verifications_generales
+                      ?.Etat_general_equipements || ''}
+                  </p>
+                  <p>
+                    Analyse archivage :{' '}
+                    {selectedFiche.verifications_generales
+                      ?.Analyse_archivage_cahiers || ''}
+                  </p>
+                </div>
+
+                {/* Tableau des boucles */}
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Catégorie</th>
+                      <th>Boucle</th>
+                      <th>Type Puissance</th>
+                      <th>Longueur (m)</th>
+                      <th>Continuité Théorique (Ω)</th>
+                      <th>Continuité Mesurée (Ω)</th>
+                      <th>Nombre de feux</th>
+                      <th>Isolement (Ω)</th>
+                      <th>Tension Test (Vcc)</th>
+                      <th>Courant Test (Ac)</th>
+                      <th>Durée Test</th>
+                      <th>Vérification Parafoudres</th>
+                      <th>Commentaires</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {Object.entries(selectedFiche.boucles).map(
+                      ([categorie, boucles], i) =>
+                        Object.entries(boucles).map(
+                          ([nomBoucle, details], j) => (
+                            <tr key={`${i}-${j}`}>
+                              {j === 0 && (
+                                <td rowSpan={Object.keys(boucles).length}>
+                                  {categorie}
+                                </td>
+                              )}
+                              <td>{nomBoucle}</td>
+                              <td>{details.Type_Puissance}</td>
+                              <td>{details.Longueur_M}</td>
+                              <td>{details.Continuite_Theorique_Ohm}</td>
+                              <td>{details.Continuite_Mesuree_Ohm}</td>
+                              <td>{details.Nombre_de_feux}</td>
+                              <td>{details.Resultats?.Isolement_Ohm}</td>
+                              <td>{details.Resultats?.Tension_test_Vcc}</td>
+                              <td>{details.Resultats?.Courant_test_Ac}</td>
+                              <td>{details.Test?.Duree}</td>
+                              <td>{details.Verification_parafoudres}</td>
+                              <td>{details.Commentaires}</td>
+                            </tr>
+                          )
+                        )
+                    )}
+                  </tbody>
+                </table>
+
+                {/* Signature */}
+                {selectedFiche.signature && (
+                  <div style={{ marginTop: '20px' }}>
+                    <h4>Signature :</h4>
+                    <img
+                      src={selectedFiche.signature}
+                      alt="Signature"
+                      style={{
+                        border: '1px solid #000',
+                        width: '400px',
+                        height: '150px',
+                      }}
+                    />
+                  </div>
+                )}
+
+                {/* Actions du modal */}
+                <div
+                  className="modal-actions"
+                  style={{ marginTop: '20px', display: 'flex', gap: '10px' }}
+                >
+                  <button
+                    onClick={() =>
+                      validerFiche(selectedFiche._id, selectedFiche.notifId)
+                    }
+                  >
+                    ✅ Valider
+                  </button>
+                  <button onClick={() => setSelectedFiche(null)}>
+                    ❌ Fermer
+                  </button>
                   <button onClick={exportPDF}>📄 Exporter PDF</button>
                 </div>
               </>

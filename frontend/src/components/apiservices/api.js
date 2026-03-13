@@ -15,6 +15,7 @@ const FICHE_REGULATEURES_API = "http://localhost:5000/api/fiche-regulateures";
 const FICHE_POSTES_API = "http://localhost:5000/api/fiche-postes";
 const FICHE_AIDES_RADIOS_API = "http://localhost:5000/api/fiche-aides-radios";
 const FICHE_FEUXEN_API = "http://localhost:5000/api/fiche-feux-encastres";
+const FICHE_REGULATEURS_API = "http://localhost:5000/api/fiche-semes-regulateures";
 
 // 🔹 Récupérer tous les équipements
 export const getEquipements = async() => {
@@ -396,5 +397,23 @@ export const enregistrerFicheFeuxEncastres = async(id, data) => {
 };
 export const envoyerFicheFeuxEncastres = async(id) => {
     const res = await axios.put(`${FICHE_FEUXEN_API}/envoyer/${id}`);
+    return res.data;
+};
+// =======================
+// FICHE regulateures
+// =======================
+export const getFicheSemesRegulateures = async() => {
+    const response = await fetch(FICHE_REGULATEURS_API);
+    if (!response.ok) {
+        throw new Error("Erreur récupération fiche semestrielle régulateurs");
+    }
+    return response.json();
+};
+export const enregistrerFicheSemesRegulateures = async(id, data) => {
+    const res = await axios.put(`${FICHE_REGULATEURS_API}/${id}`, data);
+    return res.data;
+};
+export const envoyerFicheSemesRegulateures = async(id) => {
+    const res = await axios.put(`${FICHE_REGULATEURS_API}/envoyer/${id}`);
     return res.data;
 };

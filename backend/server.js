@@ -81,6 +81,13 @@ app.use("/api/fiche-aides-radios", ficheAidesRadiosRoutes);
 //feux encastres
 const ficheFeuxEncastresRoutes = require('./routes/ficheFeuxEncastresRoutes');
 app.use('/api/fiche-feux-encastres', ficheFeuxEncastresRoutes);
+// fiche regulateurs semsterille 
+const ficheSemesRegulateuresRoutes = require("./routes/ficheSemesRegulateuresRoutes");
+app.use("/api/fiche-semes-regulateures", ficheSemesRegulateuresRoutes);
+
+
+
+
 // Catch-all 404
 
 app.use((req, res) => res.status(404).send("Route introuvable ❌"));
