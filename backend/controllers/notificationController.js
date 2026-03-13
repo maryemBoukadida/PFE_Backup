@@ -15,25 +15,19 @@ exports.getNotifications = async(req, res) => {
 };
 
 
-// marquer notification comme lue
 exports.marquerCommeLue = async(req, res) => {
-
     try {
-
         const notification = await Notification.findById(req.params.id);
-
         if (!notification)
             return res.status(404).json({ message: "Notification non trouvée" });
 
         notification.read = true;
-
         await notification.save();
 
         res.json({
             message: "Notification marquée comme lue",
             notification
         });
-
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

@@ -75,7 +75,12 @@ app.use("/api/fiche-regulateures", ficheRegulateuresRoutes);
 const fichePosteRoutes = require("./routes/fichePosteRoutes");
 app.use("/api/fiche-postes", fichePosteRoutes);
 
-
+//aides radios
+const ficheAidesRadiosRoutes = require("./routes/ficheAidesRadiosRoutes");
+app.use("/api/fiche-aides-radios", ficheAidesRadiosRoutes);
+//feux encastres
+const ficheFeuxEncastresRoutes = require('./routes/ficheFeuxEncastresRoutes');
+app.use('/api/fiche-feux-encastres', ficheFeuxEncastresRoutes);
 // Catch-all 404
 
 app.use((req, res) => res.status(404).send("Route introuvable ❌"));

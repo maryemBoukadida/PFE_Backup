@@ -8,6 +8,8 @@ import FicheFeuxObstaclesMensuelle from './FicheFeuxObstaclesMensuelle';
 import FicheLVPMensuelle from './FicheLVPMensuelle'; // 🔹 important
 import FicheRegulateuresMensuelle from './FicheRegulateuresMensuelle';
 import FichePostesMensuelle from './FichePostesMensuelle';
+import FicheAidesRadiosMensuelle from './FicheAidesRadiosMensuelle';
+import FicheFeuxEncastresSemesterielle from './FicheFeuxEncastresSemesterielle';
 export default function InspectionTech() {
   const [periode, setPeriode] = useState('JOURNALIERE');
   const [typeFiche, setTypeFiche] = useState('');
@@ -29,7 +31,11 @@ export default function InspectionTech() {
     { value: 'LVP', label: 'LVP' },
     { value: 'REGULATEURES', label: 'Approche des Regulateures' },
     { value: 'POSTES', label: 'Postes' },
+    { value: 'AIDES RADIOS', label: 'Aides Radios' },
   ];
+  const typesFichesSemestrielles = [
+  { value: 'FEUX ENCASTRES', label: 'Feux Encastres' },
+];
 
   // 🔹 Récupération des inspections depuis l’API
   useEffect(() => {
@@ -126,9 +132,13 @@ export default function InspectionTech() {
         <FicheDGSMensuelle />
       ) : periode === 'MENSUELLE' && typeFiche === 'REGULATEURES' ? (
         <FicheRegulateuresMensuelle />
-      ) :periode === 'MENSUELLE' && typeFiche === 'POSTES' ? (
+      ) : periode === 'MENSUELLE' && typeFiche === 'POSTES' ? (
         <FichePostesMensuelle />
-     ): periode === 'MENSUELLE' && typeFiche === 'FEUX DOBSTACLES' ? (
+      ) : periode === 'MENSUELLE' && typeFiche === 'AIDES RADIOS' ? (
+        <FicheAidesRadiosMensuelle />
+      ) : periode === 'SEMESTRIELLE' && typeFiche === 'FEUX ENCASTRES' ? (
+        <FicheFeuxEncastresSemesterielle />
+      ) : periode === 'MENSUELLE' && typeFiche === 'FEUX DOBSTACLES' ? (
         <FicheFeuxObstaclesMensuelle />
       ) : (
         // 🔹 Interface journalière / hebdo / annuelle
@@ -145,6 +155,7 @@ export default function InspectionTech() {
               <option value="HEBDOMADAIRE">Hebdomadaire</option>
               <option value="MENSUELLE">Mensuelle</option>
               <option value="ANNUELLE">Annuelle</option>
+              <option value="SEMESTRIELLE">Semestrielle</option>
             </select>
 
             {periode === 'MENSUELLE' && (
@@ -153,6 +164,7 @@ export default function InspectionTech() {
                 onChange={(e) => setTypeFiche(e.target.value)}
               >
                 <option value="">-- Type fiche --</option>
+
                 {typesFiches.map((t) => (
                   <option key={t.value} value={t.value}>
                     {t.label}
@@ -160,6 +172,21 @@ export default function InspectionTech() {
                 ))}
               </select>
             )}
+
+          {/* 🔹 Sélecteur pour SEMESTRIELLE */}
+{periode === 'SEMESTRIELLE' && (
+  <select
+    value={typeFiche}
+    onChange={(e) => setTypeFiche(e.target.value)}
+  >
+    <option value="">-- Type fiche --</option>
+    {typesFichesSemestrielles.map((t) => (
+      <option key={t.value} value={t.value}>
+        {t.label}
+      </option>
+    ))}
+  </select>
+)}
           </div>
 
           {/* 🔹 Tableau */}

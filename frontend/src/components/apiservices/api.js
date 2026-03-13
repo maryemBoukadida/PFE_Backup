@@ -13,6 +13,9 @@ const FICHE_FEUX_OBSTACLES_API = "http://localhost:5000/api/feux-obstacles";
 const FICHE_LVP_API = "http://localhost:5000/api/fiche-lvp";
 const FICHE_REGULATEURES_API = "http://localhost:5000/api/fiche-regulateures";
 const FICHE_POSTES_API = "http://localhost:5000/api/fiche-postes";
+const FICHE_AIDES_RADIOS_API = "http://localhost:5000/api/fiche-aides-radios";
+const FICHE_FEUXEN_API = "http://localhost:5000/api/fiche-feux-encastres";
+
 // 🔹 Récupérer tous les équipements
 export const getEquipements = async() => {
     const res = await fetch(API_URL);
@@ -351,5 +354,47 @@ export const enregistrerFichePostes = async(id, data) => {
 };
 export const envoyerFichePostes = async(id) => {
     const res = await axios.put(`${FICHE_POSTES_API}/envoyer/${id}`);
+    return res.data;
+};
+// =======================
+// FICHE aides radios
+// =======================
+export const getFicheAidesRadios = async() => {
+
+    const response = await fetch(FICHE_AIDES_RADIOS_API);
+
+    if (!response.ok) {
+        throw new Error("Erreur récupération fiche aides radios");
+    }
+
+    return response.json();
+};
+//enregisterre fiche aides radios
+export const enregistrerFicheAidesRadios = async(id, data) => {
+    const res = await axios.put(`${FICHE_AIDES_RADIOS_API}/${id}`, data);
+    return res.data;
+};
+export const envoyerFicheAidesRadios = async(id) => {
+    const res = await axios.put(`${FICHE_AIDES_RADIOS_API}/envoyer/${id}`);
+    return res.data;
+};
+
+// =======================
+// FICHE feux encastres
+// =======================
+// Récupérer la dernière fiche
+export const getFicheFeuxEncastres = async() => {
+    const response = await fetch(FICHE_FEUXEN_API);
+    if (!response.ok) {
+        throw new Error("Erreur récupération fiche feux encastrés");
+    }
+    return response.json();
+};
+export const enregistrerFicheFeuxEncastres = async(id, data) => {
+    const res = await axios.put(`${FICHE_FEUXEN_API}/${id}`, data);
+    return res.data;
+};
+export const envoyerFicheFeuxEncastres = async(id) => {
+    const res = await axios.put(`${FICHE_FEUXEN_API}/envoyer/${id}`);
     return res.data;
 };

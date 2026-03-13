@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const Notification = require("../models/Notification");
+//const Notification = require("../models/Notification");
 
 const notificationController = require("../controllers/notificationController");
 
@@ -10,23 +10,6 @@ router.get("/", notificationController.getNotifications);
 // Marquer une notification comme lue
 router.put("/:id/read", notificationController.marquerCommeLue);
 
-//router.put("/lue/:id", notificationController.marquerCommeLue);
-router.put("/:id/read", async(req, res) => {
-    try {
 
-        const notif = await Notification.findByIdAndUpdate(
-            req.params.id, { read: true }, { new: true }
-        );
-
-        if (!notif) {
-            return res.status(404).json({ message: "Notification non trouvée" });
-        }
-
-        res.json(notif);
-
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
 
 module.exports = router;

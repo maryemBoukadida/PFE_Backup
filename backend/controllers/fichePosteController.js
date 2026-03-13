@@ -61,7 +61,8 @@ exports.envoyerFichePostes = async(req, res) => {
         console.error("Erreur envoyerFichePostes :", error);
         res.status(500).json({ message: error.message });
     }
-}; // récupérer une fiche poste par ID
+};
+// récupérer une fiche poste par ID
 exports.getFichePostesById = async(req, res) => {
     try {
         const fiche = await FichePoste.findById(req.params.id);

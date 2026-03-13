@@ -15,6 +15,8 @@ export default function Notifications() {
   const FICHE_LVP_API = 'http://localhost:5000/api/fiche-lvp';
   const FICHE_REGULATEURES_API = 'http://localhost:5000/api/fiche-regulateures';
   const FICHE_POSTES_API = 'http://localhost:5000/api/fiche-postes';
+  const FICHE_AIDES_RADIOS_API = 'http://localhost:5000/api/fiche-aides-radios';
+  const FICHE_FEUXEN_API = 'http://localhost:5000/api/fiche-feux-encastres';
 
   // ===================== CHARGER NOTIFICATIONS =====================
   const fetchNotifications = async () => {
@@ -37,12 +39,20 @@ export default function Notifications() {
       const res6 = await fetch(
         'http://localhost:5000/api/fiche-postes/notifications'
       );
+      const res7 = await fetch(
+        'http://localhost:5000/api/fiche-aides-radios/notifications'
+      );
+      const res8 = await fetch(
+        'http://localhost:5000/api/fiche-feux-encastres/notifications'
+      );
       const data1 = res1.ok ? await res1.json() : [];
       const data2 = res2.ok ? await res2.json() : [];
       const data3 = res3.ok ? await res3.json() : [];
       const data4 = res4.ok ? await res4.json() : [];
       const data5 = res5.ok ? await res5.json() : [];
       const data6 = res6.ok ? await res6.json() : [];
+      const data7 = res7.ok ? await res7.json() : [];
+      const data8 = res8.ok ? await res8.json() : [];
 
       setNotifications([
         ...(Array.isArray(data1) ? data1 : []),
@@ -51,6 +61,8 @@ export default function Notifications() {
         ...(Array.isArray(data4) ? data4 : []),
         ...(Array.isArray(data5) ? data5 : []),
         ...(Array.isArray(data6) ? data6 : []),
+        ...(Array.isArray(data7) ? data7 : []),
+        ...(Array.isArray(data8) ? data8 : []),
       ]);
     } catch (err) {
       console.error('Erreur notifications :', err);
@@ -197,9 +209,48 @@ export default function Notifications() {
       console.error('Erreur voir fiche postes :', err);
     }
   };
+  //voir fiche aides radios
+  const voirFicheAidesRadios = async (ficheId, notifId) => {
+    try {
+      const res = await fetch(`${FICHE_AIDES_RADIOS_API}/${ficheId}`);
+      if (!res.ok)
+        return console.error('Erreur récupération fiche aides radios');
 
+      const data = await res.json();
+      // Stocker notifId pour l’utiliser lors de la validation
+      setSelectedFiche({ ...data, notifId });
+    } catch (err) {
+      console.error('Erreur voir fiche aides radios :', err);
+    }
+  };
+  // voir fiche feux encastres
+const voirFicheFeuxEncastres = async (ficheId, notifId) => {
+  try {
+    // Récupérer la fiche par son ID
+    const res = await fetch(`${FICHE_FEUXEN_API}/${ficheId}`);
+    if (!res.ok) {
+      console.error('Erreur récupération fiche feux encastrés');
+      return;
+    }
+
+    const data = await res.json();
+
+    // stocker la fiche + l'ID de notification pour marquer comme lu
+    setSelectedFiche({ ...data, notifId });
+
+    // Marquer la notification comme lue
+    if (notifId) {
+      await fetch(`http://localhost:5000/api/notifications/${notifId}/read`, {
+        method: 'PUT',
+      });
+      fetchNotifications();
+    }
+  } catch (err) {
+    console.error('Erreur voir fiche feux encastrés :', err);
+  }
+};
   // ===================== VALIDER FICHE =====================
-  const validerFiche = async (id) => {
+  const validerFiche = async (id, notifId = null) => {
     try {
       let url = '';
       let body = {};
@@ -225,6 +276,12 @@ export default function Notifications() {
       } else if (selectedFiche?.postes) {
         url = 'http://localhost:5000/api/fiche-postes/valider';
         body = { ficheId: id };
+      } else if (selectedFiche?.aidesRadios) {
+        url = 'http://localhost:5000/api/fiche-aides-radios/valider';
+        body = { ficheId: id };
+      } else if (selectedFiche?.feuxEncastres) {
+        url = 'http://localhost:5000/api/fiche_feux_encastres/valider';
+        body = { ficheId: id };
       } else {
         url = 'http://localhost:5000/api/inspections/valider';
         body = { inspectionId: id };
@@ -235,6 +292,7 @@ export default function Notifications() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
+      marquerNotifCommeLue(selectedFiche.notifId);
 
       alert("Fiche validée et enregistrée dans l'historique ✅");
       setSelectedFiche(null);
@@ -249,6 +307,18 @@ export default function Notifications() {
     }
   };
 
+  //marquer fiche comme lu
+  const marquerNotifCommeLue = async (notifId) => {
+    if (!notifId) return;
+    try {
+      await fetch(`http://localhost:5000/api/notifications/${notifId}/read`, {
+        method: 'PUT',
+      });
+      fetchNotifications();
+    } catch (err) {
+      console.error('Erreur marquage notification :', err);
+    }
+  };
   // ===================== EXPORT PDF =====================
   const exportPDF = () => {
     if (!selectedFiche) return;
@@ -644,6 +714,186 @@ export default function Notifications() {
       doc.save(
         `Fiche_Postes_${selectedFiche.date ? new Date(selectedFiche.date).toISOString() : 'date_inconnue'}.pdf`
       );
+      // ===================== EXPORT PDF aides radiso =====================
+    } else if (
+      selectedFiche?.poste_MT_SST2?.length > 0 ||
+      selectedFiche?.TGBT_Aides_Radios?.poste_BT_GLIDE09?.length > 0 ||
+      selectedFiche?.TGBT_Aides_Radios?.poste_BT_GLIDE027?.length > 0 ||
+      selectedFiche?.TGBT_Aides_Radios?.poste_BT_LOC09?.length > 0 ||
+      selectedFiche?.TGBT_Aides_Radios?.poste_BT_LOC27?.length > 0 ||
+      selectedFiche?.TGBT_Aides_Radios?.poste_BT_DVOR?.length > 0
+    ) {
+      doc.text('Fiche Aides Radios Mensuelle', 14, 15);
+      doc.setFontSize(11);
+      doc.text(
+        `📅 Date : ${selectedFiche.date ? new Date(selectedFiche.date).toLocaleDateString() : ''}`,
+        14,
+        22
+      );
+      doc.text(
+        `👨‍🔧 Technicien : ${selectedFiche.technicien_operateur || ''}`,
+        14,
+        28
+      );
+      doc.text(
+        `📝 Observations générales : ${selectedFiche.observations_generales || ''}`,
+        14,
+        34
+      );
+
+      const tableColumn = [
+        'Poste',
+        'Élément',
+        'Type',
+        'État',
+        'Interventions',
+        'Observations',
+      ];
+      const tableRows = [];
+
+      const addRows = (posteName, data) => {
+        if (!data || data.length === 0) return;
+        data.forEach((item, index) => {
+          if (item.sous_elements?.length > 0) {
+            item.sous_elements.forEach((sub, subIndex) => {
+              tableRows.push([
+                subIndex === 0 ? posteName : '',
+                subIndex === 0 ? item.element : '',
+                sub.type || '',
+                sub.etat || '',
+                sub.interventions || '',
+                sub.observations || '',
+              ]);
+            });
+          } else {
+            tableRows.push([
+              index === 0 ? posteName : '',
+              item.element || '',
+              '',
+              item.etat || '',
+              item.interventions || '',
+              item.observations || '',
+            ]);
+          }
+        });
+      };
+
+      addRows('POSTE MT SST2', selectedFiche.poste_MT_SST2);
+      addRows(
+        'POSTE BT GLIDE09',
+        selectedFiche.TGBT_Aides_Radios.poste_BT_GLIDE09
+      );
+      addRows(
+        'POSTE BT GLIDE027',
+        selectedFiche.TGBT_Aides_Radios.poste_BT_GLIDE027
+      );
+      addRows('POSTE BT LOC09', selectedFiche.TGBT_Aides_Radios.poste_BT_LOC09);
+      addRows('POSTE BT LOC27', selectedFiche.TGBT_Aides_Radios.poste_BT_LOC27);
+      addRows('POSTE BT DVOR', selectedFiche.TGBT_Aides_Radios.poste_BT_DVOR);
+
+      autoTable(doc, {
+        head: [tableColumn],
+        body: tableRows,
+        startY: 40,
+        theme: 'grid',
+        headStyles: { fillColor: [52, 152, 219], textColor: 255 },
+        styles: { fontSize: 10 },
+      });
+
+      // Ajouter la signature si elle existe
+      if (selectedFiche.signature) {
+        const imgProps = doc.getImageProperties(selectedFiche.signature);
+        const pdfWidth = doc.internal.pageSize.getWidth();
+        const imgWidth = 100;
+        const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+        const startY = doc.lastAutoTable.finalY + 10;
+        doc.text('Signature :', 14, startY + 6);
+        doc.addImage(
+          selectedFiche.signature,
+          'PNG',
+          14,
+          startY + 10,
+          imgWidth,
+          imgHeight
+        );
+      }
+
+      doc.save(
+        `Fiche_Aides_Radios_${selectedFiche.date ? new Date(selectedFiche.date).toISOString() : 'date_inconnue'}.pdf`
+      );
+    }
+// ===================== EXPORT PDF FEUX ENCASTRES =====================
+else if (selectedFiche?.feuxEncastres) {
+  doc.text('Fiche Feux Encastrés Semestrielle', 14, 15);
+  doc.setFontSize(11);
+
+  doc.text(
+    `📅 Date : ${selectedFiche.date ? new Date(selectedFiche.date).toLocaleDateString() : ''}`,
+    14,
+    22
+  );
+  doc.text(
+    `👨‍🔧 Technicien : ${selectedFiche.technicienOperateurs || ''}`,
+    14,
+    28
+  );
+  doc.text(
+    `📝 Observations générales : ${selectedFiche.observationsGenerales || ''}`,
+    14,
+    34
+  );
+
+  const tableColumn = [
+    'Emplacement',
+    'Élément',
+    'État',
+    'Interventions',
+    'Observations',
+  ];
+  const tableRows = [];
+
+  // Parcours des emplacements
+  Object.keys(selectedFiche.feuxEncastres).forEach((emp) => {
+    const fields = selectedFiche.feuxEncastres[emp];
+    Object.keys(fields).forEach((field, index) => {
+      const row = fields[field];
+      tableRows.push([
+        index === 0 ? emp : '', // Emplacement seulement sur la première ligne
+        field,
+        row.etat || '',
+        row.intervention || '',
+        row.observations || '',
+      ]);
+    });
+  });
+
+  autoTable(doc, {
+    head: [tableColumn],
+    body: tableRows,
+    startY: 40,
+    theme: 'grid',
+    headStyles: { fillColor: [52, 152, 219], textColor: 255 },
+    styles: { fontSize: 10 },
+  });
+
+  // Ajouter la signature si elle existe
+  if (selectedFiche.signature) {
+    const imgProps = doc.getImageProperties(selectedFiche.signature);
+    const pdfWidth = doc.internal.pageSize.getWidth();
+    const imgWidth = 100;
+    const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+    const startY = doc.lastAutoTable.finalY + 10;
+    doc.text('Signature :', 14, startY + 6);
+    doc.addImage(selectedFiche.signature, 'PNG', 14, startY + 10, imgWidth, imgHeight);
+  }
+
+  doc.save(
+    `Fiche_Feux_Encastres_${selectedFiche.date ? new Date(selectedFiche.date).toISOString() : 'date_inconnue'}.pdf`
+  );
+
+
+
+
     } else {
       doc.text(
         `Fiche Inspection journalière ${selectedFiche.matricule}`,
@@ -727,8 +977,11 @@ export default function Notifications() {
                   } else if (n.type?.toLowerCase() === 'fiche_regulateures') {
                     voirFicheRegulateures(ficheId, n._id);
                   } else if (n.type?.toLowerCase() === 'fiche_postes') {
-                    // <-- ajout pour postes
                     voirFichePostes(ficheId, n._id);
+                  } else if (n.type?.toLowerCase() === 'fiche_aides_radios') {
+                    voirFicheAidesRadios(ficheId, n._id);
+                  } else if (n.type?.toLowerCase() === 'fiche_feux_encastres') {
+                    voirFicheFeuxEncastres(ficheId, n._id);
                   } else {
                     voirFiche(ficheId);
                   }
@@ -1047,6 +1300,194 @@ export default function Notifications() {
                   <button onClick={() => setSelectedFiche(null)}>
                     ❌ Fermer
                   </button>
+                  <button onClick={exportPDF}>📄 Exporter PDF</button>
+                </div>
+              </>
+            ) : // ================= aides radios  =================
+            selectedFiche.poste_MT_SST2 || selectedFiche.TGBT_Aides_Radios ? (
+              <>
+                <h3>Fiche Aides Radios Mensuelle</h3>
+                <p>
+                  📅 Date : {new Date(selectedFiche.date).toLocaleDateString()}
+                </p>
+                <p>
+                  👨‍🔧 Technicien : {selectedFiche.technicien_operateur || ''}
+                </p>
+                <p>
+                  📝 Observations générales :{' '}
+                  {selectedFiche.observations_generales || ''}
+                </p>
+
+                {/* Poste MT SST2 */}
+                {selectedFiche.poste_MT_SST2 &&
+                  selectedFiche.poste_MT_SST2.length > 0 && (
+                    <div>
+                      <h4>Poste MT SST2</h4>
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Élément</th>
+                            <th>Type</th>
+                            <th>État</th>
+                            <th>Interventions</th>
+                            <th>Observations</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {selectedFiche.poste_MT_SST2.map((el, i) => (
+                            <React.Fragment key={i}>
+                              <tr>
+                                <td>{el.element}</td>
+                                <td>-</td>
+                                <td>{el.etat || ''}</td>
+                                <td>{el.interventions || ''}</td>
+                                <td>{el.observations || ''}</td>
+                              </tr>
+                              {el.sous_elements &&
+                                el.sous_elements.map((se, j) => (
+                                  <tr key={`sous-${i}-${j}`}>
+                                    <td style={{ paddingLeft: '20px' }}>
+                                      ↳ {se.type || ''}
+                                    </td>
+                                    <td>-</td>
+                                    <td>{se.etat || ''}</td>
+                                    <td>{se.interventions || ''}</td>
+                                    <td>{se.observations || ''}</td>
+                                  </tr>
+                                ))}
+                            </React.Fragment>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+                {/* TGBT Aides Radios */}
+                {selectedFiche.TGBT_Aides_Radios &&
+                  Object.entries(selectedFiche.TGBT_Aides_Radios).map(
+                    ([poste, elements], idx) => (
+                      <div key={idx}>
+                        <h4>{poste}</h4>
+                        <table>
+                          <thead>
+                            <tr>
+                              <th>Élément</th>
+                              <th>Type</th>
+                              <th>État</th>
+                              <th>Interventions</th>
+                              <th>Observations</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {elements.map((el, i) => (
+                              <React.Fragment key={i}>
+                                <tr>
+                                  <td>{el.element}</td>
+                                  <td>-</td>
+                                  <td>{el.etat || ''}</td>
+                                  <td>{el.interventions || ''}</td>
+                                  <td>{el.observations || ''}</td>
+                                </tr>
+                                {el.sous_elements &&
+                                  el.sous_elements.map((se, j) => (
+                                    <tr key={`sous-${i}-${j}`}>
+                                      <td style={{ paddingLeft: '20px' }}>
+                                        ↳ {se.type || ''}
+                                      </td>
+                                      <td>-</td>
+                                      <td>{se.etat || ''}</td>
+                                      <td>{se.interventions || ''}</td>
+                                      <td>{se.observations || ''}</td>
+                                    </tr>
+                                  ))}
+                              </React.Fragment>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )
+                  )}
+
+                <div className="modal-actions">
+                  <button
+                    onClick={() =>
+                      validerFiche(selectedFiche._id, selectedFiche.notifId)
+                    }
+                  >
+                    ✅ Valider
+                  </button>
+                  <button onClick={() => setSelectedFiche(null)}>
+                    ❌ Fermer
+                  </button>
+                  <button onClick={exportPDF}>📄 Exporter PDF</button>
+                </div>
+              </>
+            ) : // ================= FEUX ENCASTRES =================
+            selectedFiche.feuxEncastres ? (
+              <>
+                <h3>Fiche Feux Encastrés Semestrielle</h3>
+
+                <p>
+                  📅 Date :{' '}
+                  {selectedFiche.date
+                    ? new Date(selectedFiche.date).toLocaleDateString()
+                    : ''}
+                </p>
+                <p>
+                  👨‍🔧 Technicien : {selectedFiche.technicienOperateurs || ''}
+                </p>
+                <p>
+                  📝 Observations générales :{' '}
+                  {selectedFiche.observationsGenerales || ''}
+                </p>
+
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Emplacement</th>
+                      <th>Élément</th>
+                      <th>État</th>
+                      <th>Interventions</th>
+                      <th>Observations</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {Object.keys(selectedFiche.feuxEncastres).map((emp, i) => {
+                      const fields = selectedFiche.feuxEncastres[emp];
+                      return Object.keys(fields).map((field, j) => {
+                        const row = fields[field];
+                        return (
+                          <tr key={`${i}-${j}`}>
+                            {j === 0 && (
+                              <td rowSpan={Object.keys(fields).length}>
+                                {emp}
+                              </td>
+                            )}
+                            <td>{field}</td>
+                            <td>{row.etat}</td>
+                            <td>{row.intervention}</td>
+                            <td>{row.observations}</td>
+                          </tr>
+                        );
+                      });
+                    })}
+                  </tbody>
+                </table>
+
+                <div className="modal-actions">
+                  <button
+                    onClick={() =>
+                      validerFiche(selectedFiche._id, selectedFiche.notifId)
+                    }
+                  >
+                    ✅ Valider
+                  </button>
+
+                  <button onClick={() => setSelectedFiche(null)}>
+                    ❌ Fermer
+                  </button>
+
                   <button onClick={exportPDF}>📄 Exporter PDF</button>
                 </div>
               </>
