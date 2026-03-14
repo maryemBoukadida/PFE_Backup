@@ -85,8 +85,16 @@ app.use('/api/fiche-feux-encastres', ficheFeuxEncastresRoutes);
 const ficheSemesRegulateuresRoutes = require("./routes/ficheSemesRegulateuresRoutes");
 app.use("/api/fiche-semes-regulateures", ficheSemesRegulateuresRoutes);
 
+// fiche poste semesterile
+const ficheSemesPostesRoutes = require("./routes/ficheSemesPostesRoutes");
+app.use("/api/fiche-semes-postes", ficheSemesPostesRoutes);
 
-
+// fiche semesterille dgs
+const ficheSemesDgsRoutes = require("./routes/ficheSemesDgsRoutes");
+app.use("/api/fiche-semes-dgs", ficheSemesDgsRoutes);
+// fiche tgbt annuelel
+const ficheAnnTgbtRoutes = require("./routes/ficheAnnTgbtRoutes");
+app.use("/api/fiche-ann-tgbt", ficheAnnTgbtRoutes);
 
 // Catch-all 404
 

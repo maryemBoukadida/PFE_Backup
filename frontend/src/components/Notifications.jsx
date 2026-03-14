@@ -17,8 +17,11 @@ export default function Notifications() {
   const FICHE_POSTES_API = 'http://localhost:5000/api/fiche-postes';
   const FICHE_AIDES_RADIOS_API = 'http://localhost:5000/api/fiche-aides-radios';
   const FICHE_FEUXEN_API = 'http://localhost:5000/api/fiche-feux-encastres';
-  const FICHE_REGULATEURS_API =
-    'http://localhost:5000/api/fiche-semes-regulateures';
+  const FICHE_REGULATEURS_API ='http://localhost:5000/api/fiche-semes-regulateures';
+  const FICHE_POSTESS_API = 'http://localhost:5000/api/fiche-semes-postes';
+  const FICHE_DGSS_API = "http://localhost:5000/api/fiche-semes-dgs";
+const FICHE_TGBT_API = "http://localhost:5000/api/fiche-ann-tgbt";
+
 
   // ===================== CHARGER NOTIFICATIONS =====================
   const fetchNotifications = async () => {
@@ -50,6 +53,16 @@ export default function Notifications() {
       const res9 = await fetch(
         'http://localhost:5000/api/fiche-semes-regulateures/notifications'
       );
+      const res10 = await fetch(
+        'http://localhost:5000/api/fiche-semes-postes/notifications'
+      );
+       const res11 = await fetch(
+        'http://localhost:5000/api/fiche-semes-dgs/notifications'
+      );
+ const res12 = await fetch(
+        'http://localhost:5000/api/fiche-ann-tgbt/notifications'
+      );
+
       const data1 = res1.ok ? await res1.json() : [];
       const data2 = res2.ok ? await res2.json() : [];
       const data3 = res3.ok ? await res3.json() : [];
@@ -59,7 +72,9 @@ export default function Notifications() {
       const data7 = res7.ok ? await res7.json() : [];
       const data8 = res8.ok ? await res8.json() : [];
       const data9 = res9.ok ? await res9.json() : [];
-
+      const data10 = res10.ok ? await res10.json() : [];
+      const data11 = res11.ok ? await res11.json() : [];
+      const data12 = res12.ok ? await res12.json() : [];
       setNotifications([
         ...(Array.isArray(data1) ? data1 : []),
         ...(Array.isArray(data2) ? data2 : []),
@@ -70,6 +85,9 @@ export default function Notifications() {
         ...(Array.isArray(data7) ? data7 : []),
         ...(Array.isArray(data8) ? data8 : []),
         ...(Array.isArray(data9) ? data9 : []),
+        ...(Array.isArray(data10) ? data10 : []),
+        ...(Array.isArray(data11) ? data11 : []),
+        ...(Array.isArray(data12) ? data12 : []),
       ]);
     } catch (err) {
       console.error('Erreur notifications :', err);
@@ -134,7 +152,6 @@ export default function Notifications() {
       if (!res.ok) return console.error('Erreur récupération fiche DGS');
       const data = await res.json();
       setSelectedFiche(data);
-
     } catch (err) {
       console.error(err);
     }
@@ -159,7 +176,7 @@ export default function Notifications() {
       const res = await fetch(`${FICHE_LVP_API}/${ficheId}`);
       if (!res.ok) return console.error('Erreur récupération fiche LVP');
       const data = await res.json();
-      setSelectedFiche(data);    
+      setSelectedFiche(data);
     } catch (err) {
       console.error('Erreur voir fiche LVP :', err);
     }
@@ -172,8 +189,6 @@ export default function Notifications() {
         return console.error('Erreur récupération fiche régulateures');
       const data = await res.json();
       setSelectedFiche(data); // exemple
-
-     
     } catch (err) {
       console.error('Erreur voir fiche régulateures :', err);
     }
@@ -185,8 +200,6 @@ export default function Notifications() {
       if (!res.ok) return console.error('Erreur récupération fiche postes');
       const data = await res.json();
       setSelectedFiche(data); // exemple
-
-   
     } catch (err) {
       console.error('Erreur voir fiche postes :', err);
     }
@@ -219,8 +232,6 @@ export default function Notifications() {
 
       // stocker la fiche + l'ID de notification pour marquer comme lu
       setSelectedFiche({ ...data, notifId });
-
-      
     } catch (err) {
       console.error('Erreur voir fiche feux encastrés :', err);
     }
@@ -237,12 +248,57 @@ export default function Notifications() {
       const data = await res.json();
       // Stocker la fiche + l'ID de notification pour marquer comme lu
       setSelectedFiche({ ...data, notifId });
-     
     } catch (err) {
       console.error('Erreur voir fiche régulateurs :', err);
     }
   };
-  
+  const voirFicheSemesPostes = async (ficheId, notifId) => {
+    try {
+      // Récupérer la fiche semestrielle postes par ID
+      const res = await fetch(`${FICHE_POSTESS_API}/${ficheId}`);
+      if (!res.ok) {
+        console.error('Erreur récupération fiche semestrielle postes');
+        return;
+      }
+      const data = await res.json();
+      // Stocker la fiche + l'ID de notification pour marquer comme lu
+      setSelectedFiche({ ...data, notifId });
+    } catch (err) {
+      console.error('Erreur voir fiche semestrielle postes :', err);
+    }
+  };
+  const voirFicheSemesDgs = async (ficheId, notifId) => {
+  try {
+    // Récupérer la fiche semestrielle DGS par ID
+    const res = await fetch(`${FICHE_DGSS_API}/${ficheId}`);
+    if (!res.ok) {
+      console.error('Erreur récupération fiche semestrielle DGS');
+      return;
+    }
+    const data = await res.json();
+    // Stocker la fiche + l'ID de notification pour marquer comme lu
+    setSelectedFiche({ ...data, notifId,});
+  } catch (err) {
+    console.error('Erreur voir fiche semestrielle DGS :', err);
+  }
+};
+const voirFicheAnnTgbt = async (ficheId, notifId) => {
+  try {
+    // Récupérer la fiche annuelle TGBT par ID
+    const res = await fetch(`${FICHE_TGBT_API}/${ficheId}`);
+    if (!res.ok) {
+      console.error('Erreur récupération fiche annuelle TGBT');
+      return;
+    }
+
+    const data = await res.json();
+
+    // Stocker la fiche + l'ID de notification pour marquer comme lu
+    setSelectedFiche({ ...data, notifId });
+  } catch (err) {
+    console.error('Erreur voir fiche annuelle TGBT :', err);
+  }
+};
 
   // ===================== VALIDER FICHE =====================
   const validerFiche = async (id, notifId = null) => {
@@ -280,7 +336,16 @@ export default function Notifications() {
       } else if (selectedFiche?.regul) {
         url = 'http://localhost:5000/api/fiche-semes-regulateures/valider';
         body = { ficheId: id };
-      } else {
+      } else if (selectedFiche?.postess) {
+        url = 'http://localhost:5000/api/fiche-semes-postes/valider';
+        body = { ficheId: id };
+      }else if (selectedFiche?.controle) {
+        url = 'http://localhost:5000/api/fiche_semes_dgs/valider';
+        body = { ficheId: id };
+      } else if (selectedFiche?.tgbt) {
+        url = 'http://localhost:5000/api/fiche-ann-tgbt/valider';
+        body = { ficheId: id };
+      }else {
         url = 'http://localhost:5000/api/inspections/valider';
         body = { inspectionId: id };
       }
@@ -895,6 +960,227 @@ export default function Notifications() {
       doc.save(
         `Fiche_Feux_Encastres_${selectedFiche.date ? new Date(selectedFiche.date).toISOString() : 'date_inconnue'}.pdf`
       );
+      // ===================== EXPORT PDF semseterilel postes  =====================
+    }else if (selectedFiche?.posteSST1) {
+  doc.text("Fiche d'inspection Semestrielle des Postes", 14, 15);
+  doc.setFontSize(11);
+  doc.text(
+    `📅 Date : ${selectedFiche.date ? new Date(selectedFiche.date).toLocaleDateString() : ''}`,
+    14,
+    22
+  );
+  doc.text(
+    `👨‍🔧 Technicien : ${selectedFiche.technicien_operateures || ''}`,
+    14,
+    28
+  );
+  doc.text(
+    `📝 Observations générales : ${selectedFiche.observations_generales || ''}`,
+    14,
+    34
+  );
+
+  const tableColumn = ["Element", "Etat", "Interventions", "Observations"];
+  let startY = 40;
+
+  // Fonction pour ajouter un poste au PDF
+  const addPoste = (posteName, posteData) => {
+    if (!posteData || !posteData.controles || posteData.controles.length === 0) return;
+
+    doc.text(posteName, 14, startY);
+    startY += 6;
+
+    const tableRows = posteData.controles.map((c) => [
+      c.element || "",
+      c.etat || "",
+      c.interventions || "",
+      c.observations || "",
+    ]);
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY,
+      theme: "grid",
+      headStyles: { fillColor: [52, 152, 219], textColor: 255 },
+      styles: { fontSize: 10 },
+    });
+
+    startY = doc.lastAutoTable.finalY + 10; // mettre à jour la position pour le poste suivant
+  };
+
+  addPoste("POSTE SST1", selectedFiche.posteSST1);
+  addPoste("POSTE SST2", selectedFiche.posteSST2);
+  addPoste("POSTE TC", selectedFiche.posteTC);
+
+  // Ajouter la signature si elle existe
+  if (selectedFiche.signature) {
+    const imgProps = doc.getImageProperties(selectedFiche.signature);
+    const imgWidth = 100;
+    const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+    doc.text("Signature :", 14, startY + 6);
+    doc.addImage(selectedFiche.signature, "PNG", 14, startY + 10, imgWidth, imgHeight);
+  }
+
+  doc.save(
+    `Fiche_Semestrielle_Postes_${
+      selectedFiche.date ? new Date(selectedFiche.date).toISOString() : "date_inconnue"
+    }.pdf`
+  );
+  // ===================== EXPORT PDF semestrielle DGS =====================
+}else if (selectedFiche?.Contrôle) {
+  doc.text("Fiche d'inspection Semestrielle DGS", 14, 15);
+  doc.setFontSize(11);
+  doc.text(
+    `📅 Date : ${selectedFiche.Date ? new Date(selectedFiche.Date).toLocaleDateString() : ''}`,
+    14,
+    22
+  );
+  doc.text(
+    `👨‍🔧 Technicien : ${selectedFiche["Technicien Operateures"] || ''}`,
+    14,
+    28
+  );
+  doc.text(
+    `📝 Observations générales : ${selectedFiche["Observations générales"] || ''}`,
+    14,
+    34
+  );
+
+  const tableColumn = ["Contrôle / Élément", "Normal", "Anomalie", "Observations"];
+  let startY = 40;
+
+  // Fonction pour ajouter chaque section de contrôle
+  const addSection = (sectionName, sectionData) => {
+    if (!sectionData) return;
+
+    doc.text(sectionName, 14, startY);
+    startY += 6;
+
+    const tableRows = [];
+    const isSimple = sectionData.Normal !== undefined;
+
+    if (isSimple) {
+      tableRows.push([
+        sectionName,
+        sectionData.Normal ? "✅" : "",
+        sectionData.Anomalie ? "⚠️" : "",
+        sectionData.Observations || ""
+      ]);
+
+      // TGBT ANNUELE 
+      
+    } else {
+      Object.keys(sectionData).forEach((element) => {
+        const el = sectionData[element];
+        tableRows.push([
+          element,
+          el.Normal ? "✅" : "",
+          el.Anomalie ? "⚠️" : "",
+          el.Observations || ""
+        ]);
+      });
+    }
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY,
+      theme: "grid",
+      headStyles: { fillColor: [52, 152, 219], textColor: 255 },
+      styles: { fontSize: 10 },
+    });
+
+    startY = doc.lastAutoTable.finalY + 10;
+  };
+
+  // Parcourir toutes les sections
+  Object.keys(selectedFiche.Contrôle).forEach((section) => {
+    addSection(section, selectedFiche.Contrôle[section]);
+  });
+
+  // Ajouter la signature si elle existe
+  if (selectedFiche.Signature) {
+    const imgProps = doc.getImageProperties(selectedFiche.Signature);
+    const imgWidth = 100;
+    const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+    doc.text("Signature :", 14, startY + 6);
+    doc.addImage(selectedFiche.Signature, "PNG", 14, startY + 10, imgWidth, imgHeight);
+  }
+
+  doc.save(
+    `Fiche_Semestrielle_DGS_${
+      selectedFiche.Date ? new Date(selectedFiche.Date).toISOString() : "date_inconnue"
+    }.pdf`
+  );
+// ===================== EXPORT PDF TGBT =====================
+}else if (selectedFiche?.postes) {
+  doc.text("Fiche Annuelle TGBT", 14, 15);
+  doc.setFontSize(11);
+  doc.text(
+    `📅 Date : ${selectedFiche.date ? new Date(selectedFiche.date).toLocaleDateString() : ''}`,
+    14,
+    22
+  );
+  doc.text(
+    `👨‍🔧 Technicien / Opérateurs : ${selectedFiche.technicien_operateurs || ''}`,
+    14,
+    28
+  );
+  doc.text(
+    `📝 Observations générales : ${selectedFiche.observations_generales || ''}`,
+    14,
+    34
+  );
+
+  const tableColumn = ["Élément", "État", "Interventions", "Observations"];
+  let startY = 40;
+
+  selectedFiche.postes.forEach((poste) => {
+    // Nom du poste en gras
+    doc.setFont(undefined, "bold");
+    doc.text(poste.nom, 14, startY);
+    doc.setFont(undefined, "normal");
+    startY += 6;
+
+    const tableRows = poste.elements.map((el) => [
+      el.nom || "",
+      el.etat || "--",
+      el.interventions || "",
+      el.observations || ""
+    ]);
+
+    // Ajouter le tableau avec autoTable
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY,
+      theme: "grid",
+      headStyles: { fillColor: [52, 152, 219], textColor: 255 },
+      styles: { fontSize: 10 },
+    });
+
+    startY = doc.lastAutoTable.finalY + 10; // espace après le poste
+  });
+
+  // Ajouter la signature si elle existe
+  if (selectedFiche.signature) {
+    const imgProps = doc.getImageProperties(selectedFiche.signature);
+    const imgWidth = 100;
+    const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+    doc.text("Signature :", 14, startY + 6);
+    doc.addImage(selectedFiche.signature, "PNG", 14, startY + 10, imgWidth, imgHeight);
+  }
+
+  // Sauvegarder le PDF
+  doc.save(
+    `Fiche_Annuelle_TGBT_${
+      selectedFiche.date ? new Date(selectedFiche.date).toISOString().slice(0,10) : "date_inconnue"
+    }.pdf`
+  );
+
+
+
     } else {
       doc.text(
         `Fiche Inspection journalière ${selectedFiche.matricule}`,
@@ -985,6 +1271,12 @@ export default function Notifications() {
                     voirFicheFeuxEncastres(ficheId, n._id);
                   } else if (n.type?.toLowerCase() === 'fiche_regulateurs') {
                     voirFicheSemesRegulateures(ficheId, n._id);
+                  } else if (n.type?.toLowerCase() === 'fiche_semes_postes') {
+                    voirFicheSemesPostes(ficheId, n._id);
+                  } else if (n.type?.toLowerCase() === 'fiche_semes_dgs') {
+                     voirFicheSemesDgs(ficheId, n._id);
+                  } else if (n.type?.toLowerCase() === 'fiche_ann_tgbt') {
+                     voirFicheAnnTgbt(ficheId, n._id);     
                   } else {
                     voirFiche(ficheId);
                   }
@@ -1494,8 +1786,7 @@ export default function Notifications() {
                   <button onClick={exportPDF}>📄 Exporter PDF</button>
                 </div>
               </>
-            ) : // ================= semesteille regulateures =================
-            // ================= REGULATEURS =================
+            ) : // ================= REGULATEURS =================
             selectedFiche?.boucles ? (
               <>
                 <h3>Fiche d'inspection Semestrielle Régulateurs</h3>
@@ -1618,6 +1909,292 @@ export default function Notifications() {
                   <button onClick={exportPDF}>📄 Exporter PDF</button>
                 </div>
               </>
+            ) : // ================= semssterilel postes  =================
+            selectedFiche?.posteSST1 ? (
+              <>
+                <h3>Fiche d'inspection Semestrielle des Postes</h3>
+
+                {/* Informations générales */}
+                <p>
+                  📅 Date :{' '}
+                  {selectedFiche.date
+                    ? new Date(selectedFiche.date).toLocaleDateString()
+                    : ''}
+                </p>
+                <p>
+                  👨‍🔧 Technicien : {selectedFiche.technicien_operateures || ''}
+                </p>
+                <p>
+                  📝 Observations générales :{' '}
+                  {selectedFiche.observations_generales || ''}
+                </p>
+
+                {/* POSTE SST1 */}
+                <h4>POSTE SST1</h4>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Element</th>
+                      <th>Etat</th>
+                      <th>Interventions</th>
+                      <th>Observations</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedFiche.posteSST1.controles.map((c, i) => (
+                      <tr key={i}>
+                        <td>{c.element}</td>
+                        <td>{c.etat}</td>
+                        <td>{c.interventions}</td>
+                        <td>{c.observations}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {/* POSTE SST2 */}
+                <h4>POSTE SST2</h4>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Element</th>
+                      <th>Etat</th>
+                      <th>Interventions</th>
+                      <th>Observations</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedFiche.posteSST2.controles.map((c, i) => (
+                      <tr key={i}>
+                        <td>{c.element}</td>
+                        <td>{c.etat}</td>
+                        <td>{c.interventions}</td>
+                        <td>{c.observations}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {/* POSTE TC */}
+                <h4>POSTE TC</h4>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Element</th>
+                      <th>Etat</th>
+                      <th>Interventions</th>
+                      <th>Observations</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedFiche.posteTC.controles.map((c, i) => (
+                      <tr key={i}>
+                        <td>{c.element}</td>
+                        <td>{c.etat}</td>
+                        <td>{c.interventions}</td>
+                        <td>{c.observations}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {/* Signature */}
+                {selectedFiche.signature && (
+                  <div style={{ marginTop: '20px' }}>
+                    <h4>Signature :</h4>
+                    <img
+                      src={selectedFiche.signature}
+                      alt="Signature"
+                      style={{
+                        border: '1px solid #000',
+                        width: '400px',
+                        height: '150px',
+                      }}
+                    />
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div
+                  className="modal-actions"
+                  style={{ marginTop: '20px', display: 'flex', gap: '10px' }}
+                >
+                  <button
+                    onClick={() =>
+                      validerFiche(selectedFiche._id, selectedFiche.notifId)
+                    }
+                  >
+                    ✅ Valider
+                  </button>
+                  <button onClick={() => setSelectedFiche(null)}>
+                    ❌ Fermer
+                  </button>
+                  <button onClick={exportPDF}>📄 Exporter PDF</button>
+                </div>
+              </>
+// ================= semestrielle DGS =================
+                  ):selectedFiche?.Contrôle ? (
+  <>
+    <h3>Fiche d'inspection Semestrielle DGS</h3>
+
+    {/* Informations générales */}
+    <p>
+      📅 Date : {selectedFiche.Date ? new Date(selectedFiche.Date).toLocaleDateString() : ''}
+    </p>
+    <p>
+      👨‍🔧 Technicien : {selectedFiche["Technicien Operateures"] || ''}
+    </p>
+    <p>
+      📝 Observations générales : {selectedFiche["Observations générales"] || ''}
+    </p>
+
+    {/* Tableau de contrôle */}
+    <table>
+      <thead>
+        <tr>
+          <th>Contrôle</th>
+          <th>Normal</th>
+          <th>Anomalie</th>
+          <th>Observations</th>
+        </tr>
+      </thead>
+      <tbody>
+        {selectedFiche.Contrôle &&
+          Object.keys(selectedFiche.Contrôle).map((section) => {
+            const sectionData = selectedFiche.Contrôle[section];
+            const isSimple = sectionData.Normal !== undefined;
+
+            return (
+              <React.Fragment key={section}>
+                {/* Nom de la section */}
+                <tr>
+                  <td colSpan={4} style={{ fontWeight: 'bold', backgroundColor: '#eee' }}>
+                    {section}
+                  </td>
+                </tr>
+
+                {/* Si c'est un simple EtatSchema */}
+                {isSimple ? (
+                  <tr>
+                    <td>{section}</td>
+                    <td>{sectionData.Normal ? '✅' : ''}</td>
+                    <td>{sectionData.Anomalie ? '⚠️' : ''}</td>
+                    <td>{sectionData.Observations}</td>
+                  </tr>
+                ) : (
+                  // Sinon, parcourir les sous-éléments
+                  Object.keys(sectionData).map((element) => {
+                    const el = sectionData[element];
+                    return (
+                      <tr key={element}>
+                        <td>{element}</td>
+                        <td>{el.Normal ? '✅' : ''}</td>
+                        <td>{el.Anomalie ? '⚠️' : ''}</td>
+                        <td>{el.Observations}</td>
+                      </tr>
+                    );
+                  })
+                )}
+              </React.Fragment>
+            );
+          })}
+      </tbody>
+    </table>
+
+    {/* Signature */}
+    {selectedFiche.Signature && (
+      <div style={{ marginTop: '20px' }}>
+        <h4>Signature :</h4>
+        <img
+          src={selectedFiche.Signature}
+          alt="Signature"
+          style={{ border: '1px solid #000', width: '400px', height: '150px' }}
+        />
+      </div>
+    )}
+
+    {/* Actions */}
+    <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+      <button onClick={() => validerFiche(selectedFiche._id, selectedFiche.notifId)}>
+        ✅ Valider
+      </button>
+      <button onClick={() => setSelectedFiche(null)}>❌ Fermer</button>
+      <button onClick={exportPDF}>📄 Exporter PDF</button>
+    </div>
+  </>
+// ================= Anuelle tgbt =================
+
+): selectedFiche?.postes ? (
+  <>
+    <h3>Fiche Annuelle TGBT</h3>
+
+    {/* Informations générales */}
+    <p>
+      📅 Date : {selectedFiche.date ? new Date(selectedFiche.date).toLocaleDateString() : ''}
+    </p>
+    <p>
+      👨‍🔧 Technicien / Opérateurs : {selectedFiche.technicien_operateurs || ''}
+    </p>
+    <p>
+      📝 Observations générales : {selectedFiche.observations_generales || ''}
+    </p>
+
+    {/* Tableau des postes */}
+    <table style={{ borderCollapse: 'collapse', width: '100%', marginTop: '15px' }}>
+      <thead>
+        <tr style={{ backgroundColor: '#eee' }}>
+          <th style={{ border: '1px solid #000', padding: '5px' }}>Élément</th>
+          <th style={{ border: '1px solid #000', padding: '5px' }}>État</th>
+          <th style={{ border: '1px solid #000', padding: '5px' }}>Interventions</th>
+          <th style={{ border: '1px solid #000', padding: '5px' }}>Observations</th>
+        </tr>
+      </thead>
+      <tbody>
+        {selectedFiche.postes.map((poste) => (
+          <React.Fragment key={poste.nom}>
+            {/* Nom du poste */}
+            <tr>
+              <td colSpan={4} style={{ fontWeight: 'bold', backgroundColor: '#ddd', padding: '5px' }}>
+                {poste.nom}
+              </td>
+            </tr>
+
+            {/* Éléments du poste */}
+            {poste.elements.map((el) => (
+              <tr key={el.nom}>
+                <td style={{ border: '1px solid #000', padding: '5px' }}>{el.nom}</td>
+                <td style={{ border: '1px solid #000', padding: '5px' }}>{el.etat || '--'}</td>
+                <td style={{ border: '1px solid #000', padding: '5px' }}>{el.interventions || ''}</td>
+                <td style={{ border: '1px solid #000', padding: '5px' }}>{el.observations || ''}</td>
+              </tr>
+            ))}
+          </React.Fragment>
+        ))}
+      </tbody>
+    </table>
+
+    {/* Signature */}
+    {selectedFiche.signature && (
+      <div style={{ marginTop: '20px' }}>
+        <h4>Signature :</h4>
+        <img
+          src={selectedFiche.signature}
+          alt="Signature"
+          style={{ border: '1px solid #000', width: '400px', height: '150px' }}
+        />
+      </div>
+    )}
+
+    {/* Actions */}
+    <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+      <button onClick={() => validerFiche(selectedFiche._id, selectedFiche.notifId)}>
+        ✅ Valider
+      </button>
+      <button onClick={() => setSelectedFiche(null)}>❌ Fermer</button>
+      <button onClick={exportPDF}>📄 Exporter PDF</button>
+    </div>
+  </>
+
             ) : selectedFiche.installations?.length > 0 ? (
               <>
                 <h3>Fiche Feux Obstacles</h3>

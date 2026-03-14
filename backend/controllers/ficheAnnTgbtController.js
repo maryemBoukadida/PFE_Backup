@@ -1,0 +1,91 @@
+const FicheAnnTgbt = require("../models/ficheAnnTgbt");
+const Notification = require("../models/Notification");
+
+// GET dernière fiche annuelle TGBT
+exports.getFicheAnnTgbt = async(req, res) => {
+    try {
+        const fiche = await FicheAnnTgbt.findOne().sort({ date: -1 });
+        if (!fiche) return res.status(404).json({ message: "Aucune fiche trouvée" });
+        res.json(fiche);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+
+// GET fiche par ID
+exports.getFicheTgbtById = async(req, res) => {
+    try {
+        const fiche = await FicheAnnTgbt.findById(req.params.id);
+
+        if (!fiche) {
+            return res.status(404).json({
+                message: "Fiche TGBT non trouvée",
+            });
+        }
+
+        res.json(fiche);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: err.message });
+    }
+};
+
+
+// PUT : enregistrer / mettre à jour la fiche
+exports.enregistrerFicheAnnTgbt = async(req, res) => {
+    try {
+        const { id } = req.params;
+        const data = req.body;
+
+        const fiche = await FicheAnnTgbt.findByIdAndUpdate(id, data, {
+            new: true,
+        });
+
+        if (!fiche) {
+            return res.status(404).json({ message: "Fiche TGBT non trouvée" });
+        }
+
+        res.json(fiche);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: err.message });
+    }
+};
+
+// PUT : envoyer la fiche
+exports.envoyerFicheAnnTgbt = async(req, res) => {
+    try {
+        const fiche = await FicheAnnTgbt.findById(req.params.id);
+
+        if (!fiche) {
+            return res.status(404).json({ message: "Fiche TGBT non trouvée" });
+        }
+
+        if (!fiche.technicien_operateurs || fiche.technicien_operateurs.trim() === "") {
+            return res.status(400).json({
+                message: "Le champ technicien est vide",
+            });
+        }
+
+        // statut
+        fiche.statut = "envoyee";
+        await fiche.save();
+
+        // notification admin
+        const notification = new Notification({
+            type: "fiche_ann_tgbt",
+            message: `Le technicien ${fiche.technicien_operateurs} a envoyé une fiche annuelle TGBT`,
+            dataId: fiche._id,
+            read: false,
+        });
+
+        await notification.save();
+
+        res.json({ message: "Fiche TGBT envoyée avec succès" });
+    } catch (err) {
+        console.error("Erreur envoyerFicheTgbt :", err);
+        res.status(500).json({ message: err.message });
+    }
+};

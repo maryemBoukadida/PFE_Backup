@@ -16,6 +16,9 @@ const FICHE_POSTES_API = "http://localhost:5000/api/fiche-postes";
 const FICHE_AIDES_RADIOS_API = "http://localhost:5000/api/fiche-aides-radios";
 const FICHE_FEUXEN_API = "http://localhost:5000/api/fiche-feux-encastres";
 const FICHE_REGULATEURS_API = "http://localhost:5000/api/fiche-semes-regulateures";
+const FICHE_POSTESS_API = "http://localhost:5000/api/fiche-semes-postes";
+const FICHE_DGSS_API = "http://localhost:5000/api/fiche-semes-dgs";
+const FICHE_TGBT_API = "http://localhost:5000/api/fiche-ann-tgbt";
 
 // 🔹 Récupérer tous les équipements
 export const getEquipements = async() => {
@@ -400,7 +403,7 @@ export const envoyerFicheFeuxEncastres = async(id) => {
     return res.data;
 };
 // =======================
-// FICHE regulateures
+// FICHE  semseterille regulateures
 // =======================
 export const getFicheSemesRegulateures = async() => {
     const response = await fetch(FICHE_REGULATEURS_API);
@@ -415,5 +418,67 @@ export const enregistrerFicheSemesRegulateures = async(id, data) => {
 };
 export const envoyerFicheSemesRegulateures = async(id) => {
     const res = await axios.put(`${FICHE_REGULATEURS_API}/envoyer/${id}`);
+    return res.data;
+};
+// =======================
+// FICHE semseterille postes
+// =======================
+export const getFicheSemesPostes = async() => {
+    const response = await fetch(FICHE_POSTESS_API);
+
+    if (!response.ok) {
+        throw new Error("Erreur récupération fiche semestrielle des postes");
+    }
+
+    return response.json();
+};
+export const enregistrerFicheSemesPostes = async(id, data) => {
+    const res = await axios.put(`${FICHE_POSTESS_API}/${id}`, data);
+    return res.data;
+};
+export const envoyerFicheSemesPostes = async(id) => {
+    const res = await axios.put(`${FICHE_POSTESS_API}/envoyer/${id}`);
+    return res.data;
+};
+// =======================
+// FICHE semseterille Dgs
+// =======================
+
+export const getFicheSemesDgs = async() => {
+    const response = await fetch(FICHE_DGSS_API);
+    if (!response.ok) {
+        throw new Error("Erreur récupération fiche semestrielle DGS");
+    }
+    return response.json();
+};
+export const enregistrerFicheSemesDgs = async(id, data) => {
+    const res = await axios.put(`${FICHE_DGSS_API}/${id}`, data);
+    return res.data;
+};
+export const envoyerFicheSemesDgs = async(id) => {
+    const res = await axios.put(`${FICHE_DGSS_API}/envoyer/${id}`);
+    return res.data;
+};
+// =======================
+// FICHE annuelle TGBT 
+// =======================
+// 🔹 GET dernière fiche annuelle TGBT
+export const getFicheAnnTgbt = async() => {
+    const response = await fetch(FICHE_TGBT_API);
+    if (!response.ok) {
+        throw new Error("Erreur récupération fiche annuelle TGBT");
+    }
+    return response.json();
+};
+
+// 🔹 PUT : enregistrer / mettre à jour la fiche
+export const enregistrerFicheAnnTgbt = async(id, data) => {
+    const res = await axios.put(`${FICHE_TGBT_API}/${id}`, data);
+    return res.data;
+};
+
+// 🔹 PUT : envoyer la fiche
+export const envoyerFicheAnnTgbt = async(id) => {
+    const res = await axios.put(`${FICHE_TGBT_API}/envoyer/${id}`);
     return res.data;
 };

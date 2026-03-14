@@ -11,7 +11,9 @@ import FichePostesMensuelle from './FichePostesMensuelle';
 import FicheAidesRadiosMensuelle from './FicheAidesRadiosMensuelle';
 import FicheFeuxEncastresSemesterielle from './FicheFeuxEncastresSemesterielle';
 import FicheSemesRegulateures from "./FicheSemesRegulateures";
-
+import FicheSemesPostes from "./FicheSemesPostes";
+import FicheSemesDgs from "./FicheSemesDgs";
+import FicheTGBTAnnuelle from "./FicheTGBTAnnuelle";
 export default function InspectionTech() {
   const [periode, setPeriode] = useState('JOURNALIERE');
   const [typeFiche, setTypeFiche] = useState('');
@@ -38,6 +40,13 @@ export default function InspectionTech() {
   const typesFichesSemestrielles = [
   { value: 'FEUX ENCASTRES', label: 'Feux Encastres' },
   { value: 'REGULATEURES', label: 'Regulateures' },
+  { value: 'POSTES', label: 'Postes' },
+  { value: 'DGS', label: 'DGS' },
+];
+
+  const typesFichesAnnuelles = [
+  { value: 'TGBT', label: 'TGBT' },
+ 
 ];
 
   // 🔹 Récupération des inspections depuis l’API
@@ -143,8 +152,14 @@ export default function InspectionTech() {
         <FicheFeuxEncastresSemesterielle />
       ): periode === 'SEMESTRIELLE' && typeFiche === 'REGULATEURES' ? (
         <FicheSemesRegulateures/>  
+      ): periode === 'SEMESTRIELLE' && typeFiche === 'POSTES' ? (
+        <FicheSemesPostes />  
+       ): periode === 'SEMESTRIELLE' && typeFiche === 'DGS' ? (
+        <FicheSemesDgs /> 
       ) : periode === 'MENSUELLE' && typeFiche === 'FEUX DOBSTACLES' ? (
         <FicheFeuxObstaclesMensuelle />
+      ):periode === 'ANNUELLE' && typeFiche === 'TGBT' ? (
+  <FicheTGBTAnnuelle />  
       ) : (
         // 🔹 Interface journalière / hebdo / annuelle
         <>
@@ -186,6 +201,19 @@ export default function InspectionTech() {
   >
     <option value="">-- Type fiche --</option>
     {typesFichesSemestrielles.map((t) => (
+      <option key={t.value} value={t.value}>
+        {t.label}
+      </option>
+    ))}
+  </select>
+)}
+{periode === 'ANNUELLE' && (
+  <select
+    value={typeFiche}
+    onChange={(e) => setTypeFiche(e.target.value)}
+  >
+    <option value="">-- Type fiche --</option>
+    {typesFichesAnnuelles.map((t) => (
       <option key={t.value} value={t.value}>
         {t.label}
       </option>
