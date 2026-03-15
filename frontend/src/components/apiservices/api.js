@@ -21,8 +21,14 @@ const FICHE_DGSS_API = "http://localhost:5000/api/fiche-semes-dgs";
 const FICHE_TGBT_API = "http://localhost:5000/api/fiche-ann-tgbt";
 const FICHE_VOIE_API = "http://localhost:5000/api/fiche-ann-voie";
 const FICHE_ANN_PAMA_API = "http://localhost:5000/api/fiche-ann-pa-ma";
-const FICHE_ANN_INFRASTRUCTURE_API =
-    "http://localhost:5000/api/fiche-ann-infrastructure";
+const FICHE_ANN_INFRASTRUCTURE_API = "http://localhost:5000/api/fiche-ann-infrastructure";
+const FICHE_HORS_SQL_API = "http://localhost:5000/api/fiche-hors-sql";
+const FICHE_EFFAR_API = "http://localhost:5000/api/fiche-effar";
+const FICHE_ANN_OBS_API = "http://localhost:5000/api/fiche-ann-obs";
+const FICHE_ANN_CABLE_API = "http://localhost:5000/api/fiche-ann-cable";
+const FICHE_ANN_FEUX_SEQ_API = "http://localhost:5000/api/fiche-ann-feux-sequentiels";
+const FICHE_QUI_PAPI_API = "http://localhost:5000/api/fiche-qui-papi";
+
 // 🔹 Récupérer tous les équipements
 export const getEquipements = async() => {
     const res = await fetch(API_URL);
@@ -534,7 +540,9 @@ export const envoyerFicheAnnPaMa = async(id) => {
 };
 */
 
-
+// =======================
+// FICHE annuelle infrastrcuture
+// =====================
 // ================= RECUPERER FICHES =================
 export const getFicheAnnInfrastructure = async() => {
     const response = await fetch(FICHE_ANN_INFRASTRUCTURE_API);
@@ -566,6 +574,8 @@ export const envoyerFicheAnnInfrastructure = async(id) => {
     const res = await axios.put(`${FICHE_ANN_INFRASTRUCTURE_API}/envoyer/${id}`);
     return res.data;
 };
+
+//historiques 
 export const ajouterHistoriqueAction = async(action) => {
     const res = await fetch("http://localhost:5000/api/historique-actions", {
         method: "POST",
@@ -584,6 +594,16 @@ export const getHistoriqueActions = async() => {
     }
     return response.json();
 };
+
+
+export const getFicheDetail = async(type, dataId) => {
+    const res = await fetch(`http://localhost:5000/api/historique-actions/fiche/${type}/${dataId}`);
+    if (!res.ok) throw new Error(`Erreur récupération fiche : ${res.status}`);
+    return res.json();
+};
+
+
+
 // Marquer une notification comme lue
 export const marquerNotifCommeLue = async(notifId) => {
     if (!notifId) return;
@@ -593,4 +613,195 @@ export const marquerNotifCommeLue = async(notifId) => {
     });
     if (!res.ok) throw new Error("Erreur lors du marquage de la notification");
     return res.json();
+};
+
+// =======================
+// FICHE annuelle hos sql
+// =====================
+// ================= RECUPERER TOUTES LES FICHES =================
+export const getFicheHorsSql = async() => {
+
+    const response = await fetch(FICHE_HORS_SQL_API);
+
+    if (!response.ok) {
+        throw new Error("Erreur récupération fiche Hors SQL");
+    }
+
+    return response.json();
+
+};
+// ================= ENREGISTRER FICHE =================
+export const enregistrerFicheHorsSql = async(fiche) => {
+
+    const response = await fetch(FICHE_HORS_SQL_API, {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify(fiche)
+
+    });
+
+    if (!response.ok) {
+        throw new Error("Erreur enregistrement fiche Hors SQL");
+    }
+
+    return response.json();
+
+};
+// ================= ENVOYER FICHE =================
+export const envoyerFicheHorsSql = async(id) => {
+
+    const res = await axios.put(
+        `${FICHE_HORS_SQL_API}/envoyer/${id}`
+    );
+
+    return res.data;
+
+};
+
+// =======================
+// FICHE annuelle effachouerr
+// =====================
+export const getFicheEffar = async() => {
+    const response = await fetch(FICHE_EFFAR_API);
+    if (!response.ok) {
+        throw new Error("Erreur récupération fiches Effaroucheur");
+    }
+    return response.json();
+};
+
+// Enregistrer une fiche
+export const enregistrerFicheEffar = async(fiche) => {
+    const response = await fetch(FICHE_EFFAR_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fiche),
+    });
+
+    if (!response.ok) {
+        throw new Error("Erreur enregistrement fiche Effaroucheur");
+    }
+    return response.json();
+};
+
+// Envoyer une fiche (changer statut)
+export const envoyerFicheEffar = async(id) => {
+    const res = await axios.put(`${FICHE_EFFAR_API}/envoyer/${id}`);
+    return res.data;
+};
+
+// =======================
+// FICHE annuelle feux obstacles
+// =====================
+// récupérer fiches
+export const getFicheAnnObs = async() => {
+    const response = await fetch(FICHE_ANN_OBS_API);
+
+    if (!response.ok) {
+        throw new Error("Erreur récupération fiche obstacles");
+    }
+
+    return response.json();
+};
+
+// enregistrer fiche
+export const enregistrerFicheAnnObs = async(fiche) => {
+    const response = await fetch(FICHE_ANN_OBS_API, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(fiche),
+    });
+
+    if (!response.ok) {
+        throw new Error("Erreur enregistrement fiche obstacles");
+    }
+
+    return response.json();
+};
+
+// envoyer fiche
+export const envoyerFicheAnnObs = async(id) => {
+    const res = await axios.put(`${FICHE_ANN_OBS_API}/envoyer/${id}`);
+    return res.data;
+};
+
+
+// fihce annuelle cables 
+// GET toutes les fiches
+export const getFicheAnnCable = async() => {
+    const response = await fetch(FICHE_ANN_CABLE_API);
+    if (!response.ok) throw new Error("Erreur récupération fiches Cable");
+    return response.json();
+};
+
+// POST enregistrer fiche
+export const enregistrerFicheAnnCable = async(fiche) => {
+    const response = await fetch(FICHE_ANN_CABLE_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fiche)
+    });
+    if (!response.ok) throw new Error("Erreur enregistrement fiche Cable");
+    return response.json();
+};
+
+// PUT envoyer fiche
+export const envoyerFicheAnnCable = async(id) => {
+    const res = await fetch(`${FICHE_ANN_CABLE_API}/envoyer/${id}`, { method: "PUT" });
+    return res.json();
+};
+//// fiche sequeenetielle annuelele 
+
+export const getFicheAnnFeuxSeq = async() => {
+    const response = await fetch(FICHE_ANN_FEUX_SEQ_API);
+    if (!response.ok) throw new Error("Erreur récupération fiche feux séquentiels");
+    return response.json();
+};
+
+// ================= ENREGISTRER FICHE =================
+export const enregistrerFicheAnnFeuxSeq = async(fiche) => {
+    const res = await fetch(FICHE_ANN_FEUX_SEQ_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fiche),
+    });
+    if (!res.ok) throw new Error("Erreur enregistrement fiche");
+    return res.json();
+};
+
+export const envoyerFicheAnnFeuxSeq = async(id) => {
+    const res = await axios.put(`${FICHE_ANN_FEUX_SEQ_API}/envoyer/${id}`);
+    return res.data;
+};
+// =======================
+// FICHE 5 snin papi
+// =====================
+// GET toutes les fiches
+export const getFichesQuiPapi = async() => {
+    const res = await fetch(FICHE_QUI_PAPI_API);
+    if (!res.ok) throw new Error("Erreur récupération fiches PAPI");
+    return res.json();
+};
+
+// ENREGISTRER fiche
+export const enregistrerFicheQuiPapi = async(fiche) => {
+    const res = await fetch(FICHE_QUI_PAPI_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fiche)
+    });
+    if (!res.ok) throw new Error("Erreur enregistrement fiche PAPI");
+    return res.json();
+};
+
+// ENVOYER fiche
+export const envoyerFicheQuiPapi = async(id) => {
+    const res = await axios.put(`${FICHE_QUI_PAPI_API}/envoyer/${id}`);
+    return res.data;
 };

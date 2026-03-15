@@ -10,15 +10,19 @@ import FicheRegulateuresMensuelle from './FicheRegulateuresMensuelle';
 import FichePostesMensuelle from './FichePostesMensuelle';
 import FicheAidesRadiosMensuelle from './FicheAidesRadiosMensuelle';
 import FicheFeuxEncastresSemesterielle from './FicheFeuxEncastresSemesterielle';
-import FicheSemesRegulateures from "./FicheSemesRegulateures";
-import FicheSemesPostes from "./FicheSemesPostes";
-import FicheSemesDgs from "./FicheSemesDgs";
-import FicheTGBTAnnuelle from "./FicheTGBTAnnuelle";
-import FicheVoieAnnuelle from "./FicheVoieAnnuelle";
-import FicheAnnPaMa from "./ficheAnnPaMa";
-import FicheAnnInfrastructure from "./FicheAnnInfrastructure";
-
-
+import FicheSemesRegulateures from './FicheSemesRegulateures';
+import FicheSemesPostes from './FicheSemesPostes';
+import FicheSemesDgs from './FicheSemesDgs';
+import FicheTGBTAnnuelle from './FicheTGBTAnnuelle';
+import FicheVoieAnnuelle from './FicheVoieAnnuelle';
+import FicheAnnPaMa from './ficheAnnPaMa';
+import FicheAnnInfrastructure from './FicheAnnInfrastructure';
+import FicheFeuxHorsSql from './FicheFeuxHorsSql';
+import FicheEffar from './FicheEffar';
+import FicheAnnObs from './FicheAnnObs';
+import FicheAnnCable from './FicheAnnCable';
+import FicheAnnFeuxSeq from './FicheAnnFeuxSeq';
+import FicheQuinquennalePapi from './FicheQuinquennalePapi'
 export default function InspectionTech() {
   const [periode, setPeriode] = useState('JOURNALIERE');
   const [typeFiche, setTypeFiche] = useState('');
@@ -43,21 +47,28 @@ export default function InspectionTech() {
     { value: 'AIDES RADIOS', label: 'Aides Radios' },
   ];
   const typesFichesSemestrielles = [
-  { value: 'FEUX ENCASTRES', label: 'Feux Encastres' },
-  { value: 'REGULATEURES', label: 'Regulateures' },
-  { value: 'POSTES', label: 'Postes' },
-  { value: 'DGS', label: 'DGS' },
-];
+    { value: 'FEUX ENCASTRES', label: 'Feux Encastres' },
+    { value: 'REGULATEURES', label: 'Regulateures' },
+    { value: 'POSTES', label: 'Postes' },
+    { value: 'DGS', label: 'DGS' },
+  ];
 
   const typesFichesAnnuelles = [
-  { value: 'TGBT', label: 'TGBT' },
-  { value: 'PANNEAUX DE SIGNALISATION', label: 'Panneaux de signalisation' },
-  { value: 'PANNEAUX DES INDICTAUERE SUR VOIE', label: 'Panneaux indicateur sur voie' },
-  { value: 'PAPI ET MANCHE AVANT', label: 'Papi et manches avant' },
-    { value: 'INFRASTRUCTURE', label: 'Infrastructure' }, // ✅ ajouté
-
- 
-];
+    { value: 'TGBT', label: 'TGBT' },
+    { value: 'PANNEAUX DE SIGNALISATION', label: 'Panneaux de signalisation' },
+    {
+      value: 'PANNEAUX DES INDICTAUERE SUR VOIE',
+      label: 'Panneaux indicateur sur voie',
+    },
+    { value: 'PAPI ET MANCHE AVANT', label: 'Papi et manches avant' },
+    { value: 'INFRASTRUCTURE', label: 'Infrastructure' },
+    { value: 'FEUX HORS SQL', label: 'Feux Hors SQL' },
+    { value: 'EFFAROUCHEUR', label: 'Effaroucheur' },
+    { value: 'FEUX OBSTACLES', label: 'Feux Obstacle' },
+    { value: 'CABLES', label: 'Cables' },
+    { value: 'FEUX SEQUENTIELLES', label: 'Feux Sequentielles' },
+  ];
+  const typesFichesQuinquennale = [{ value: 'PAPI', label: 'PaPi' }];
 
   // 🔹 Récupération des inspections depuis l’API
   useEffect(() => {
@@ -160,22 +171,36 @@ export default function InspectionTech() {
         <FicheAidesRadiosMensuelle />
       ) : periode === 'SEMESTRIELLE' && typeFiche === 'FEUX ENCASTRES' ? (
         <FicheFeuxEncastresSemesterielle />
-      ): periode === 'SEMESTRIELLE' && typeFiche === 'REGULATEURES' ? (
-        <FicheSemesRegulateures/>  
-      ): periode === 'SEMESTRIELLE' && typeFiche === 'POSTES' ? (
-        <FicheSemesPostes />  
-       ): periode === 'SEMESTRIELLE' && typeFiche === 'DGS' ? (
-        <FicheSemesDgs /> 
+      ) : periode === 'SEMESTRIELLE' && typeFiche === 'REGULATEURES' ? (
+        <FicheSemesRegulateures />
+      ) : periode === 'SEMESTRIELLE' && typeFiche === 'POSTES' ? (
+        <FicheSemesPostes />
+      ) : periode === 'SEMESTRIELLE' && typeFiche === 'DGS' ? (
+        <FicheSemesDgs />
       ) : periode === 'MENSUELLE' && typeFiche === 'FEUX DOBSTACLES' ? (
         <FicheFeuxObstaclesMensuelle />
-        ): periode === 'ANNUELLE' && typeFiche === 'PANNEAUX DES INDICTAUERE SUR VOIE' ? (
-          <FicheVoieAnnuelle />
-      ):periode === 'ANNUELLE' && typeFiche === 'TGBT' ? (
-  <FicheTGBTAnnuelle />  
-  ):periode === 'ANNUELLE' && typeFiche === 'PAPI ET MANCHE AVANT' ? (
-  <FicheAnnPaMa />  
-  ):periode === 'ANNUELLE' && typeFiche === 'INFRASTRUCTURE' ? (
-  <FicheAnnInfrastructure />
+      ) : periode === 'ANNUELLE' &&
+        typeFiche === 'PANNEAUX DES INDICTAUERE SUR VOIE' ? (
+        <FicheVoieAnnuelle />
+      ) : periode === 'ANNUELLE' && typeFiche === 'TGBT' ? (
+        <FicheTGBTAnnuelle />
+      ) : periode === 'ANNUELLE' && typeFiche === 'PAPI ET MANCHE AVANT' ? (
+        <FicheAnnPaMa />
+      ) : periode === 'ANNUELLE' && typeFiche === 'EFFAROUCHEUR' ? (
+        <FicheEffar /> // 🔹 Utilise le nouveau composant
+      ) : periode === 'ANNUELLE' && typeFiche === 'FEUX HORS SQL' ? (
+        <FicheFeuxHorsSql />
+      ) : periode === 'ANNUELLE' && typeFiche === 'INFRASTRUCTURE' ? (
+        <FicheAnnInfrastructure />
+      ) : periode === 'ANNUELLE' && typeFiche === 'FEUX OBSTACLES' ? (
+        // 🔹 Utilisation du nouveau composant pour FEUX OBSTACLES annuelles
+        <FicheAnnObs />
+      ) : periode === 'ANNUELLE' && typeFiche === 'CABLES' ? (
+        <FicheAnnCable />
+      ) : periode === 'ANNUELLE' && typeFiche === 'FEUX SEQUENTIELLES' ? (
+        <FicheAnnFeuxSeq />
+        ) : periode === 'QUINQUENNALE' && typeFiche === 'PAPI' ? (
+        <FicheQuinquennalePapi />
       ) : (
         // 🔹 Interface journalière / hebdo / annuelle
         <>
@@ -192,6 +217,7 @@ export default function InspectionTech() {
               <option value="MENSUELLE">Mensuelle</option>
               <option value="ANNUELLE">Annuelle</option>
               <option value="SEMESTRIELLE">Semestrielle</option>
+              <option value="QUINQUENNALE">Quinquennale</option>
             </select>
 
             {periode === 'MENSUELLE' && (
@@ -209,33 +235,47 @@ export default function InspectionTech() {
               </select>
             )}
 
-          {/* 🔹 Sélecteur pour SEMESTRIELLE */}
-{periode === 'SEMESTRIELLE' && (
-  <select
-    value={typeFiche}
-    onChange={(e) => setTypeFiche(e.target.value)}
-  >
-    <option value="">-- Type fiche --</option>
-    {typesFichesSemestrielles.map((t) => (
-      <option key={t.value} value={t.value}>
-        {t.label}
-      </option>
-    ))}
-  </select>
-)}
-{periode === 'ANNUELLE' && (
-  <select
-    value={typeFiche}
-    onChange={(e) => setTypeFiche(e.target.value)}
-  >
-    <option value="">-- Type fiche --</option>
-    {typesFichesAnnuelles.map((t) => (
-      <option key={t.value} value={t.value}>
-        {t.label}
-      </option>
-    ))}
-  </select>
-)}
+            {/* 🔹 Sélecteur pour SEMESTRIELLE */}
+            {periode === 'SEMESTRIELLE' && (
+              <select
+                value={typeFiche}
+                onChange={(e) => setTypeFiche(e.target.value)}
+              >
+                <option value="">-- Type fiche --</option>
+                {typesFichesSemestrielles.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
+                ))}
+              </select>
+            )}
+            {periode === 'ANNUELLE' && (
+              <select
+                value={typeFiche}
+                onChange={(e) => setTypeFiche(e.target.value)}
+              >
+                <option value="">-- Type fiche --</option>
+                {typesFichesAnnuelles.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
+                ))}
+              </select>
+            )}
+            {periode === 'QUINQUENNALE' && (
+              <select
+                value={typeFiche}
+                onChange={(e) => setTypeFiche(e.target.value)}
+              >
+                <option value="">-- Type fiche --</option>
+
+                {typesFichesQuinquennale.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           {/* 🔹 Tableau */}

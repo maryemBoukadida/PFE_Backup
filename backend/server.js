@@ -105,11 +105,33 @@ const ficheAnnPaMaRoutes = require("./routes/ficheAnnPaMaRoutes"); // ton fichie
 app.use("/api/fiche-ann-pa-ma", ficheAnnPaMaRoutes); // ✅ avec pa-ma
 //infrastructure anuelle
 const ficheAnnInfrastructureRoutes = require("./routes/ficheAnnInfrastructureRoutes");
-
 app.use("/api/fiche-ann-infrastructure", ficheAnnInfrastructureRoutes);
 
 const historiqueActionsRoutes = require("./routes/historiqueActionsRoutes");
 app.use("/api/historique-actions", historiqueActionsRoutes);
+// fiche hors sql 
+const ficheHorsSqlRoutes = require("./routes/ficheHorsSqlRoutes");
+app.use("/api/fiche-hors-sql", ficheHorsSqlRoutes);
+
+// fiche effacouer:
+const ficheEffarRoutes = require("./routes/ficheEffarRoutes");
+app.use("/api/fiche-effar", ficheEffarRoutes);
+// fiche anne feux obstacles 
+const ficheAnnObsRoutes = require("./routes/ficheAnnObsRoutes");
+app.use("/api/fiche-ann-obs", ficheAnnObsRoutes);
+
+// fiche anne cable 
+const ficheAnnCableRoutes = require("./routes/ficheAnnCableRoutes");
+app.use("/api/fiche-ann-cable", ficheAnnCableRoutes);
+
+// fiche annuelel feux sequentielle 
+const ficheAnnFeuxSeqRoutes = require("./routes/ficheAnnFeuxSeqRoutes");
+app.use("/api/fiche-ann-feux-sequentiels", ficheAnnFeuxSeqRoutes);
+// fiche 5 snin papi
+
+const ficheQuiPapiRoutes = require("./routes/ficheQuiPapiRoutes");
+app.use("/api/fiche-qui-papi", ficheQuiPapiRoutes);
+
 
 // Catch-all 404
 

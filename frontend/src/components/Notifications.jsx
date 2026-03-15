@@ -4,7 +4,11 @@ import '../styles/Notification.css';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import autoTable from 'jspdf-autotable';
-import { fetchNotifications, marquerNotifCommeLue, ajouterHistoriqueAction } from './apiservices/api';
+import {
+  fetchNotifications,
+  marquerNotifCommeLue,
+  ajouterHistoriqueAction,
+} from './apiservices/api';
 export default function Notifications() {
   const [notifications, setNotifications] = useState([]);
   const [selectedFiche, setSelectedFiche] = useState(null);
@@ -17,13 +21,20 @@ export default function Notifications() {
   const FICHE_POSTES_API = 'http://localhost:5000/api/fiche-postes';
   const FICHE_AIDES_RADIOS_API = 'http://localhost:5000/api/fiche-aides-radios';
   const FICHE_FEUXEN_API = 'http://localhost:5000/api/fiche-feux-encastres';
-  const FICHE_REGULATEURS_API ='http://localhost:5000/api/fiche-semes-regulateures';
+  const FICHE_REGULATEURS_API =
+    'http://localhost:5000/api/fiche-semes-regulateures';
   const FICHE_POSTESS_API = 'http://localhost:5000/api/fiche-semes-postes';
-  const FICHE_DGSS_API = "http://localhost:5000/api/fiche-semes-dgs";
-const FICHE_TGBT_API = "http://localhost:5000/api/fiche-ann-tgbt";
-const FICHE_VOIE_API = "http://localhost:5000/api/fiche-ann-voie";
-const FICHE_ANN_INFRASTRUCTURE_API =
-    "http://localhost:5000/api/fiche-ann-infrastructure";
+  const FICHE_DGSS_API = 'http://localhost:5000/api/fiche-semes-dgs';
+  const FICHE_TGBT_API = 'http://localhost:5000/api/fiche-ann-tgbt';
+  const FICHE_VOIE_API = 'http://localhost:5000/api/fiche-ann-voie';
+  const FICHE_ANN_INFRASTRUCTURE_API =
+    'http://localhost:5000/api/fiche-ann-infrastructure';
+  const FICHE_HORS_SQL_API = 'http://localhost:5000/api/fiche-hors-sql';
+  const FICHE_EFFAR_API = 'http://localhost:5000/api/fiche-effar';
+const FICHE_ANN_OBS_API = "http://localhost:5000/api/fiche-ann-obs";
+const FICHE_ANN_CABLE_API = "http://localhost:5000/api/fiche-ann-cable";
+const FICHE_ANN_FEUX_SEQ_API = "http://localhost:5000/api/fiche-ann-feux-sequentiels";
+const FICHE_QUI_PAPI_API = "http://localhost:5000/api/fiche-qui-papi";
 
   // ===================== CHARGER NOTIFICATIONS =====================
   const fetchNotifications = async () => {
@@ -58,18 +69,37 @@ const FICHE_ANN_INFRASTRUCTURE_API =
       const res10 = await fetch(
         'http://localhost:5000/api/fiche-semes-postes/notifications'
       );
-       const res11 = await fetch(
+      const res11 = await fetch(
         'http://localhost:5000/api/fiche-semes-dgs/notifications'
       );
- const res12 = await fetch(
+      const res12 = await fetch(
         'http://localhost:5000/api/fiche-ann-tgbt/notifications'
       );
       const res13 = await fetch(
         'http://localhost:5000/api/fiche-ann-voie/notifications'
       );
       const res14 = await fetch(
-        'http://localhost:5000/api/fiche-ann-infrastructure'
+        'http://localhost:5000/api/fiche-ann-infrastructure/notifications'
       );
+      const res15 = await fetch(
+        'http://localhost:5000/api/fiche-hors-sql/notifications'
+      );
+      const res16 = await fetch(
+        'http://localhost:5000/api/fiche-effar/notifications'
+      );
+      const res17 = await fetch(
+        'http://localhost:5000/api/fiche-ann-obs/notifications'
+      );
+      const res18 = await fetch(
+        'http://localhost:5000/api/fiche-ann-cable/notifications'
+      );
+      const res19 = await fetch(
+        'http://localhost:5000/api/fiche-ann-feux-sequentiels/notifications'
+      );
+      const res20 = await fetch(
+        'http://localhost:5000/api/fiche-qui-papi/notifications'
+      );
+
       const data1 = res1.ok ? await res1.json() : [];
       const data2 = res2.ok ? await res2.json() : [];
       const data3 = res3.ok ? await res3.json() : [];
@@ -84,6 +114,12 @@ const FICHE_ANN_INFRASTRUCTURE_API =
       const data12 = res12.ok ? await res12.json() : [];
       const data13 = res13.ok ? await res13.json() : [];
       const data14 = res14.ok ? await res14.json() : [];
+      const data15 = res15.ok ? await res15.json() : [];
+      const data16 = res16.ok ? await res16.json() : [];
+      const data17 = res17.ok ? await res17.json() : [];
+      const data18 = res18.ok ? await res18.json() : [];
+      const data19 = res19.ok ? await res19.json() : [];
+      const data20 = res20.ok ? await res20.json() : [];
       setNotifications([
         ...(Array.isArray(data1) ? data1 : []),
         ...(Array.isArray(data2) ? data2 : []),
@@ -99,6 +135,12 @@ const FICHE_ANN_INFRASTRUCTURE_API =
         ...(Array.isArray(data12) ? data12 : []),
         ...(Array.isArray(data13) ? data13 : []),
         ...(Array.isArray(data14) ? data14 : []),
+        ...(Array.isArray(data15) ? data15 : []),
+        ...(Array.isArray(data16) ? data16 : []),
+        ...(Array.isArray(data17) ? data17 : []),
+        ...(Array.isArray(data18) ? data18 : []),
+        ...(Array.isArray(data19) ? data19 : []),
+        ...(Array.isArray(data20) ? data20 : []),
       ]);
     } catch (err) {
       console.error('Erreur notifications :', err);
@@ -279,59 +321,41 @@ const FICHE_ANN_INFRASTRUCTURE_API =
     }
   };
   const voirFicheSemesDgs = async (ficheId, notifId) => {
-  try {
-    // Récupérer la fiche semestrielle DGS par ID
-    const res = await fetch(`${FICHE_DGSS_API}/${ficheId}`);
-    if (!res.ok) {
-      console.error('Erreur récupération fiche semestrielle DGS');
-      return;
-    }
-    const data = await res.json();
-    // Stocker la fiche + l'ID de notification pour marquer comme lu
-    setSelectedFiche({ ...data, notifId,});
-  } catch (err) {
-    console.error('Erreur voir fiche semestrielle DGS :', err);
-  }
-};
-const voirFicheAnnTgbt = async (ficheId, notifId) => {
-  try {
-    // Récupérer la fiche annuelle TGBT par ID
-    const res = await fetch(`${FICHE_TGBT_API}/${ficheId}`);
-    if (!res.ok) {
-      console.error('Erreur récupération fiche annuelle TGBT');
-      return;
-    }
-    const data = await res.json();
-    // Stocker la fiche + l'ID de notification pour marquer comme lu
-    setSelectedFiche({ ...data, notifId });
-  } catch (err) {
-    console.error('Erreur voir fiche annuelle TGBT :', err);
-  }
-};
-const voirFicheAnnVoie = async (ficheId, notifId) => {
-  try {
-    // Récupérer la fiche annuelle voie par ID
-    const res = await fetch(`${FICHE_VOIE_API}/${ficheId}`);
-    if (!res.ok) {
-      console.error('Erreur récupération fiche annuelle voie');
-      return;
-    }
-
-    const data = await res.json();
-
-    // Stocker la fiche + l'ID de notification pour marquer comme lu
-    setSelectedFiche({ ...data, notifId });
-  } catch (err) {
-    console.error('Erreur voir fiche annuelle voie :', err);
-  }
-};
- const voirFicheAnnInfrastructure = async (ficheId, notifId) => {
     try {
-      // Récupérer la fiche Infrastructure par ID
-      const res = await fetch(`${FICHE_ANN_INFRASTRUCTURE_API}/${ficheId}`);
-
+      // Récupérer la fiche semestrielle DGS par ID
+      const res = await fetch(`${FICHE_DGSS_API}/${ficheId}`);
       if (!res.ok) {
-        console.error("Erreur récupération fiche Infrastructure");
+        console.error('Erreur récupération fiche semestrielle DGS');
+        return;
+      }
+      const data = await res.json();
+      // Stocker la fiche + l'ID de notification pour marquer comme lu
+      setSelectedFiche({ ...data, notifId });
+    } catch (err) {
+      console.error('Erreur voir fiche semestrielle DGS :', err);
+    }
+  };
+  const voirFicheAnnTgbt = async (ficheId, notifId) => {
+    try {
+      // Récupérer la fiche annuelle TGBT par ID
+      const res = await fetch(`${FICHE_TGBT_API}/${ficheId}`);
+      if (!res.ok) {
+        console.error('Erreur récupération fiche annuelle TGBT');
+        return;
+      }
+      const data = await res.json();
+      // Stocker la fiche + l'ID de notification pour marquer comme lu
+      setSelectedFiche({ ...data, notifId });
+    } catch (err) {
+      console.error('Erreur voir fiche annuelle TGBT :', err);
+    }
+  };
+  const voirFicheAnnVoie = async (ficheId, notifId) => {
+    try {
+      // Récupérer la fiche annuelle voie par ID
+      const res = await fetch(`${FICHE_VOIE_API}/${ficheId}`);
+      if (!res.ok) {
+        console.error('Erreur récupération fiche annuelle voie');
         return;
       }
 
@@ -340,10 +364,170 @@ const voirFicheAnnVoie = async (ficheId, notifId) => {
       // Stocker la fiche + l'ID de notification pour marquer comme lu
       setSelectedFiche({ ...data, notifId });
     } catch (err) {
-      console.error("Erreur voir fiche Infrastructure :", err);
+      console.error('Erreur voir fiche annuelle voie :', err);
     }
   };
- //marquer fiche comme lu
+  const voirFicheAnnInfrastructure = async (ficheId, notifId) => {
+    try {
+      // Récupérer la fiche Infrastructure par ID
+      const res = await fetch(`${FICHE_ANN_INFRASTRUCTURE_API}/${ficheId}`);
+
+      if (!res.ok) {
+        console.error('Erreur récupération fiche Infrastructure');
+        return;
+      }
+
+      const data = await res.json();
+
+      // Stocker la fiche + l'ID de notification pour marquer comme lu
+      setSelectedFiche({ ...data, notifId });
+    } catch (err) {
+      console.error('Erreur voir fiche Infrastructure :', err);
+    }
+  };
+
+  const voirFicheHorsSql = async (ficheId, notifId) => {
+    try {
+      // Récupérer la fiche Hors SQL par ID
+      const res = await fetch(`${FICHE_HORS_SQL_API}/${ficheId}`);
+
+      if (!res.ok) {
+        console.error('Erreur récupération fiche Hors SQL');
+        return;
+      }
+
+      const data = await res.json();
+
+      // Stocker la fiche + l'ID de notification pour marquer comme lu
+      setSelectedFiche({ ...data, notifId });
+    } catch (err) {
+      console.error('Erreur voir fiche Hors SQL :', err);
+    }
+  };
+  const voirFicheEffar = async (ficheId, notifId) => {
+    try {
+      // Récupérer la fiche Effaroucheur par ID
+      const res = await fetch(`${FICHE_EFFAR_API}/${ficheId}`);
+
+      if (!res.ok) {
+        console.error('Erreur récupération fiche Effaroucheur');
+        return;
+      }
+
+      const data = await res.json();
+
+      // Stocker la fiche + l'ID de notification pour marquer comme lu
+      setSelectedFiche({ ...data, notifId });
+    } catch (err) {
+      console.error('Erreur voir fiche Effaroucheur :', err);
+    }
+  };
+const voirFicheAnnObs = async (ficheId, notifId) => {
+  try {
+    // Récupérer la fiche FEUX OBSTACLES annuelles par ID
+    const res = await fetch(`${FICHE_ANN_OBS_API}/${ficheId}`);
+
+    if (!res.ok) {
+      console.error('Erreur récupération fiche AnnObs');
+      return;
+    }
+
+    const data = await res.json();
+
+    // Stocker la fiche + l'ID de notification pour marquer comme lu
+    setSelectedFiche({ ...data, notifId });
+  } catch (err) {
+    console.error('Erreur voir fiche AnnObs :', err);
+  }
+};
+/*
+const voirFicheAnnCable = async (ficheId, notifId) => {
+  try {
+    // Récupérer la fiche CABLE par ID
+    const res = await fetch(`${FICHE_ANN_CABLE_API}/${ficheId}`);
+
+    if (!res.ok) {
+      console.error('Erreur récupération fiche CABLE');
+      return;
+    }
+
+    const data = await res.json();
+
+    // Stocker la fiche + l'ID de notification pour marquer comme lu
+    setSelectedFiche({ ...data, notifId });
+  } catch (err) {
+    console.error('Erreur voir fiche CABLE :', err);
+  }
+};
+*/
+const voirFicheAnnCable = async (ficheId, notifId) => {
+  try {
+    const res = await fetch(`${FICHE_ANN_CABLE_API}/${ficheId}`);
+    if (!res.ok) {
+      console.error('Erreur récupération fiche CABLE');
+      return;
+    }
+
+    const data = await res.json();
+
+    // ✅ Securiser les tableaux pour éviter le crash
+    const safeData = {
+      ...data,
+      postes: Array.isArray(data.postes)
+        ? data.postes.map((p) => ({
+            ...p,
+            equipements: Array.isArray(p.equipements) ? p.equipements : [],
+          }))
+        : [],
+    };
+
+    setSelectedFiche({ ...safeData, notifId });
+  } catch (err) {
+    console.error('Erreur voir fiche CABLE :', err);
+  }
+};
+
+const voirFicheAnnFeuxSeq = async (ficheId, notifId) => {
+  try {
+    // Récupérer la fiche FEUX SEQUENTIELS annuelle par ID
+    const res = await fetch(`${FICHE_ANN_FEUX_SEQ_API}/${ficheId}`);
+
+    if (!res.ok) {
+      console.error("Erreur récupération fiche AnnFeuxSeq");
+      return;
+    }
+
+    const data = await res.json();
+
+    // Stocker la fiche + l'ID de notification pour marquer comme lu
+    setSelectedFiche({ ...data, notifId });
+
+  } catch (err) {
+    console.error("Erreur voir fiche AnnFeuxSeq :", err);
+  }
+};
+
+const voirFicheQuiPapi = async (ficheId, notifId) => {
+  try {
+    // Récupérer la fiche quinquennale PAPI par ID
+    const res = await fetch(`${FICHE_QUI_PAPI_API}/${ficheId}`);
+
+    if (!res.ok) {
+      console.error("Erreur récupération fiche quinquennale PAPI");
+      return;
+    }
+
+    const data = await res.json();
+
+    // Stocker la fiche + l'ID de notification pour marquer comme lu
+    setSelectedFiche({ ...data, notifId });
+
+  } catch (err) {
+    console.error("Erreur voir fiche quinquennale PAPI :", err);
+  }
+};
+
+  //marquer fiche comme lu
   const marquerNotifCommeLue = async (notifId) => {
     if (!notifId) return;
     try {
@@ -361,90 +545,123 @@ const voirFicheAnnVoie = async (ficheId, notifId) => {
     try {
       let url = '';
       let body = {};
-
+      let selectedFicheType = ''; // déclaration du type de fiche
       if (selectedFiche?.verifications) {
         url = 'http://localhost:5000/api/fiche_papi/valider';
         body = { ficheId: id };
+        selectedFicheType = 'fiche_papi';
       } else if (selectedFiche?.zonePrincipale) {
         url = 'http://localhost:5000/api/fiche-piste/valider';
         body = { ficheId: id };
+        selectedFicheType = 'fiche_piste';
       } else if (selectedFiche?.dgs) {
         url = 'http://localhost:5000/api/fiche-dgs/valider';
         body = { ficheId: id };
+        selectedFicheType = 'fiche_dgs';
       } else if (selectedFiche?.feuxObstacles) {
         url = 'http://localhost:5000/api/feux-obstacles/valider';
         body = { ficheId: id };
+        selectedFicheType = 'fiche_feux_obstacles';
       } else if (selectedFiche?.lvp) {
         url = 'http://localhost:5000/api/fiche-lvp/valider';
         body = { ficheId: id };
+        selectedFicheType = 'fiche_lvp';
       } else if (selectedFiche?.regulateures) {
         url = 'http://localhost:5000/api/fiche-regulateures/valider';
         body = { ficheId: id };
+        selectedFicheType = 'fiche_regulateures';
       } else if (selectedFiche?.postes) {
         url = 'http://localhost:5000/api/fiche-postes/valider';
         body = { ficheId: id };
+        selectedFicheType = 'fiche_postes';
       } else if (selectedFiche?.aidesRadios) {
         url = 'http://localhost:5000/api/fiche-aides-radios/valider';
         body = { ficheId: id };
+        selectedFicheType = 'fiche_aides_radios';
       } else if (selectedFiche?.feuxEncastres) {
         url = 'http://localhost:5000/api/fiche_feux_encastres/valider';
         body = { ficheId: id };
+        selectedFicheType = 'fiche_feux_encastres';
       } else if (selectedFiche?.regul) {
         url = 'http://localhost:5000/api/fiche-semes-regulateures/valider';
         body = { ficheId: id };
+        selectedFicheType = 'fiche_semes_regulateures';
       } else if (selectedFiche?.postess) {
         url = 'http://localhost:5000/api/fiche-semes-postes/valider';
         body = { ficheId: id };
-      }else if (selectedFiche?.controle) {
+        selectedFicheType = 'fiche_semes_postes';
+      } else if (selectedFiche?.controle) {
         url = 'http://localhost:5000/api/fiche_semes_dgs/valider';
         body = { ficheId: id };
+        selectedFicheType = 'fiche_semes_dgs';
       } else if (selectedFiche?.tgbt) {
         url = 'http://localhost:5000/api/fiche-ann-tgbt/valider';
         body = { ficheId: id };
-       } else if (selectedFiche?.voie) {
+        selectedFicheType = 'fiche_ann_tgbt';
+      } else if (selectedFiche?.voie) {
         url = 'http://localhost:5000/api/fiche-ann-voie/valider';
-        body = { ficheId: id }; 
-       } else if (selectedFiche?.piste) {
+        body = { ficheId: id };
+        selectedFicheType = 'fiche_ann_voie';
+      } else if (selectedFiche?.piste) {
         url = 'http://localhost:5000/api/fiche-ann-infrastructure/valider';
-        body = { ficheId: id };  
-      }else {
+        body = { ficheId: id };
+        selectedFicheType = 'fiche_ann_infrastructure';
+      } else if (selectedFiche?.hors) {
+        url = 'http://localhost:5000/api/fiche-hors-sql/valider';
+        body = { ficheId: id };
+        selectedFicheType = 'fiche_hors_sql';
+      } else if (selectedFiche?.effar) {
+        url = 'http://localhost:5000/api/fiche-effar/valider';
+        body = { ficheId: id };
+        selectedFicheType = 'fiche_effar';
+      } else if (selectedFiche?.obs) {
+        url = 'http://localhost:5000/api/fiche-ann-obs/valider';
+        body = { ficheId: id };
+        selectedFicheType = 'fiche_ann_obs';  
+        } else if (selectedFiche?.cable) {
+        url = 'http://localhost:5000/api/fiche-ann-cable/valider';
+        body = { ficheId: id };
+        selectedFicheType = 'fiche_ann_cable';  
+
+        } else if (selectedFiche?.bloc) {
+        url = 'http://localhost:5000/api/fiche-ann-feux-sequentiels/valider';
+        body = { ficheId: id };
+        selectedFicheType = 'fiche_ann_feux_sequentiels'; 
+      } else if (selectedFiche?.papi) {
+        url = 'http://localhost:5000/api/fiche-qui-papi/valider';
+        body = { ficheId: id };
+        selectedFicheType = 'fiche_quinquennale_papi';    
+      } else {
         url = 'http://localhost:5000/api/inspections/valider';
         body = { inspectionId: id };
+        selectedFicheType = 'inspection';
       }
-// valider fiche
+      // valider fiche
       await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
 
-       if (notifId) {
-      await marquerNotifCommeLue(notifId); 
+      if (notifId) {
+        await marquerNotifCommeLue(notifId);
+      }
+
+      // 🔹 Feedback utilisateur
+      alert("Fiche validée et ajoutée à l'historique ✅");
+      setSelectedFiche(null);
+      fetchNotifications();
+      navigate('/historique-actions', {
+        state: {
+          alertMessage: "Nouvelle fiche validée et ajoutée à l'historique",
+        },
+      });
+    } catch (err) {
+      console.error('Erreur validation fiche :', err);
+      alert('Erreur lors de la validation');
     }
+  };
 
-    // Ajouter dans historique
-await ajouterHistoriqueAction({
-    type: "fiche_ann_infrastructure",
-    message: "Fiche annuelle Infrastructure validée",
-    date: new Date(),
-    dataId: selectedFiche._id,
-});
-
-
-    // 🔹 Feedback utilisateur
-alert("Fiche validée et ajoutée à l'historique ✅");
-    setSelectedFiche(null);
-    fetchNotifications();
-navigate("/historique-actions", {
-  state: { alertMessage: "Nouvelle fiche validée et ajoutée à l'historique" },
-});
- 
-  } catch (err) {
-    console.error("Erreur validation fiche :", err);
-    alert("Erreur lors de la validation");
-  }
-};
- 
   // ===================== EXPORT PDF =====================
   const exportPDF = () => {
     if (!selectedFiche) return;
@@ -1024,324 +1241,381 @@ navigate("/historique-actions", {
         `Fiche_Feux_Encastres_${selectedFiche.date ? new Date(selectedFiche.date).toISOString() : 'date_inconnue'}.pdf`
       );
       // ===================== EXPORT PDF semseterilel postes  =====================
-    }else if (selectedFiche?.posteSST1) {
-  doc.text("Fiche d'inspection Semestrielle des Postes", 14, 15);
-  doc.setFontSize(11);
-  doc.text(
-    `📅 Date : ${selectedFiche.date ? new Date(selectedFiche.date).toLocaleDateString() : ''}`,
-    14,
-    22
-  );
-  doc.text(
-    `👨‍🔧 Technicien : ${selectedFiche.technicien_operateures || ''}`,
-    14,
-    28
-  );
-  doc.text(
-    `📝 Observations générales : ${selectedFiche.observations_generales || ''}`,
-    14,
-    34
-  );
+    } else if (selectedFiche?.posteSST1) {
+      doc.text("Fiche d'inspection Semestrielle des Postes", 14, 15);
+      doc.setFontSize(11);
+      doc.text(
+        `📅 Date : ${selectedFiche.date ? new Date(selectedFiche.date).toLocaleDateString() : ''}`,
+        14,
+        22
+      );
+      doc.text(
+        `👨‍🔧 Technicien : ${selectedFiche.technicien_operateures || ''}`,
+        14,
+        28
+      );
+      doc.text(
+        `📝 Observations générales : ${selectedFiche.observations_generales || ''}`,
+        14,
+        34
+      );
 
-  const tableColumn = ["Element", "Etat", "Interventions", "Observations"];
-  let startY = 40;
+      const tableColumn = ['Element', 'Etat', 'Interventions', 'Observations'];
+      let startY = 40;
 
-  // Fonction pour ajouter un poste au PDF
-  const addPoste = (posteName, posteData) => {
-    if (!posteData || !posteData.controles || posteData.controles.length === 0) return;
+      // Fonction pour ajouter un poste au PDF
+      const addPoste = (posteName, posteData) => {
+        if (
+          !posteData ||
+          !posteData.controles ||
+          posteData.controles.length === 0
+        )
+          return;
 
-    doc.text(posteName, 14, startY);
-    startY += 6;
+        doc.text(posteName, 14, startY);
+        startY += 6;
 
-    const tableRows = posteData.controles.map((c) => [
-      c.element || "",
-      c.etat || "",
-      c.interventions || "",
-      c.observations || "",
-    ]);
-
-    autoTable(doc, {
-      head: [tableColumn],
-      body: tableRows,
-      startY,
-      theme: "grid",
-      headStyles: { fillColor: [52, 152, 219], textColor: 255 },
-      styles: { fontSize: 10 },
-    });
-
-    startY = doc.lastAutoTable.finalY + 10; // mettre à jour la position pour le poste suivant
-  };
-
-  addPoste("POSTE SST1", selectedFiche.posteSST1);
-  addPoste("POSTE SST2", selectedFiche.posteSST2);
-  addPoste("POSTE TC", selectedFiche.posteTC);
-
-  // Ajouter la signature si elle existe
-  if (selectedFiche.signature) {
-    const imgProps = doc.getImageProperties(selectedFiche.signature);
-    const imgWidth = 100;
-    const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
-    doc.text("Signature :", 14, startY + 6);
-    doc.addImage(selectedFiche.signature, "PNG", 14, startY + 10, imgWidth, imgHeight);
-  }
-
-  doc.save(
-    `Fiche_Semestrielle_Postes_${
-      selectedFiche.date ? new Date(selectedFiche.date).toISOString() : "date_inconnue"
-    }.pdf`
-  );
-  // ===================== EXPORT PDF semestrielle DGS =====================
-}else if (selectedFiche?.Contrôle) {
-  doc.text("Fiche d'inspection Semestrielle DGS", 14, 15);
-  doc.setFontSize(11);
-  doc.text(
-    `📅 Date : ${selectedFiche.Date ? new Date(selectedFiche.Date).toLocaleDateString() : ''}`,
-    14,
-    22
-  );
-  doc.text(
-    `👨‍🔧 Technicien : ${selectedFiche["Technicien Operateures"] || ''}`,
-    14,
-    28
-  );
-  doc.text(
-    `📝 Observations générales : ${selectedFiche["Observations générales"] || ''}`,
-    14,
-    34
-  );
-
-  const tableColumn = ["Contrôle / Élément", "Normal", "Anomalie", "Observations"];
-  let startY = 40;
-
-  // Fonction pour ajouter chaque section de contrôle
-  const addSection = (sectionName, sectionData) => {
-    if (!sectionData) return;
-
-    doc.text(sectionName, 14, startY);
-    startY += 6;
-
-    const tableRows = [];
-    const isSimple = sectionData.Normal !== undefined;
-
-    if (isSimple) {
-      tableRows.push([
-        sectionName,
-        sectionData.Normal ? "✅" : "",
-        sectionData.Anomalie ? "⚠️" : "",
-        sectionData.Observations || ""
-      ]);
-
-      // TGBT ANNUELE 
-      
-    } else {
-      Object.keys(sectionData).forEach((element) => {
-        const el = sectionData[element];
-        tableRows.push([
-          element,
-          el.Normal ? "✅" : "",
-          el.Anomalie ? "⚠️" : "",
-          el.Observations || ""
+        const tableRows = posteData.controles.map((c) => [
+          c.element || '',
+          c.etat || '',
+          c.interventions || '',
+          c.observations || '',
         ]);
+
+        autoTable(doc, {
+          head: [tableColumn],
+          body: tableRows,
+          startY,
+          theme: 'grid',
+          headStyles: { fillColor: [52, 152, 219], textColor: 255 },
+          styles: { fontSize: 10 },
+        });
+
+        startY = doc.lastAutoTable.finalY + 10; // mettre à jour la position pour le poste suivant
+      };
+
+      addPoste('POSTE SST1', selectedFiche.posteSST1);
+      addPoste('POSTE SST2', selectedFiche.posteSST2);
+      addPoste('POSTE TC', selectedFiche.posteTC);
+
+      // Ajouter la signature si elle existe
+      if (selectedFiche.signature) {
+        const imgProps = doc.getImageProperties(selectedFiche.signature);
+        const imgWidth = 100;
+        const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+        doc.text('Signature :', 14, startY + 6);
+        doc.addImage(
+          selectedFiche.signature,
+          'PNG',
+          14,
+          startY + 10,
+          imgWidth,
+          imgHeight
+        );
+      }
+
+      doc.save(
+        `Fiche_Semestrielle_Postes_${
+          selectedFiche.date
+            ? new Date(selectedFiche.date).toISOString()
+            : 'date_inconnue'
+        }.pdf`
+      );
+      // ===================== EXPORT PDF semestrielle DGS =====================
+    } else if (selectedFiche?.Contrôle) {
+      doc.text("Fiche d'inspection Semestrielle DGS", 14, 15);
+      doc.setFontSize(11);
+      doc.text(
+        `📅 Date : ${selectedFiche.Date ? new Date(selectedFiche.Date).toLocaleDateString() : ''}`,
+        14,
+        22
+      );
+      doc.text(
+        `👨‍🔧 Technicien : ${selectedFiche['Technicien Operateures'] || ''}`,
+        14,
+        28
+      );
+      doc.text(
+        `📝 Observations générales : ${selectedFiche['Observations générales'] || ''}`,
+        14,
+        34
+      );
+
+      const tableColumn = [
+        'Contrôle / Élément',
+        'Normal',
+        'Anomalie',
+        'Observations',
+      ];
+      let startY = 40;
+
+      // Fonction pour ajouter chaque section de contrôle
+      const addSection = (sectionName, sectionData) => {
+        if (!sectionData) return;
+
+        doc.text(sectionName, 14, startY);
+        startY += 6;
+
+        const tableRows = [];
+        const isSimple = sectionData.Normal !== undefined;
+
+        if (isSimple) {
+          tableRows.push([
+            sectionName,
+            sectionData.Normal ? '✅' : '',
+            sectionData.Anomalie ? '⚠️' : '',
+            sectionData.Observations || '',
+          ]);
+
+          // TGBT ANNUELE
+        } else {
+          Object.keys(sectionData).forEach((element) => {
+            const el = sectionData[element];
+            tableRows.push([
+              element,
+              el.Normal ? '✅' : '',
+              el.Anomalie ? '⚠️' : '',
+              el.Observations || '',
+            ]);
+          });
+        }
+
+        autoTable(doc, {
+          head: [tableColumn],
+          body: tableRows,
+          startY,
+          theme: 'grid',
+          headStyles: { fillColor: [52, 152, 219], textColor: 255 },
+          styles: { fontSize: 10 },
+        });
+
+        startY = doc.lastAutoTable.finalY + 10;
+      };
+
+      // Parcourir toutes les sections
+      Object.keys(selectedFiche.Contrôle).forEach((section) => {
+        addSection(section, selectedFiche.Contrôle[section]);
       });
-    }
 
-    autoTable(doc, {
-      head: [tableColumn],
-      body: tableRows,
-      startY,
-      theme: "grid",
-      headStyles: { fillColor: [52, 152, 219], textColor: 255 },
-      styles: { fontSize: 10 },
-    });
+      // Ajouter la signature si elle existe
+      if (selectedFiche.Signature) {
+        const imgProps = doc.getImageProperties(selectedFiche.Signature);
+        const imgWidth = 100;
+        const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+        doc.text('Signature :', 14, startY + 6);
+        doc.addImage(
+          selectedFiche.Signature,
+          'PNG',
+          14,
+          startY + 10,
+          imgWidth,
+          imgHeight
+        );
+      }
 
-    startY = doc.lastAutoTable.finalY + 10;
-  };
+      doc.save(
+        `Fiche_Semestrielle_DGS_${
+          selectedFiche.Date
+            ? new Date(selectedFiche.Date).toISOString()
+            : 'date_inconnue'
+        }.pdf`
+      );
+      // ===================== EXPORT PDF TGBT =====================
+    } else if (selectedFiche?.postes) {
+      doc.text('Fiche Annuelle TGBT', 14, 15);
+      doc.setFontSize(11);
+      doc.text(
+        `📅 Date : ${selectedFiche.date ? new Date(selectedFiche.date).toLocaleDateString() : ''}`,
+        14,
+        22
+      );
+      doc.text(
+        `👨‍🔧 Technicien / Opérateurs : ${selectedFiche.technicien_operateurs || ''}`,
+        14,
+        28
+      );
+      doc.text(
+        `📝 Observations générales : ${selectedFiche.observations_generales || ''}`,
+        14,
+        34
+      );
 
-  // Parcourir toutes les sections
-  Object.keys(selectedFiche.Contrôle).forEach((section) => {
-    addSection(section, selectedFiche.Contrôle[section]);
-  });
+      const tableColumn = ['Élément', 'État', 'Interventions', 'Observations'];
+      let startY = 40;
 
-  // Ajouter la signature si elle existe
-  if (selectedFiche.Signature) {
-    const imgProps = doc.getImageProperties(selectedFiche.Signature);
-    const imgWidth = 100;
-    const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
-    doc.text("Signature :", 14, startY + 6);
-    doc.addImage(selectedFiche.Signature, "PNG", 14, startY + 10, imgWidth, imgHeight);
-  }
+      selectedFiche.postes.forEach((poste) => {
+        // Nom du poste en gras
+        doc.setFont(undefined, 'bold');
+        doc.text(poste.nom, 14, startY);
+        doc.setFont(undefined, 'normal');
+        startY += 6;
 
-  doc.save(
-    `Fiche_Semestrielle_DGS_${
-      selectedFiche.Date ? new Date(selectedFiche.Date).toISOString() : "date_inconnue"
-    }.pdf`
-  );
-// ===================== EXPORT PDF TGBT =====================
-}else if (selectedFiche?.postes) {
-  doc.text("Fiche Annuelle TGBT", 14, 15);
-  doc.setFontSize(11);
-  doc.text(
-    `📅 Date : ${selectedFiche.date ? new Date(selectedFiche.date).toLocaleDateString() : ''}`,
-    14,
-    22
-  );
-  doc.text(
-    `👨‍🔧 Technicien / Opérateurs : ${selectedFiche.technicien_operateurs || ''}`,
-    14,
-    28
-  );
-  doc.text(
-    `📝 Observations générales : ${selectedFiche.observations_generales || ''}`,
-    14,
-    34
-  );
+        const tableRows = poste.elements.map((el) => [
+          el.nom || '',
+          el.etat || '--',
+          el.interventions || '',
+          el.observations || '',
+        ]);
 
-  const tableColumn = ["Élément", "État", "Interventions", "Observations"];
-  let startY = 40;
+        // Ajouter le tableau avec autoTable
+        autoTable(doc, {
+          head: [tableColumn],
+          body: tableRows,
+          startY,
+          theme: 'grid',
+          headStyles: { fillColor: [52, 152, 219], textColor: 255 },
+          styles: { fontSize: 10 },
+        });
 
-  selectedFiche.postes.forEach((poste) => {
-    // Nom du poste en gras
-    doc.setFont(undefined, "bold");
-    doc.text(poste.nom, 14, startY);
-    doc.setFont(undefined, "normal");
-    startY += 6;
+        startY = doc.lastAutoTable.finalY + 10; // espace après le poste
+      });
 
-    const tableRows = poste.elements.map((el) => [
-      el.nom || "",
-      el.etat || "--",
-      el.interventions || "",
-      el.observations || ""
-    ]);
+      // Ajouter la signature si elle existe
+      if (selectedFiche.signature) {
+        const imgProps = doc.getImageProperties(selectedFiche.signature);
+        const imgWidth = 100;
+        const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+        doc.text('Signature :', 14, startY + 6);
+        doc.addImage(
+          selectedFiche.signature,
+          'PNG',
+          14,
+          startY + 10,
+          imgWidth,
+          imgHeight
+        );
+      }
 
-    // Ajouter le tableau avec autoTable
-    autoTable(doc, {
-      head: [tableColumn],
-      body: tableRows,
-      startY,
-      theme: "grid",
-      headStyles: { fillColor: [52, 152, 219], textColor: 255 },
-      styles: { fontSize: 10 },
-    });
+      // Sauvegarder le PDF
+      doc.save(
+        `Fiche_Annuelle_TGBT_${
+          selectedFiche.date
+            ? new Date(selectedFiche.date).toISOString().slice(0, 10)
+            : 'date_inconnue'
+        }.pdf`
+      );
 
-    startY = doc.lastAutoTable.finalY + 10; // espace après le poste
-  });
+      // ===================== EXPORT PDF annuelle voie=====================
+      // ===================== EXPORT PDF VOIE =====================
+    } else if (selectedFiche?.panneaux) {
+      doc.text('Fiche Annuelle Voie', 14, 15);
+      doc.setFontSize(11);
+      doc.text(
+        `📅 Date : ${selectedFiche.date ? new Date(selectedFiche.date).toLocaleDateString() : ''}`,
+        14,
+        22
+      );
+      doc.text(
+        `👨‍🔧 Technicien / Opérateurs : ${selectedFiche.techniciens_operateurs?.join(', ') || ''}`,
+        14,
+        28
+      );
+      doc.text(
+        `📝 Observations générales : ${selectedFiche.observations_generales || ''}`,
+        14,
+        34
+      );
 
-  // Ajouter la signature si elle existe
-  if (selectedFiche.signature) {
-    const imgProps = doc.getImageProperties(selectedFiche.signature);
-    const imgWidth = 100;
-    const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
-    doc.text("Signature :", 14, startY + 6);
-    doc.addImage(selectedFiche.signature, "PNG", 14, startY + 10, imgWidth, imgHeight);
-  }
+      let startY = 40;
 
-  // Sauvegarder le PDF
-  doc.save(
-    `Fiche_Annuelle_TGBT_${
-      selectedFiche.date ? new Date(selectedFiche.date).toISOString().slice(0,10) : "date_inconnue"
-    }.pdf`
-  );
+      // ===================== Panneaux =====================
+      const panneauxColumn = [
+        'Panneau',
+        'Élément',
+        'État',
+        'Interventions',
+        'Observations',
+      ];
 
-  // ===================== EXPORT PDF annuelle voie=====================
-// ===================== EXPORT PDF VOIE =====================
-}else if (selectedFiche?.panneaux) {
-  doc.text("Fiche Annuelle Voie", 14, 15);
-  doc.setFontSize(11);
-  doc.text(
-    `📅 Date : ${selectedFiche.date ? new Date(selectedFiche.date).toLocaleDateString() : ''}`,
-    14,
-    22
-  );
-  doc.text(
-    `👨‍🔧 Technicien / Opérateurs : ${selectedFiche.techniciens_operateurs?.join(', ') || ''}`,
-    14,
-    28
-  );
-  doc.text(
-    `📝 Observations générales : ${selectedFiche.observations_generales || ''}`,
-    14,
-    34
-  );
+      Object.entries(selectedFiche.panneaux).forEach(
+        ([panneauNom, elements]) => {
+          // Nom du panneau en gras
+          doc.setFont(undefined, 'bold');
+          doc.text(panneauNom, 14, startY);
+          doc.setFont(undefined, 'normal');
+          startY += 6;
 
-  let startY = 40;
+          const tableRows = Object.entries(elements).map(([elementNom, el]) => [
+            '', // Le nom du panneau est déjà en titre
+            elementNom || '',
+            el.Etat || '--',
+            el.Interventions || '',
+            el.Observations || '',
+          ]);
 
-  // ===================== Panneaux =====================
-  const panneauxColumn = ["Panneau", "Élément", "État", "Interventions", "Observations"];
+          autoTable(doc, {
+            head: [panneauxColumn],
+            body: tableRows,
+            startY,
+            theme: 'grid',
+            headStyles: { fillColor: [52, 152, 219], textColor: 255 },
+            styles: { fontSize: 10 },
+          });
 
-  Object.entries(selectedFiche.panneaux).forEach(([panneauNom, elements]) => {
-    // Nom du panneau en gras
-    doc.setFont(undefined, "bold");
-    doc.text(panneauNom, 14, startY);
-    doc.setFont(undefined, "normal");
-    startY += 6;
+          startY = doc.lastAutoTable.finalY + 10; // espace après le panneau
+        }
+      );
 
-    const tableRows = Object.entries(elements).map(([elementNom, el]) => [
-      "", // Le nom du panneau est déjà en titre
-      elementNom || "",
-      el.Etat || "--",
-      el.Interventions || "",
-      el.Observations || ""
-    ]);
+      // ===================== ROTs =====================
+      const rotColumn = [
+        'ROT',
+        'Élément',
+        'État',
+        'Interventions',
+        'Observations',
+      ];
 
-    autoTable(doc, {
-      head: [panneauxColumn],
-      body: tableRows,
-      startY,
-      theme: "grid",
-      headStyles: { fillColor: [52, 152, 219], textColor: 255 },
-      styles: { fontSize: 10 },
-    });
+      Object.entries(selectedFiche.ROTs).forEach(([rotNom, elements]) => {
+        // Nom du ROT en gras
+        doc.setFont(undefined, 'bold');
+        doc.text(rotNom, 14, startY);
+        doc.setFont(undefined, 'normal');
+        startY += 6;
 
-    startY = doc.lastAutoTable.finalY + 10; // espace après le panneau
-  });
+        const tableRows = Object.entries(elements).map(([elementNom, el]) => [
+          '', // Le nom du ROT est déjà en titre
+          elementNom || '',
+          el.Etat || '--',
+          el.Interventions || '',
+          el.Observations || '',
+        ]);
 
-  // ===================== ROTs =====================
-  const rotColumn = ["ROT", "Élément", "État", "Interventions", "Observations"];
+        autoTable(doc, {
+          head: [rotColumn],
+          body: tableRows,
+          startY,
+          theme: 'grid',
+          headStyles: { fillColor: [52, 152, 219], textColor: 255 },
+          styles: { fontSize: 10 },
+        });
 
-  Object.entries(selectedFiche.ROTs).forEach(([rotNom, elements]) => {
-    // Nom du ROT en gras
-    doc.setFont(undefined, "bold");
-    doc.text(rotNom, 14, startY);
-    doc.setFont(undefined, "normal");
-    startY += 6;
+        startY = doc.lastAutoTable.finalY + 10; // espace après le ROT
+      });
 
-    const tableRows = Object.entries(elements).map(([elementNom, el]) => [
-      "", // Le nom du ROT est déjà en titre
-      elementNom || "",
-      el.Etat || "--",
-      el.Interventions || "",
-      el.Observations || ""
-    ]);
+      // ===================== Signature =====================
+      if (selectedFiche.signature) {
+        const imgProps = doc.getImageProperties(selectedFiche.signature);
+        const imgWidth = 100;
+        const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+        doc.text('Signature :', 14, startY + 6);
+        doc.addImage(
+          selectedFiche.signature,
+          'PNG',
+          14,
+          startY + 10,
+          imgWidth,
+          imgHeight
+        );
+      }
 
-    autoTable(doc, {
-      head: [rotColumn],
-      body: tableRows,
-      startY,
-      theme: "grid",
-      headStyles: { fillColor: [52, 152, 219], textColor: 255 },
-      styles: { fontSize: 10 },
-    });
-
-    startY = doc.lastAutoTable.finalY + 10; // espace après le ROT
-  });
-
-  // ===================== Signature =====================
-  if (selectedFiche.signature) {
-    const imgProps = doc.getImageProperties(selectedFiche.signature);
-    const imgWidth = 100;
-    const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
-    doc.text("Signature :", 14, startY + 6);
-    doc.addImage(selectedFiche.signature, "PNG", 14, startY + 10, imgWidth, imgHeight);
-  }
-
-  // Sauvegarder le PDF
-  doc.save(
-    `Fiche_Annuelle_Voie_${
-      selectedFiche.date ? new Date(selectedFiche.date).toISOString().slice(0, 10) : "date_inconnue"
-    }.pdf`
-  );
-
-
+      // Sauvegarder le PDF
+      doc.save(
+        `Fiche_Annuelle_Voie_${
+          selectedFiche.date
+            ? new Date(selectedFiche.date).toISOString().slice(0, 10)
+            : 'date_inconnue'
+        }.pdf`
+      );
     } else {
       doc.text(
         `Fiche Inspection journalière ${selectedFiche.matricule}`,
@@ -1435,13 +1709,27 @@ navigate("/historique-actions", {
                   } else if (n.type?.toLowerCase() === 'fiche_semes_postes') {
                     voirFicheSemesPostes(ficheId, n._id);
                   } else if (n.type?.toLowerCase() === 'fiche_semes_dgs') {
-                     voirFicheSemesDgs(ficheId, n._id);
+                    voirFicheSemesDgs(ficheId, n._id);
                   } else if (n.type?.toLowerCase() === 'fiche_ann_tgbt') {
-                     voirFicheAnnTgbt(ficheId, n._id); 
-                   } else if (n.type?.toLowerCase() === 'fiche_ann_voie') {
-                     voirFicheAnnVoie(ficheId, n._id); 
-                  } else if (n.type?.toLowerCase() === 'fiche_ann_infrastructure') {
-                     voirFicheAnnInfrastructure(ficheId, n._id);       
+                    voirFicheAnnTgbt(ficheId, n._id);
+                  } else if (n.type?.toLowerCase() === 'fiche_ann_voie') {
+                    voirFicheAnnVoie(ficheId, n._id);
+                  } else if (
+                    n.type?.toLowerCase() === 'fiche_ann_infrastructure'
+                  ) {
+                    voirFicheAnnInfrastructure(ficheId, n._id);
+                  } else if (n.type?.toLowerCase() === 'fiche_hors_sql') {
+                    voirFicheHorsSql(ficheId, n._id);
+                  } else if (n.type?.toLowerCase() === 'fiche_effar') {
+                    voirFicheEffar(ficheId, n._id);
+                  } else if (n.type?.toLowerCase() === 'fiche_ann_obs') {
+                    voirFicheAnnObs(ficheId, n._id);  
+                    } else if (n.type?.toLowerCase() === 'fiche_ann_cable') {
+                    voirFicheAnnCable(ficheId, n._id);  
+                     } else if (n.type?.toLowerCase() === 'fiche_ann_feux_sequentiels') {
+                    voirFicheAnnFeuxSeq(ficheId, n._id); 
+                     } else if (n.type?.toLowerCase() === 'fiche_quinquennale_papi') {
+                    voirFicheQuiPapi(ficheId, n._id);  
                   } else {
                     voirFiche(ficheId);
                   }
@@ -2197,340 +2485,1253 @@ navigate("/historique-actions", {
                   <button onClick={exportPDF}>📄 Exporter PDF</button>
                 </div>
               </>
-// ================= semestrielle DGS =================
-                  ):selectedFiche?.Contrôle ? (
-  <>
-    <h3>Fiche d'inspection Semestrielle DGS</h3>
+            ) : // ================= semestrielle DGS =================
+            selectedFiche?.Contrôle ? (
+              <>
+                <h3>Fiche d'inspection Semestrielle DGS</h3>
 
-    {/* Informations générales */}
-    <p>
-      📅 Date : {selectedFiche.Date ? new Date(selectedFiche.Date).toLocaleDateString() : ''}
-    </p>
-    <p>
-      👨‍🔧 Technicien : {selectedFiche["Technicien Operateures"] || ''}
-    </p>
-    <p>
-      📝 Observations générales : {selectedFiche["Observations générales"] || ''}
-    </p>
+                {/* Informations générales */}
+                <p>
+                  📅 Date :{' '}
+                  {selectedFiche.Date
+                    ? new Date(selectedFiche.Date).toLocaleDateString()
+                    : ''}
+                </p>
+                <p>
+                  👨‍🔧 Technicien :{' '}
+                  {selectedFiche['Technicien Operateures'] || ''}
+                </p>
+                <p>
+                  📝 Observations générales :{' '}
+                  {selectedFiche['Observations générales'] || ''}
+                </p>
 
-    {/* Tableau de contrôle */}
-    <table>
-      <thead>
-        <tr>
-          <th>Contrôle</th>
-          <th>Normal</th>
-          <th>Anomalie</th>
-          <th>Observations</th>
-        </tr>
-      </thead>
-      <tbody>
-        {selectedFiche.Contrôle &&
-          Object.keys(selectedFiche.Contrôle).map((section) => {
-            const sectionData = selectedFiche.Contrôle[section];
-            const isSimple = sectionData.Normal !== undefined;
+                {/* Tableau de contrôle */}
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Contrôle</th>
+                      <th>Normal</th>
+                      <th>Anomalie</th>
+                      <th>Observations</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedFiche.Contrôle &&
+                      Object.keys(selectedFiche.Contrôle).map((section) => {
+                        const sectionData = selectedFiche.Contrôle[section];
+                        const isSimple = sectionData.Normal !== undefined;
 
-            return (
-              <React.Fragment key={section}>
-                {/* Nom de la section */}
-                <tr>
-                  <td colSpan={4} style={{ fontWeight: 'bold', backgroundColor: '#eee' }}>
-                    {section}
-                  </td>
-                </tr>
+                        return (
+                          <React.Fragment key={section}>
+                            {/* Nom de la section */}
+                            <tr>
+                              <td
+                                colSpan={4}
+                                style={{
+                                  fontWeight: 'bold',
+                                  backgroundColor: '#eee',
+                                }}
+                              >
+                                {section}
+                              </td>
+                            </tr>
 
-                {/* Si c'est un simple EtatSchema */}
-                {isSimple ? (
-                  <tr>
-                    <td>{section}</td>
-                    <td>{sectionData.Normal ? '✅' : ''}</td>
-                    <td>{sectionData.Anomalie ? '⚠️' : ''}</td>
-                    <td>{sectionData.Observations}</td>
-                  </tr>
-                ) : (
-                  // Sinon, parcourir les sous-éléments
-                  Object.keys(sectionData).map((element) => {
-                    const el = sectionData[element];
-                    return (
-                      <tr key={element}>
-                        <td>{element}</td>
-                        <td>{el.Normal ? '✅' : ''}</td>
-                        <td>{el.Anomalie ? '⚠️' : ''}</td>
-                        <td>{el.Observations}</td>
-                      </tr>
-                    );
-                  })
+                            {/* Si c'est un simple EtatSchema */}
+                            {isSimple ? (
+                              <tr>
+                                <td>{section}</td>
+                                <td>{sectionData.Normal ? '✅' : ''}</td>
+                                <td>{sectionData.Anomalie ? '⚠️' : ''}</td>
+                                <td>{sectionData.Observations}</td>
+                              </tr>
+                            ) : (
+                              // Sinon, parcourir les sous-éléments
+                              Object.keys(sectionData).map((element) => {
+                                const el = sectionData[element];
+                                return (
+                                  <tr key={element}>
+                                    <td>{element}</td>
+                                    <td>{el.Normal ? '✅' : ''}</td>
+                                    <td>{el.Anomalie ? '⚠️' : ''}</td>
+                                    <td>{el.Observations}</td>
+                                  </tr>
+                                );
+                              })
+                            )}
+                          </React.Fragment>
+                        );
+                      })}
+                  </tbody>
+                </table>
+
+                {/* Signature */}
+                {selectedFiche.Signature && (
+                  <div style={{ marginTop: '20px' }}>
+                    <h4>Signature :</h4>
+                    <img
+                      src={selectedFiche.Signature}
+                      alt="Signature"
+                      style={{
+                        border: '1px solid #000',
+                        width: '400px',
+                        height: '150px',
+                      }}
+                    />
+                  </div>
                 )}
-              </React.Fragment>
-            );
-          })}
-      </tbody>
-    </table>
 
-    {/* Signature */}
-    {selectedFiche.Signature && (
-      <div style={{ marginTop: '20px' }}>
-        <h4>Signature :</h4>
-        <img
-          src={selectedFiche.Signature}
-          alt="Signature"
-          style={{ border: '1px solid #000', width: '400px', height: '150px' }}
-        />
-      </div>
-    )}
+                {/* Actions */}
+                <div
+                  style={{ marginTop: '20px', display: 'flex', gap: '10px' }}
+                >
+                  <button
+                    onClick={() =>
+                      validerFiche(selectedFiche._id, selectedFiche.notifId)
+                    }
+                  >
+                    ✅ Valider
+                  </button>
+                  <button onClick={() => setSelectedFiche(null)}>
+                    ❌ Fermer
+                  </button>
+                  <button onClick={exportPDF}>📄 Exporter PDF</button>
+                </div>
+              </>
+            ) : // ================= Anuelle tgbt =================
+/*
+            selectedFiche?.postes ? (
+              <>
+                <h3>Fiche Annuelle TGBT</h3>
+                <p>
+                  📅 Date :{' '}
+                  {selectedFiche.date
+                    ? new Date(selectedFiche.date).toLocaleDateString()
+                    : ''}
+                </p>
+                <p>
+                  👨‍🔧 Technicien / Opérateurs :{' '}
+                  {selectedFiche.technicien_operateurs || ''}
+                </p>
+                <p>
+                  📝 Observations générales :{' '}
+                  {selectedFiche.observations_generales || ''}
+                </p>
+                <table
+                  style={{
+                    borderCollapse: 'collapse',
+                    width: '100%',
+                    marginTop: '15px',
+                  }}
+                >
+                  <thead>
+                    <tr style={{ backgroundColor: '#eee' }}>
+                      <th style={{ border: '1px solid #000', padding: '5px' }}>
+                        Élément
+                      </th>
+                      <th style={{ border: '1px solid #000', padding: '5px' }}>
+                        État
+                      </th>
+                      <th style={{ border: '1px solid #000', padding: '5px' }}>
+                        Interventions
+                      </th>
+                      <th style={{ border: '1px solid #000', padding: '5px' }}>
+                        Observations
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedFiche.postes.map((poste) => (
+                      <React.Fragment key={poste.nom}>
+                        <tr>
+                          <td
+                            colSpan={4}
+                            style={{
+                              fontWeight: 'bold',
+                              backgroundColor: '#ddd',
+                              padding: '5px',
+                            }}
+                          >
+                            {poste.nom}
+                          </td>
+                        </tr>
+                        {poste.elements.map((el) => (
+                          <tr key={el.nom}>
+                            <td
+                              style={{
+                                border: '1px solid #000',
+                                padding: '5px',
+                              }}
+                            >
+                              {el.nom}
+                            </td>
+                            <td
+                              style={{
+                                border: '1px solid #000',
+                                padding: '5px',
+                              }}
+                            >
+                              {el.etat || '--'}
+                            </td>
+                            <td
+                              style={{
+                                border: '1px solid #000',
+                                padding: '5px',
+                              }}
+                            >
+                              {el.interventions || ''}
+                            </td>
+                            <td
+                              style={{
+                                border: '1px solid #000',
+                                padding: '5px',
+                              }}
+                            >
+                              {el.observations || ''}
+                            </td>
+                          </tr>
+                        ))}
+                      </React.Fragment>
+                    ))}
+                  </tbody>
+                </table>
 
-    {/* Actions */}
-    <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-      <button onClick={() => validerFiche(selectedFiche._id, selectedFiche.notifId)}>
-        ✅ Valider
-      </button>
-      <button onClick={() => setSelectedFiche(null)}>❌ Fermer</button>
-      <button onClick={exportPDF}>📄 Exporter PDF</button>
-    </div>
-  </>
-// ================= Anuelle tgbt =================
+                {selectedFiche.signature && (
+                  <div style={{ marginTop: '20px' }}>
+                    <h4>Signature :</h4>
+                    <img
+                      src={selectedFiche.signature}
+                      alt="Signature"
+                      style={{
+                        border: '1px solid #000',
+                        width: '400px',
+                        height: '150px',
+                      }}
+                    />
+                  </div>
+                )}
+                <div
+                  style={{ marginTop: '20px', display: 'flex', gap: '10px' }}
+                >
+                  <button
+                    onClick={() =>
+                      validerFiche(selectedFiche._id, selectedFiche.notifId)
+                    }
+                  >
+                    ✅ Valider
+                  </button>
+                  <button onClick={() => setSelectedFiche(null)}>
+                    ❌ Fermer
+                  </button>
+                  <button onClick={exportPDF}>📄 Exporter PDF</button>
+                </div>
+              </>
+              */
+            // ================= Anuelle voie =================
+             selectedFiche?.panneaux ? (
+              <>
+                <h3>Fiche Annuelle Voie</h3>
 
-): selectedFiche?.postes ? (
+                {/* Informations générales */}
+                <p>
+                  📅 Date :{' '}
+                  {selectedFiche.date
+                    ? new Date(selectedFiche.date).toLocaleDateString()
+                    : ''}
+                </p>
+                <p>
+                  👨‍🔧 Technicien / Opérateurs :{' '}
+                  {selectedFiche.techniciens_operateurs?.join(', ') || ''}
+                </p>
+                <p>
+                  📝 Observations générales :{' '}
+                  {selectedFiche.observations_generales || ''}
+                </p>
+
+                {/* Tableau Panneaux */}
+                {selectedFiche.panneaux && (
+                  <>
+                    <h4>Panneaux indicateurs</h4>
+                    <table
+                      style={{
+                        borderCollapse: 'collapse',
+                        width: '100%',
+                        marginTop: '10px',
+                      }}
+                    >
+                      <thead>
+                        <tr style={{ backgroundColor: '#eee' }}>
+                          <th
+                            style={{ border: '1px solid #000', padding: '5px' }}
+                          >
+                            Panneau
+                          </th>
+                          <th
+                            style={{ border: '1px solid #000', padding: '5px' }}
+                          >
+                            Élément
+                          </th>
+                          <th
+                            style={{ border: '1px solid #000', padding: '5px' }}
+                          >
+                            État
+                          </th>
+                          <th
+                            style={{ border: '1px solid #000', padding: '5px' }}
+                          >
+                            Interventions
+                          </th>
+                          <th
+                            style={{ border: '1px solid #000', padding: '5px' }}
+                          >
+                            Observations
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {Object.entries(selectedFiche.panneaux).map(
+                          ([panneauNom, elements]) =>
+                            Object.entries(elements).map(
+                              ([elementNom, el], idx) => (
+                                <tr key={panneauNom + elementNom}>
+                                  {idx === 0 && (
+                                    <td
+                                      rowSpan={Object.keys(elements).length}
+                                      style={{
+                                        fontWeight: 'bold',
+                                        backgroundColor: '#ddd',
+                                        padding: '5px',
+                                      }}
+                                    >
+                                      {panneauNom}
+                                    </td>
+                                  )}
+                                  <td
+                                    style={{
+                                      border: '1px solid #000',
+                                      padding: '5px',
+                                    }}
+                                  >
+                                    {elementNom}
+                                  </td>
+                                  <td
+                                    style={{
+                                      border: '1px solid #000',
+                                      padding: '5px',
+                                    }}
+                                  >
+                                    {el.Etat || '--'}
+                                  </td>
+                                  <td
+                                    style={{
+                                      border: '1px solid #000',
+                                      padding: '5px',
+                                    }}
+                                  >
+                                    {el.Interventions || ''}
+                                  </td>
+                                  <td
+                                    style={{
+                                      border: '1px solid #000',
+                                      padding: '5px',
+                                    }}
+                                  >
+                                    {el.Observations || ''}
+                                  </td>
+                                </tr>
+                              )
+                            )
+                        )}
+                      </tbody>
+                    </table>
+                  </>
+                )}
+
+                {/* Tableau ROTs */}
+                {selectedFiche.ROTs && (
+                  <>
+                    <h4>ROTs</h4>
+                    <table
+                      style={{
+                        borderCollapse: 'collapse',
+                        width: '100%',
+                        marginTop: '10px',
+                      }}
+                    >
+                      <thead>
+                        <tr style={{ backgroundColor: '#eee' }}>
+                          <th
+                            style={{ border: '1px solid #000', padding: '5px' }}
+                          >
+                            ROT
+                          </th>
+                          <th
+                            style={{ border: '1px solid #000', padding: '5px' }}
+                          >
+                            Élément
+                          </th>
+                          <th
+                            style={{ border: '1px solid #000', padding: '5px' }}
+                          >
+                            État
+                          </th>
+                          <th
+                            style={{ border: '1px solid #000', padding: '5px' }}
+                          >
+                            Interventions
+                          </th>
+                          <th
+                            style={{ border: '1px solid #000', padding: '5px' }}
+                          >
+                            Observations
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {Object.entries(selectedFiche.ROTs).map(
+                          ([rotNom, elements]) =>
+                            Object.entries(elements).map(
+                              ([elementNom, el], idx) => (
+                                <tr key={rotNom + elementNom}>
+                                  {idx === 0 && (
+                                    <td
+                                      rowSpan={Object.keys(elements).length}
+                                      style={{
+                                        fontWeight: 'bold',
+                                        backgroundColor: '#ddd',
+                                        padding: '5px',
+                                      }}
+                                    >
+                                      {rotNom}
+                                    </td>
+                                  )}
+                                  <td
+                                    style={{
+                                      border: '1px solid #000',
+                                      padding: '5px',
+                                    }}
+                                  >
+                                    {elementNom}
+                                  </td>
+                                  <td
+                                    style={{
+                                      border: '1px solid #000',
+                                      padding: '5px',
+                                    }}
+                                  >
+                                    {el.Etat || '--'}
+                                  </td>
+                                  <td
+                                    style={{
+                                      border: '1px solid #000',
+                                      padding: '5px',
+                                    }}
+                                  >
+                                    {el.Interventions || ''}
+                                  </td>
+                                  <td
+                                    style={{
+                                      border: '1px solid #000',
+                                      padding: '5px',
+                                    }}
+                                  >
+                                    {el.Observations || ''}
+                                  </td>
+                                </tr>
+                              )
+                            )
+                        )}
+                      </tbody>
+                    </table>
+                  </>
+                )}
+
+                {/* Signature */}
+                {selectedFiche.signature && (
+                  <div style={{ marginTop: '20px' }}>
+                    <h4>Signature :</h4>
+                    <img
+                      src={selectedFiche.signature}
+                      alt="Signature"
+                      style={{
+                        border: '1px solid #000',
+                        width: '400px',
+                        height: '150px',
+                      }}
+                    />
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div
+                  style={{ marginTop: '20px', display: 'flex', gap: '10px' }}
+                >
+                  <button
+                    onClick={() =>
+                      validerFiche(selectedFiche._id, selectedFiche.notifId)
+                    }
+                  >
+                    ✅ Valider
+                  </button>
+                  <button onClick={() => setSelectedFiche(null)}>
+                    ❌ Fermer
+                  </button>{' '}
+                  <button onClick={() => exportPDF(selectedFiche)}>
+                    📄 Exporter PDF
+                  </button>
+                </div>
+              </>
+            ) : selectedFiche?.PISTE ? (
+              <>
+                <h3>Fiche Annuelle Infrastructure</h3>
+
+                {/* Informations générales */}
+                <p>
+                  📅 Date :{' '}
+                  {selectedFiche.date
+                    ? new Date(selectedFiche.date).toLocaleDateString()
+                    : ''}
+                </p>
+                <p>
+                  👨‍🔧 Technicien / Opérateurs :{' '}
+                  {selectedFiche.techniciens_operateurs?.join(', ') || ''}
+                </p>
+                <p>
+                  📝 Observations générales :{' '}
+                  {selectedFiche.observationsGenerales || ''}
+                </p>
+
+                {/* Tableau PISTE */}
+                {selectedFiche.PISTE && (
+                  <>
+                    <h4>Inspection PISTE</h4>
+                    <table
+                      style={{
+                        borderCollapse: 'collapse',
+                        width: '100%',
+                        marginTop: '10px',
+                      }}
+                    >
+                      <thead>
+                        <tr style={{ backgroundColor: '#eee' }}>
+                          <th
+                            style={{ border: '1px solid #000', padding: '5px' }}
+                          >
+                            Zone
+                          </th>
+                          <th
+                            style={{ border: '1px solid #000', padding: '5px' }}
+                          >
+                            Vérification
+                          </th>
+                          <th
+                            style={{ border: '1px solid #000', padding: '5px' }}
+                          >
+                            État
+                          </th>
+                          <th
+                            style={{ border: '1px solid #000', padding: '5px' }}
+                          >
+                            Interventions
+                          </th>
+                          <th
+                            style={{ border: '1px solid #000', padding: '5px' }}
+                          >
+                            Observations
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {Object.entries(selectedFiche.PISTE).map(
+                          ([zone, verifs]) =>
+                            Object.entries(verifs).map(
+                              ([verifNom, verif], idx) => (
+                                <tr key={zone + verifNom}>
+                                  {idx === 0 && (
+                                    <td
+                                      rowSpan={Object.keys(verifs).length}
+                                      style={{
+                                        fontWeight: 'bold',
+                                        backgroundColor: '#ddd',
+                                        padding: '5px',
+                                      }}
+                                    >
+                                      {zone}
+                                    </td>
+                                  )}
+                                  <td
+                                    style={{
+                                      border: '1px solid #000',
+                                      padding: '5px',
+                                    }}
+                                  >
+                                    {verifNom}
+                                  </td>
+                                  <td
+                                    style={{
+                                      border: '1px solid #000',
+                                      padding: '5px',
+                                    }}
+                                  >
+                                    {verif.etat || '--'}
+                                  </td>
+                                  <td
+                                    style={{
+                                      border: '1px solid #000',
+                                      padding: '5px',
+                                    }}
+                                  >
+                                    {verif.intervention_a_faire || ''}
+                                  </td>
+                                  <td
+                                    style={{
+                                      border: '1px solid #000',
+                                      padding: '5px',
+                                    }}
+                                  >
+                                    {verif.observation || ''}
+                                  </td>
+                                </tr>
+                              )
+                            )
+                        )}
+                      </tbody>
+                    </table>
+                  </>
+                )}
+
+                {/* Actions */}
+                <div
+                  style={{ marginTop: '20px', display: 'flex', gap: '10px' }}
+                >
+                  <button
+                    onClick={() =>
+                      validerFiche(selectedFiche._id, selectedFiche.notifId)
+                    }
+                  >
+                    ✅ Valider
+                  </button>
+                  <button onClick={() => setSelectedFiche(null)}>
+                    ❌ Fermer
+                  </button>
+                  <button onClick={() => exportPDF(selectedFiche)}>
+                    📄 Exporter PDF
+                  </button>
+                </div>
+              </>
+            ) : selectedFiche?.feuxHorsSol ? (
+              <>
+                <h3>Fiche Feux Hors Sql</h3>
+
+                {/* Informations générales */}
+                <p>
+                  📅 Date :{' '}
+                  {selectedFiche.date
+                    ? new Date(selectedFiche.date).toLocaleDateString()
+                    : ''}
+                </p>
+                <p>
+                  👨‍🔧 Technicien / Opérateurs :{' '}
+                  {selectedFiche.techniciens_operateurs?.join(', ') || ''}
+                </p>
+                <p>
+                  📝 Observations générales :{' '}
+                  {selectedFiche.observationsGenerales || ''}
+                </p>
+
+                {/* Tableau pour chaque zone */}
+                {Object.entries(selectedFiche.feuxHorsSol).map(
+                  ([zone, lignes]) => (
+                    <div key={zone} style={{ marginTop: '20px' }}>
+                      <h4>
+                        {zone === 'flash'
+                          ? 'Inspection FLASH'
+                          : `Inspection ${zone}`}
+                      </h4>
+                      <table
+                        style={{
+                          borderCollapse: 'collapse',
+                          width: '100%',
+                          marginTop: '10px',
+                        }}
+                      >
+                        <thead>
+                          <tr style={{ backgroundColor: '#eee' }}>
+                            <th
+                              style={{
+                                border: '1px solid #000',
+                                padding: '5px',
+                              }}
+                            >
+                              Contrôle
+                            </th>
+                            <th
+                              style={{
+                                border: '1px solid #000',
+                                padding: '5px',
+                              }}
+                            >
+                              État
+                            </th>
+                            <th
+                              style={{
+                                border: '1px solid #000',
+                                padding: '5px',
+                              }}
+                            >
+                              Interventions
+                            </th>
+                            <th
+                              style={{
+                                border: '1px solid #000',
+                                padding: '5px',
+                              }}
+                            >
+                              Observations
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {Object.entries(lignes).map(
+                            ([ligneNom, ligne], idx) => (
+                              <tr key={ligneNom}>
+                                <td
+                                  style={{
+                                    border: '1px solid #000',
+                                    padding: '5px',
+                                  }}
+                                >
+                                  {ligneNom}
+                                </td>
+                                <td
+                                  style={{
+                                    border: '1px solid #000',
+                                    padding: '5px',
+                                  }}
+                                >
+                                  {ligne?.Etat || '--'}
+                                </td>
+                                <td
+                                  style={{
+                                    border: '1px solid #000',
+                                    padding: '5px',
+                                  }}
+                                >
+                                  {ligne?.Interventions || ''}
+                                </td>
+                                <td
+                                  style={{
+                                    border: '1px solid #000',
+                                    padding: '5px',
+                                  }}
+                                >
+                                  {ligne?.Observations || ''}
+                                </td>
+                              </tr>
+                            )
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  )
+                )}
+
+                {/* Actions */}
+                <div
+                  style={{ marginTop: '20px', display: 'flex', gap: '10px' }}
+                >
+                  <button
+                    onClick={() =>
+                      validerFiche(selectedFiche._id, selectedFiche.notifId)
+                    }
+                  >
+                    ✅ Valider
+                  </button>
+                  <button onClick={() => setSelectedFiche(null)}>
+                    ❌ Fermer
+                  </button>
+                  <button onClick={() => exportPDF(selectedFiche)}>
+                    📄 Exporter PDF
+                  </button>
+                </div>
+              </>
+            ) : selectedFiche?.fiches ? (
+              <>
+                <h3>Fiche Effaroucheur</h3>
+
+                {/* Informations générales */}
+                <p>
+                  📅 Date :{' '}
+                  {selectedFiche.date
+                    ? new Date(selectedFiche.date).toLocaleDateString()
+                    : ''}
+                </p>
+                <p>
+                  👨‍🔧 Technicien / Opérateur :{' '}
+                  {selectedFiche.technicien_operateur || ''}
+                </p>
+                <p>
+                  📝 Observations générales :{' '}
+                  {selectedFiche.observations_generales || ''}
+                </p>
+
+                {/* Tableau pour chaque fiche */}
+                {selectedFiche.fiches.map((f, fi) => (
+                  <div key={f.fiche} style={{ marginTop: '20px' }}>
+                    <h4>{f.fiche}</h4>
+                    <table
+                      style={{
+                        borderCollapse: 'collapse',
+                        width: '100%',
+                        marginTop: '10px',
+                      }}
+                    >
+                      <thead>
+                        <tr style={{ backgroundColor: '#eee' }}>
+                          <th
+                            style={{ border: '1px solid #000', padding: '5px' }}
+                          >
+                            Vérification
+                          </th>
+                          <th
+                            style={{ border: '1px solid #000', padding: '5px' }}
+                          >
+                            Sub-item
+                          </th>
+                          <th
+                            style={{ border: '1px solid #000', padding: '5px' }}
+                          >
+                            État
+                          </th>
+                          <th
+                            style={{ border: '1px solid #000', padding: '5px' }}
+                          >
+                            Interventions
+                          </th>
+                          <th
+                            style={{ border: '1px solid #000', padding: '5px' }}
+                          >
+                            Observations
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {Object.entries(f.verifications).map(
+                          ([verifKey, verifVal]) => {
+                            if (typeof verifVal.etat !== 'undefined') {
+                              // cas simple
+                              return (
+                                <tr key={`${fi}-${verifKey}`}>
+                                  <td>{verifKey}</td>
+                                  <td>-</td>
+                                  <td>{verifVal.etat || '--'}</td>
+                                  <td>{verifVal.intervention_a_faire || ''}</td>
+                                  <td>{verifVal.observation || ''}</td>
+                                </tr>
+                              );
+                            } else {
+                              // cas sub-items (ex: haut_parleur)
+                              return Object.entries(verifVal).map(
+                                ([subKey, subVal]) => (
+                                  <tr key={`${fi}-${verifKey}-${subKey}`}>
+                                    <td>{verifKey}</td>
+                                    <td>{subKey}</td>
+                                    <td>{subVal.etat || '--'}</td>
+                                    <td>{subVal.intervention_a_faire || ''}</td>
+                                    <td>{subVal.observation || ''}</td>
+                                  </tr>
+                                )
+                              );
+                            }
+                          }
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                ))}
+
+                {/* Actions */}
+                <div
+                  style={{ marginTop: '20px', display: 'flex', gap: '10px' }}
+                >
+                  <button
+                    onClick={() =>
+                      validerFiche(selectedFiche._id, selectedFiche.notifId)
+                    }
+                  >
+                    ✅ Valider
+                  </button>
+                  <button onClick={() => setSelectedFiche(null)}>
+                    ❌ Fermer
+                  </button>
+                  <button onClick={() => exportPDF(selectedFiche)}>
+                    📄 Exporter PDF
+                  </button>
+                </div>
+              </>
+
+) : selectedFiche?.sections ? (
   <>
-    <h3>Fiche Annuelle TGBT</h3>
+    <h3>Fiche Annuelle Feux Obstacles</h3>
 
     {/* Informations générales */}
     <p>
-      📅 Date : {selectedFiche.date ? new Date(selectedFiche.date).toLocaleDateString() : ''}
+      📅 Date :{' '}
+      {selectedFiche.date
+        ? new Date(selectedFiche.date).toLocaleDateString()
+        : ''}
     </p>
-    <p>
-      👨‍🔧 Technicien / Opérateurs : {selectedFiche.technicien_operateurs || ''}
-    </p>
-    <p>
-      📝 Observations générales : {selectedFiche.observations_generales || ''}
-    </p>
+    <p>👨‍🔧 Technicien / Opérateur : {selectedFiche.technicien_operateur || ''}</p>
+    <p>📝 Observations générales : {selectedFiche.observations_generales || ''}</p>
 
-    {/* Tableau des postes */}
-    <table style={{ borderCollapse: 'collapse', width: '100%', marginTop: '15px' }}>
-      <thead>
-        <tr style={{ backgroundColor: '#eee' }}>
-          <th style={{ border: '1px solid #000', padding: '5px' }}>Élément</th>
-          <th style={{ border: '1px solid #000', padding: '5px' }}>État</th>
-          <th style={{ border: '1px solid #000', padding: '5px' }}>Interventions</th>
-          <th style={{ border: '1px solid #000', padding: '5px' }}>Observations</th>
-        </tr>
-      </thead>
-      <tbody>
-        {selectedFiche.postes.map((poste) => (
-          <React.Fragment key={poste.nom}>
-            {/* Nom du poste */}
-            <tr>
-              <td colSpan={4} style={{ fontWeight: 'bold', backgroundColor: '#ddd', padding: '5px' }}>
-                {poste.nom}
-              </td>
+    {/* Tableau pour chaque section */}
+    {selectedFiche.sections.map((section, si) => (
+      <div key={si} style={{ marginTop: '20px' }}>
+        <h4>{section.titre}</h4>
+        <table
+          style={{
+            borderCollapse: 'collapse',
+            width: '100%',
+            marginTop: '10px',
+          }}
+        >
+          <thead>
+            <tr style={{ backgroundColor: '#eee' }}>
+              <th style={{ border: '1px solid #000', padding: '5px' }}>Lieu</th>
+              <th style={{ border: '1px solid #000', padding: '5px' }}>Nettoyage</th>
+              <th style={{ border: '1px solid #000', padding: '5px' }}>Serrage Bornes</th>
+              <th style={{ border: '1px solid #000', padding: '5px' }}>Prise Terre</th>
+              <th style={{ border: '1px solid #000', padding: '5px' }}>Isolement Conducteurs</th>
+              <th style={{ border: '1px solid #000', padding: '5px' }}>Continuité Protection</th>
+              <th style={{ border: '1px solid #000', padding: '5px' }}>Vérification Schémas</th>
+              <th style={{ border: '1px solid #000', padding: '5px' }}>Intervention</th>
+              <th style={{ border: '1px solid #000', padding: '5px' }}>Observations</th>
             </tr>
-
-            {/* Éléments du poste */}
-            {poste.elements.map((el) => (
-              <tr key={el.nom}>
-                <td style={{ border: '1px solid #000', padding: '5px' }}>{el.nom}</td>
-                <td style={{ border: '1px solid #000', padding: '5px' }}>{el.etat || '--'}</td>
-                <td style={{ border: '1px solid #000', padding: '5px' }}>{el.interventions || ''}</td>
-                <td style={{ border: '1px solid #000', padding: '5px' }}>{el.observations || ''}</td>
+          </thead>
+          <tbody>
+            {section.elements.map((el, ei) => (
+              <tr key={ei}>
+                <td style={{ border: '1px solid #000', padding: '5px' }}>{el.lieu}</td>
+                <td style={{ border: '1px solid #000', padding: '5px' }}>{el.nettoyage}</td>
+                <td style={{ border: '1px solid #000', padding: '5px' }}>{el.serrageBornes}</td>
+                <td style={{ border: '1px solid #000', padding: '5px' }}>{el.priseDeTerre}</td>
+                <td style={{ border: '1px solid #000', padding: '5px' }}>{el.isolementConducteurs}</td>
+                <td style={{ border: '1px solid #000', padding: '5px' }}>{el.continuiteProtection}</td>
+                <td style={{ border: '1px solid #000', padding: '5px' }}>{el.verificationSchemas}</td>
+                <td style={{ border: '1px solid #000', padding: '5px' }}>{el.intervention}</td>
+                <td style={{ border: '1px solid #000', padding: '5px' }}>{el.observations}</td>
               </tr>
             ))}
-          </React.Fragment>
-        ))}
-      </tbody>
-    </table>
-
-    {/* Signature */}
-    {selectedFiche.signature && (
-      <div style={{ marginTop: '20px' }}>
-        <h4>Signature :</h4>
-        <img
-          src={selectedFiche.signature}
-          alt="Signature"
-          style={{ border: '1px solid #000', width: '400px', height: '150px' }}
-        />
+          </tbody>
+        </table>
       </div>
-    )}
+    ))}
 
     {/* Actions */}
     <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
       <button onClick={() => validerFiche(selectedFiche._id, selectedFiche.notifId)}>
         ✅ Valider
       </button>
-      <button onClick={() => setSelectedFiche(null)}>❌ Fermer</button>
-      <button onClick={exportPDF}>📄 Exporter PDF</button>
-    </div>
-  </>
-// ================= Anuelle voie =================
-): selectedFiche?.panneaux ? (
-  <>
-    <h3>Fiche Annuelle Voie</h3>
-
-    {/* Informations générales */}
-    <p>
-      📅 Date : {selectedFiche.date ? new Date(selectedFiche.date).toLocaleDateString() : ''}
-    </p>
-    <p>
-      👨‍🔧 Technicien / Opérateurs : {selectedFiche.techniciens_operateurs?.join(', ') || ''}
-    </p>
-    <p>
-      📝 Observations générales : {selectedFiche.observations_generales || ''}
-    </p>
-
-    {/* Tableau Panneaux */}
-    {selectedFiche.panneaux && (
-      <>
-        <h4>Panneaux indicateurs</h4>
-        <table style={{ borderCollapse: 'collapse', width: '100%', marginTop: '10px' }}>
-          <thead>
-            <tr style={{ backgroundColor: '#eee' }}>
-              <th style={{ border: '1px solid #000', padding: '5px' }}>Panneau</th>
-              <th style={{ border: '1px solid #000', padding: '5px' }}>Élément</th>
-              <th style={{ border: '1px solid #000', padding: '5px' }}>État</th>
-              <th style={{ border: '1px solid #000', padding: '5px' }}>Interventions</th>
-              <th style={{ border: '1px solid #000', padding: '5px' }}>Observations</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Object.entries(selectedFiche.panneaux).map(([panneauNom, elements]) =>
-              Object.entries(elements).map(([elementNom, el], idx) => (
-                <tr key={panneauNom + elementNom}>
-                  {idx === 0 && (
-                    <td
-                      rowSpan={Object.keys(elements).length}
-                      style={{ fontWeight: 'bold', backgroundColor: '#ddd', padding: '5px' }}
-                    >
-                      {panneauNom}
-                    </td>
-                  )}
-                  <td style={{ border: '1px solid #000', padding: '5px' }}>{elementNom}</td>
-                  <td style={{ border: '1px solid #000', padding: '5px' }}>{el.Etat || '--'}</td>
-                  <td style={{ border: '1px solid #000', padding: '5px' }}>{el.Interventions || ''}</td>
-                  <td style={{ border: '1px solid #000', padding: '5px' }}>{el.Observations || ''}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </>
-    )}
-
-    {/* Tableau ROTs */}
-    {selectedFiche.ROTs && (
-      <>
-        <h4>ROTs</h4>
-        <table style={{ borderCollapse: 'collapse', width: '100%', marginTop: '10px' }}>
-          <thead>
-            <tr style={{ backgroundColor: '#eee' }}>
-              <th style={{ border: '1px solid #000', padding: '5px' }}>ROT</th>
-              <th style={{ border: '1px solid #000', padding: '5px' }}>Élément</th>
-              <th style={{ border: '1px solid #000', padding: '5px' }}>État</th>
-              <th style={{ border: '1px solid #000', padding: '5px' }}>Interventions</th>
-              <th style={{ border: '1px solid #000', padding: '5px' }}>Observations</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Object.entries(selectedFiche.ROTs).map(([rotNom, elements]) =>
-              Object.entries(elements).map(([elementNom, el], idx) => (
-                <tr key={rotNom + elementNom}>
-                  {idx === 0 && (
-                    <td
-                      rowSpan={Object.keys(elements).length}
-                      style={{ fontWeight: 'bold', backgroundColor: '#ddd', padding: '5px' }}
-                    >
-                      {rotNom}
-                    </td>
-                  )}
-                  <td style={{ border: '1px solid #000', padding: '5px' }}>{elementNom}</td>
-                  <td style={{ border: '1px solid #000', padding: '5px' }}>{el.Etat || '--'}</td>
-                  <td style={{ border: '1px solid #000', padding: '5px' }}>{el.Interventions || ''}</td>
-                  <td style={{ border: '1px solid #000', padding: '5px' }}>{el.Observations || ''}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </>
-    )}
-
-    {/* Signature */}
-    {selectedFiche.signature && (
-      <div style={{ marginTop: '20px' }}>
-        <h4>Signature :</h4>
-        <img
-          src={selectedFiche.signature}
-          alt="Signature"
-          style={{ border: '1px solid #000', width: '400px', height: '150px' }}
-        />
-      </div>
-    )}
-
-    {/* Actions */}
-    <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-      <button onClick={() => validerFiche(selectedFiche._id, selectedFiche.notifId)}>✅ Valider</button>
-<button onClick={() => setSelectedFiche(null)}>
-                    ❌ Fermer
-                  </button>      <button onClick={() => exportPDF(selectedFiche)}>📄 Exporter PDF</button>
-    </div>
-  </>
-): selectedFiche?.PISTE ? (
-  <>
-    <h3>Fiche Annuelle Infrastructure</h3>
-
-    {/* Informations générales */}
-    <p>
-      📅 Date : {selectedFiche.date ? new Date(selectedFiche.date).toLocaleDateString() : ''}
-    </p>
-    <p>
-      👨‍🔧 Technicien / Opérateurs : {selectedFiche.techniciens_operateurs?.join(', ') || ''}
-    </p>
-    <p>
-      📝 Observations générales : {selectedFiche.observationsGenerales || ''}
-    </p>
-
-    {/* Tableau PISTE */}
-    {selectedFiche.PISTE && (
-      <>
-        <h4>Inspection PISTE</h4>
-        <table style={{ borderCollapse: 'collapse', width: '100%', marginTop: '10px' }}>
-          <thead>
-            <tr style={{ backgroundColor: '#eee' }}>
-              <th style={{ border: '1px solid #000', padding: '5px' }}>Zone</th>
-              <th style={{ border: '1px solid #000', padding: '5px' }}>Vérification</th>
-              <th style={{ border: '1px solid #000', padding: '5px' }}>État</th>
-              <th style={{ border: '1px solid #000', padding: '5px' }}>Interventions</th>
-              <th style={{ border: '1px solid #000', padding: '5px' }}>Observations</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Object.entries(selectedFiche.PISTE).map(([zone, verifs]) =>
-              Object.entries(verifs).map(([verifNom, verif], idx) => (
-                <tr key={zone + verifNom}>
-                  {idx === 0 && (
-                    <td
-                      rowSpan={Object.keys(verifs).length}
-                      style={{ fontWeight: 'bold', backgroundColor: '#ddd', padding: '5px' }}
-                    >
-                      {zone}
-                    </td>
-                  )}
-                  <td style={{ border: '1px solid #000', padding: '5px' }}>{verifNom}</td>
-                  <td style={{ border: '1px solid #000', padding: '5px' }}>{verif.etat || '--'}</td>
-                  <td style={{ border: '1px solid #000', padding: '5px' }}>{verif.intervention_a_faire || ''}</td>
-                  <td style={{ border: '1px solid #000', padding: '5px' }}>{verif.observation || ''}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </>
-    )}
-
-    {/* Actions */}
-    <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-      <button onClick={() => validerFiche(selectedFiche._id, selectedFiche.notifId)}>✅ Valider</button>
       <button onClick={() => setSelectedFiche(null)}>❌ Fermer</button>
       <button onClick={() => exportPDF(selectedFiche)}>📄 Exporter PDF</button>
     </div>
   </>
+/*
+) : selectedFiche?.postes ? (
+  <>
+    <h3>Fiche Annuelle Câbles</h3>
+
+    <p>
+      📅 Date :{' '}
+      {selectedFiche.date
+        ? new Date(selectedFiche.date).toLocaleDateString()
+        : 'Non renseignée'}
+    </p>
+    <p>👨‍🔧 Technicien / Opérateur : {selectedFiche.technicien_operateur || 'Non renseigné'}</p>
+    <p>📝 Observations générales : {selectedFiche.observations_generales || 'Aucune'}</p>
+
+    {selectedFiche.postes.map((poste, pi) => (
+      <div key={pi} style={{ marginTop: '20px' }}>
+        <h4>{poste.titre}</h4>
+        {poste.equipements && poste.equipements.length > 0 ? (
+          <table
+            style={{
+              borderCollapse: 'collapse',
+              width: '100%',
+              marginTop: '10px',
+            }}
+          >
+            <thead>
+              <tr style={{ backgroundColor: '#eee' }}>
+                <th style={{ border: '1px solid #000', padding: '5px' }}>Équipement</th>
+                <th style={{ border: '1px solid #000', padding: '5px' }}>État</th>
+                <th style={{ border: '1px solid #000', padding: '5px' }}>Interventions</th>
+                <th style={{ border: '1px solid #000', padding: '5px' }}>Observations</th>
+              </tr>
+            </thead>
+            <tbody>
+              {poste.equipements.map((equip, ei) => (
+                <tr key={ei}>
+                  <td style={{ border: '1px solid #000', padding: '5px' }}>{equip.nom}</td>
+                  <td style={{ border: '1px solid #000', padding: '5px' }}>{equip.etat || '-'}</td>
+                  <td style={{ border: '1px solid #000', padding: '5px' }}>{equip.interventions || '-'}</td>
+                  <td style={{ border: '1px solid #000', padding: '5px' }}>{equip.observations || '-'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p>Aucun équipement disponible</p>
+        )}
+      </div>
+    ))}
+    <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+      <button onClick={() => validerFiche(selectedFiche._id, selectedFiche.notifId)}>
+        ✅ Valider
+      </button>
+      <button onClick={() => setSelectedFiche(null)}>❌ Fermer</button>
+      <button onClick={() => exportPDF(selectedFiche)}>📄 Exporter PDF</button>
+    </div>
+  </>
+  //fiche annuel eseqeunetielle
+*/
+) : selectedFiche?.postes ? (
+  <>
+    <h3>Fiche Annuelle Câbles</h3>
+
+    {/* Informations générales */}
+    <p>
+      📅 Date :{' '}
+      {selectedFiche.date
+        ? new Date(selectedFiche.date).toLocaleDateString()
+        : 'Non renseignée'}
+    </p>
+    <p>👨‍🔧 Technicien / Opérateur : {selectedFiche.technicien_operateur || 'Non renseigné'}</p>
+    <p>📝 Observations générales : {selectedFiche.observations_generales || 'Aucune'}</p>
+
+    {/* Tableau pour chaque poste */}
+    {selectedFiche.postes.map((poste, pi) => (
+      <div key={pi} style={{ marginTop: '20px' }}>
+        <h4>{poste.titre}</h4>
+        {poste.equipements && poste.equipements.length > 0 ? (
+          <table
+            style={{
+              borderCollapse: 'collapse',
+              width: '100%',
+              marginTop: '10px',
+            }}
+          >
+            <thead>
+              <tr style={{ backgroundColor: '#eee' }}>
+                <th style={{ border: '1px solid #000', padding: '5px' }}>Équipement</th>
+                <th style={{ border: '1px solid #000', padding: '5px' }}>État</th>
+                <th style={{ border: '1px solid #000', padding: '5px' }}>Interventions</th>
+                <th style={{ border: '1px solid #000', padding: '5px' }}>Observations</th>
+              </tr>
+            </thead>
+            <tbody>
+              {poste.equipements.map((equip, ei) => (
+                <tr key={ei}>
+                  <td style={{ border: '1px solid #000', padding: '5px' }}>{equip.nom}</td>
+                  <td style={{ border: '1px solid #000', padding: '5px' }}>{equip.etat || '-'}</td>
+                  <td style={{ border: '1px solid #000', padding: '5px' }}>{equip.interventions || '-'}</td>
+                  <td style={{ border: '1px solid #000', padding: '5px' }}>{equip.observations || '-'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p>Aucun équipement disponible</p>
+        )}
+      </div>
+    ))}
+
+    {/* Actions */}
+    <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+      <button onClick={() => validerFiche(selectedFiche._id, selectedFiche.notifId)}>
+        ✅ Valider
+      </button>
+      <button onClick={() => setSelectedFiche(null)}>❌ Fermer</button>
+      <button onClick={() => exportPDF(selectedFiche)}>📄 Exporter PDF</button>
+    </div>
+  </>
+
+
+) : selectedFiche?.blocs ? (
+  <>
+    <h3>Fiche Annuelle Feux Séquentiels</h3>
+
+    {/* Informations générales */}
+    <p>
+      📅 Date :{' '}
+      {selectedFiche.date
+        ? new Date(selectedFiche.date).toLocaleDateString()
+        : 'Non renseignée'}
+    </p>
+
+    <p>
+      👨‍🔧 Technicien / Opérateur :{' '}
+      {selectedFiche.techniciens_operateurs || 'Non renseigné'}
+    </p>
+
+    <p>
+      📝 Observations générales :{' '}
+      {selectedFiche.observations_generales || 'Aucune'}
+    </p>
+
+    {/* Tableau pour chaque bloc */}
+    {selectedFiche.blocs.map((bloc, bi) => (
+      <div key={bi} style={{ marginTop: '20px' }}>
+        <h4>Bloc {bloc.titre}</h4>
+
+        {bloc.elements && bloc.elements.length > 0 ? (
+          <table
+            style={{
+              borderCollapse: 'collapse',
+              width: '100%',
+              marginTop: '10px'
+            }}
+          >
+            <thead>
+              <tr style={{ backgroundColor: '#eee' }}>
+                <th style={{ border: '1px solid #000', padding: '5px' }}>
+                  Vérification
+                </th>
+                <th style={{ border: '1px solid #000', padding: '5px' }}>
+                  État
+                </th>
+                <th style={{ border: '1px solid #000', padding: '5px' }}>
+                  Interventions
+                </th>
+                <th style={{ border: '1px solid #000', padding: '5px' }}>
+                  Observations
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {bloc.elements.map((elem, ei) => (
+                <tr key={ei}>
+                  <td style={{ border: '1px solid #000', padding: '5px' }}>
+                    {elem.verification}
+                  </td>
+
+                  <td style={{ border: '1px solid #000', padding: '5px' }}>
+                    {elem.etat || '-'}
+                  </td>
+
+                  <td style={{ border: '1px solid #000', padding: '5px' }}>
+                    {elem.interventions || '-'}
+                  </td>
+
+                  <td style={{ border: '1px solid #000', padding: '5px' }}>
+                    {elem.observations || '-'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p>Aucun élément disponible</p>
+        )}
+      </div>
+    ))}
+
+    {/* Actions */}
+    <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+      <button onClick={() => validerFiche(selectedFiche._id)}>
+                    ✅ Valider
+                  </button>
+
+      <button onClick={() => setSelectedFiche(null)}>
+        ❌ Fermer
+      </button>
+
+      <button onClick={() => exportPDF(selectedFiche)}>
+        📄 Exporter PDF
+      </button>
+    </div>
+  </>
+  // fiche 5 snin papi
+
+  ) : selectedFiche?.papi ? (
+  <>
+    <h3>Fiche d’Inspection Quinquennale PAPI</h3>
+
+    {/* Informations générales */}
+    <p>
+      📅 Date :{' '}
+      {selectedFiche.date
+        ? new Date(selectedFiche.date).toLocaleDateString()
+        : 'Non renseignée'}
+    </p>
+
+    <p>
+      👨‍🔧 Technicien / Opérateur :{' '}
+      {selectedFiche.techniciens_operateurs || 'Non renseigné'}
+    </p>
+
+    <p>
+      📝 Observations générales :{' '}
+      {selectedFiche.observations_generales || 'Aucune'}
+    </p>
+
+    {/* Tableau pour chaque poste PAPI */}
+    {selectedFiche.papi.map((p, pi) => (
+      <div key={pi} style={{ marginTop: '20px' }}>
+        <h4>Numéro {p.numero}</h4>
+
+        {p.elements && p.elements.length > 0 ? (
+          <table
+            style={{
+              borderCollapse: 'collapse',
+              width: '100%',
+              marginTop: '10px'
+            }}
+          >
+            <thead>
+              <tr style={{ backgroundColor: '#eee' }}>
+                <th style={{ border: '1px solid #000', padding: '5px' }}>
+                  Vérification
+                </th>
+                {["11","12","21","22","31","32","41","42"].map((champ) => (
+                  <th key={champ} style={{ border: '1px solid #000', padding: '5px' }}>
+                    {champ}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+
+            <tbody>
+              {p.elements.map((elem, ei) => (
+                <tr key={ei}>
+                  <td style={{ border: '1px solid #000', padding: '5px' }}>
+                    {elem.verification}
+                  </td>
+
+                  {["11","12","21","22","31","32","41","42"].map((champ) => (
+                    <td key={champ} style={{ border: '1px solid #000', padding: '5px' }}>
+                      {elem[champ] || '-'}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p>Aucun élément disponible</p>
+        )}
+      </div>
+    ))}
+
+    {/* Actions */}
+    <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+      <button onClick={() => validerFiche(selectedFiche._id)}>✅ Valider</button>
+      <button onClick={() => setSelectedFiche(null)}>❌ Fermer</button>
+      <button onClick={() => exportPDF(selectedFiche)}>📄 Exporter PDF</button>
+    </div>
+  </>
+
 
 
             ) : selectedFiche.installations?.length > 0 ? (
