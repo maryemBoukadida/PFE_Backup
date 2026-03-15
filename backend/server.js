@@ -5,6 +5,7 @@ const statsRoutes = require("./routes/statsRoutes");
 const path = require("path");
 
 
+
 const app = express();
 
 // Middlewares
@@ -41,7 +42,7 @@ const inspectionRoutes = require("./routes/inspectionRoutes"); // chemin correct
 app.use("/api/inspections", inspectionRoutes);
 
 //ficheroute *
-// ✅ Route PAPI
+//  Route PAPI
 const fichePapiRoutes = require("./routes/fichePapiRoutes");
 app.use("/api/fiche_papi", fichePapiRoutes);
 
@@ -95,6 +96,20 @@ app.use("/api/fiche-semes-dgs", ficheSemesDgsRoutes);
 // fiche tgbt annuelel
 const ficheAnnTgbtRoutes = require("./routes/ficheAnnTgbtRoutes");
 app.use("/api/fiche-ann-tgbt", ficheAnnTgbtRoutes);
+//fiche ann voie 
+const ficheAnnVoieRoutes = require("./routes/ficheAnnVoieRoutes");
+app.use("/api/fiche-ann-voie", ficheAnnVoieRoutes);
+
+//fiche  ann papi avant
+const ficheAnnPaMaRoutes = require("./routes/ficheAnnPaMaRoutes"); // ton fichier de routes
+app.use("/api/fiche-ann-pa-ma", ficheAnnPaMaRoutes); // ✅ avec pa-ma
+//infrastructure anuelle
+const ficheAnnInfrastructureRoutes = require("./routes/ficheAnnInfrastructureRoutes");
+
+app.use("/api/fiche-ann-infrastructure", ficheAnnInfrastructureRoutes);
+
+const historiqueActionsRoutes = require("./routes/historiqueActionsRoutes");
+app.use("/api/historique-actions", historiqueActionsRoutes);
 
 // Catch-all 404
 

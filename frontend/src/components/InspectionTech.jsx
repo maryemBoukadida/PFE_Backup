@@ -14,6 +14,11 @@ import FicheSemesRegulateures from "./FicheSemesRegulateures";
 import FicheSemesPostes from "./FicheSemesPostes";
 import FicheSemesDgs from "./FicheSemesDgs";
 import FicheTGBTAnnuelle from "./FicheTGBTAnnuelle";
+import FicheVoieAnnuelle from "./FicheVoieAnnuelle";
+import FicheAnnPaMa from "./ficheAnnPaMa";
+import FicheAnnInfrastructure from "./FicheAnnInfrastructure";
+
+
 export default function InspectionTech() {
   const [periode, setPeriode] = useState('JOURNALIERE');
   const [typeFiche, setTypeFiche] = useState('');
@@ -46,6 +51,11 @@ export default function InspectionTech() {
 
   const typesFichesAnnuelles = [
   { value: 'TGBT', label: 'TGBT' },
+  { value: 'PANNEAUX DE SIGNALISATION', label: 'Panneaux de signalisation' },
+  { value: 'PANNEAUX DES INDICTAUERE SUR VOIE', label: 'Panneaux indicateur sur voie' },
+  { value: 'PAPI ET MANCHE AVANT', label: 'Papi et manches avant' },
+    { value: 'INFRASTRUCTURE', label: 'Infrastructure' }, // ✅ ajouté
+
  
 ];
 
@@ -158,8 +168,14 @@ export default function InspectionTech() {
         <FicheSemesDgs /> 
       ) : periode === 'MENSUELLE' && typeFiche === 'FEUX DOBSTACLES' ? (
         <FicheFeuxObstaclesMensuelle />
+        ): periode === 'ANNUELLE' && typeFiche === 'PANNEAUX DES INDICTAUERE SUR VOIE' ? (
+          <FicheVoieAnnuelle />
       ):periode === 'ANNUELLE' && typeFiche === 'TGBT' ? (
   <FicheTGBTAnnuelle />  
+  ):periode === 'ANNUELLE' && typeFiche === 'PAPI ET MANCHE AVANT' ? (
+  <FicheAnnPaMa />  
+  ):periode === 'ANNUELLE' && typeFiche === 'INFRASTRUCTURE' ? (
+  <FicheAnnInfrastructure />
       ) : (
         // 🔹 Interface journalière / hebdo / annuelle
         <>

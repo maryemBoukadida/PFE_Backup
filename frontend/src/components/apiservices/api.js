@@ -19,7 +19,10 @@ const FICHE_REGULATEURS_API = "http://localhost:5000/api/fiche-semes-regulateure
 const FICHE_POSTESS_API = "http://localhost:5000/api/fiche-semes-postes";
 const FICHE_DGSS_API = "http://localhost:5000/api/fiche-semes-dgs";
 const FICHE_TGBT_API = "http://localhost:5000/api/fiche-ann-tgbt";
-
+const FICHE_VOIE_API = "http://localhost:5000/api/fiche-ann-voie";
+const FICHE_ANN_PAMA_API = "http://localhost:5000/api/fiche-ann-pa-ma";
+const FICHE_ANN_INFRASTRUCTURE_API =
+    "http://localhost:5000/api/fiche-ann-infrastructure";
 // 🔹 Récupérer tous les équipements
 export const getEquipements = async() => {
     const res = await fetch(API_URL);
@@ -481,4 +484,113 @@ export const enregistrerFicheAnnTgbt = async(id, data) => {
 export const envoyerFicheAnnTgbt = async(id) => {
     const res = await axios.put(`${FICHE_TGBT_API}/envoyer/${id}`);
     return res.data;
+};
+
+// =======================
+// FICHE annuelle Voie 
+// =======================
+// 🔹 GET : récupérer la fiche
+export const getFicheAnnVoie = async() => {
+    const response = await fetch(FICHE_VOIE_API);
+    if (!response.ok) {
+        throw new Error("Erreur récupération fiche annuelle voie");
+    }
+    return response.json();
+};
+
+// 🔹 PUT : enregistrer / mettre à jour
+export const enregistrerFicheAnnVoie = async(id, data) => {
+    const res = await axios.put(`${FICHE_VOIE_API}/${id}`, data);
+    return res.data;
+};
+
+// 🔹 PUT : envoyer la fiche
+export const envoyerFicheAnnVoie = async(id) => {
+    const res = await axios.put(`${FICHE_VOIE_API}/envoyer/${id}`);
+    return res.data;
+};
+
+// =======================
+// FICHE annuelle papi manche avant 
+// =====================
+export const getFicheAnnPaMa = async() => {
+    const res = await axios.get(FICHE_ANN_PAMA_API);
+    return res.data;
+};
+
+export const creerFicheAnnPaMa = async(data) => {
+    const res = await axios.post(FICHE_ANN_PAMA_API, data);
+    return res.data;
+};
+
+export const enregistrerFicheAnnPaMa = async(id, data) => {
+    const res = await axios.put(`${FICHE_ANN_PAMA_API}/${id}`, data);
+    return res.data;
+};
+/*
+export const envoyerFicheAnnPaMa = async(id) => {
+    const res = await axios.put(`${FICHE_ANN_PAMA_API}/envoyer/${id}`);
+    return res.data;
+};
+*/
+
+
+// ================= RECUPERER FICHES =================
+export const getFicheAnnInfrastructure = async() => {
+    const response = await fetch(FICHE_ANN_INFRASTRUCTURE_API);
+
+    if (!response.ok) {
+        throw new Error("Erreur récupération fiche infrastructure");
+    }
+
+    return response.json();
+};
+
+// ================= ENREGISTRER FICHE =================
+export const enregistrerFicheAnnInfrastructure = async(fiche) => {
+    const response = await fetch(FICHE_ANN_INFRASTRUCTURE_API, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(fiche)
+    });
+
+    if (!response.ok) {
+        throw new Error("Erreur enregistrement fiche infrastructure");
+    }
+
+    return response.json();
+};
+export const envoyerFicheAnnInfrastructure = async(id) => {
+    const res = await axios.put(`${FICHE_ANN_INFRASTRUCTURE_API}/envoyer/${id}`);
+    return res.data;
+};
+export const ajouterHistoriqueAction = async(action) => {
+    const res = await fetch("http://localhost:5000/api/historique-actions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(action),
+    });
+
+    if (!res.ok) throw new Error("Erreur ajout historique");
+    return res.json();
+};
+
+export const getHistoriqueActions = async() => {
+    const response = await fetch("http://localhost:5000/api/historique-actions");
+    if (!response.ok) {
+        throw new Error("Erreur récupération historique actions");
+    }
+    return response.json();
+};
+// Marquer une notification comme lue
+export const marquerNotifCommeLue = async(notifId) => {
+    if (!notifId) return;
+    const res = await fetch(`http://localhost:5000/api/notifications/${notifId}/read`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) throw new Error("Erreur lors du marquage de la notification");
+    return res.json();
 };

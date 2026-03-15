@@ -4,7 +4,7 @@ import '../styles/Notification.css';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import autoTable from 'jspdf-autotable';
-
+import { fetchNotifications, marquerNotifCommeLue, ajouterHistoriqueAction } from './apiservices/api';
 export default function Notifications() {
   const [notifications, setNotifications] = useState([]);
   const [selectedFiche, setSelectedFiche] = useState(null);
@@ -21,7 +21,9 @@ export default function Notifications() {
   const FICHE_POSTESS_API = 'http://localhost:5000/api/fiche-semes-postes';
   const FICHE_DGSS_API = "http://localhost:5000/api/fiche-semes-dgs";
 const FICHE_TGBT_API = "http://localhost:5000/api/fiche-ann-tgbt";
-
+const FICHE_VOIE_API = "http://localhost:5000/api/fiche-ann-voie";
+const FICHE_ANN_INFRASTRUCTURE_API =
+    "http://localhost:5000/api/fiche-ann-infrastructure";
 
   // ===================== CHARGER NOTIFICATIONS =====================
   const fetchNotifications = async () => {
@@ -62,7 +64,12 @@ const FICHE_TGBT_API = "http://localhost:5000/api/fiche-ann-tgbt";
  const res12 = await fetch(
         'http://localhost:5000/api/fiche-ann-tgbt/notifications'
       );
-
+      const res13 = await fetch(
+        'http://localhost:5000/api/fiche-ann-voie/notifications'
+      );
+      const res14 = await fetch(
+        'http://localhost:5000/api/fiche-ann-infrastructure'
+      );
       const data1 = res1.ok ? await res1.json() : [];
       const data2 = res2.ok ? await res2.json() : [];
       const data3 = res3.ok ? await res3.json() : [];
@@ -75,6 +82,8 @@ const FICHE_TGBT_API = "http://localhost:5000/api/fiche-ann-tgbt";
       const data10 = res10.ok ? await res10.json() : [];
       const data11 = res11.ok ? await res11.json() : [];
       const data12 = res12.ok ? await res12.json() : [];
+      const data13 = res13.ok ? await res13.json() : [];
+      const data14 = res14.ok ? await res14.json() : [];
       setNotifications([
         ...(Array.isArray(data1) ? data1 : []),
         ...(Array.isArray(data2) ? data2 : []),
@@ -88,6 +97,8 @@ const FICHE_TGBT_API = "http://localhost:5000/api/fiche-ann-tgbt";
         ...(Array.isArray(data10) ? data10 : []),
         ...(Array.isArray(data11) ? data11 : []),
         ...(Array.isArray(data12) ? data12 : []),
+        ...(Array.isArray(data13) ? data13 : []),
+        ...(Array.isArray(data14) ? data14 : []),
       ]);
     } catch (err) {
       console.error('Erreur notifications :', err);
@@ -290,15 +301,60 @@ const voirFicheAnnTgbt = async (ficheId, notifId) => {
       console.error('Erreur récupération fiche annuelle TGBT');
       return;
     }
-
     const data = await res.json();
-
     // Stocker la fiche + l'ID de notification pour marquer comme lu
     setSelectedFiche({ ...data, notifId });
   } catch (err) {
     console.error('Erreur voir fiche annuelle TGBT :', err);
   }
 };
+const voirFicheAnnVoie = async (ficheId, notifId) => {
+  try {
+    // Récupérer la fiche annuelle voie par ID
+    const res = await fetch(`${FICHE_VOIE_API}/${ficheId}`);
+    if (!res.ok) {
+      console.error('Erreur récupération fiche annuelle voie');
+      return;
+    }
+
+    const data = await res.json();
+
+    // Stocker la fiche + l'ID de notification pour marquer comme lu
+    setSelectedFiche({ ...data, notifId });
+  } catch (err) {
+    console.error('Erreur voir fiche annuelle voie :', err);
+  }
+};
+ const voirFicheAnnInfrastructure = async (ficheId, notifId) => {
+    try {
+      // Récupérer la fiche Infrastructure par ID
+      const res = await fetch(`${FICHE_ANN_INFRASTRUCTURE_API}/${ficheId}`);
+
+      if (!res.ok) {
+        console.error("Erreur récupération fiche Infrastructure");
+        return;
+      }
+
+      const data = await res.json();
+
+      // Stocker la fiche + l'ID de notification pour marquer comme lu
+      setSelectedFiche({ ...data, notifId });
+    } catch (err) {
+      console.error("Erreur voir fiche Infrastructure :", err);
+    }
+  };
+ //marquer fiche comme lu
+  const marquerNotifCommeLue = async (notifId) => {
+    if (!notifId) return;
+    try {
+      await fetch(`http://localhost:5000/api/notifications/${notifId}/read`, {
+        method: 'PUT',
+      });
+      fetchNotifications();
+    } catch (err) {
+      console.error('Erreur marquage notification :', err);
+    }
+  };
 
   // ===================== VALIDER FICHE =====================
   const validerFiche = async (id, notifId = null) => {
@@ -345,43 +401,50 @@ const voirFicheAnnTgbt = async (ficheId, notifId) => {
       } else if (selectedFiche?.tgbt) {
         url = 'http://localhost:5000/api/fiche-ann-tgbt/valider';
         body = { ficheId: id };
+       } else if (selectedFiche?.voie) {
+        url = 'http://localhost:5000/api/fiche-ann-voie/valider';
+        body = { ficheId: id }; 
+       } else if (selectedFiche?.piste) {
+        url = 'http://localhost:5000/api/fiche-ann-infrastructure/valider';
+        body = { ficheId: id };  
       }else {
         url = 'http://localhost:5000/api/inspections/valider';
         body = { inspectionId: id };
       }
-
+// valider fiche
       await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
-      marquerNotifCommeLue(selectedFiche.notifId);
 
-      alert("Fiche validée et enregistrée dans l'historique ✅");
-      setSelectedFiche(null);
-      fetchNotifications();
-      navigate('/historiques', {
-        state: {
-          alertMessage: "Nouvelle fiche validée et ajoutée à l'historique",
-        },
-      });
-    } catch (err) {
-      console.error(err);
+       if (notifId) {
+      await marquerNotifCommeLue(notifId); 
     }
-  };
 
-  //marquer fiche comme lu
-  const marquerNotifCommeLue = async (notifId) => {
-    if (!notifId) return;
-    try {
-      await fetch(`http://localhost:5000/api/notifications/${notifId}/read`, {
-        method: 'PUT',
-      });
-      fetchNotifications();
-    } catch (err) {
-      console.error('Erreur marquage notification :', err);
-    }
-  };
+    // Ajouter dans historique
+await ajouterHistoriqueAction({
+    type: "fiche_ann_infrastructure",
+    message: "Fiche annuelle Infrastructure validée",
+    date: new Date(),
+    dataId: selectedFiche._id,
+});
+
+
+    // 🔹 Feedback utilisateur
+alert("Fiche validée et ajoutée à l'historique ✅");
+    setSelectedFiche(null);
+    fetchNotifications();
+navigate("/historique-actions", {
+  state: { alertMessage: "Nouvelle fiche validée et ajoutée à l'historique" },
+});
+ 
+  } catch (err) {
+    console.error("Erreur validation fiche :", err);
+    alert("Erreur lors de la validation");
+  }
+};
+ 
   // ===================== EXPORT PDF =====================
   const exportPDF = () => {
     if (!selectedFiche) return;
@@ -1179,6 +1242,104 @@ const voirFicheAnnTgbt = async (ficheId, notifId) => {
     }.pdf`
   );
 
+  // ===================== EXPORT PDF annuelle voie=====================
+// ===================== EXPORT PDF VOIE =====================
+}else if (selectedFiche?.panneaux) {
+  doc.text("Fiche Annuelle Voie", 14, 15);
+  doc.setFontSize(11);
+  doc.text(
+    `📅 Date : ${selectedFiche.date ? new Date(selectedFiche.date).toLocaleDateString() : ''}`,
+    14,
+    22
+  );
+  doc.text(
+    `👨‍🔧 Technicien / Opérateurs : ${selectedFiche.techniciens_operateurs?.join(', ') || ''}`,
+    14,
+    28
+  );
+  doc.text(
+    `📝 Observations générales : ${selectedFiche.observations_generales || ''}`,
+    14,
+    34
+  );
+
+  let startY = 40;
+
+  // ===================== Panneaux =====================
+  const panneauxColumn = ["Panneau", "Élément", "État", "Interventions", "Observations"];
+
+  Object.entries(selectedFiche.panneaux).forEach(([panneauNom, elements]) => {
+    // Nom du panneau en gras
+    doc.setFont(undefined, "bold");
+    doc.text(panneauNom, 14, startY);
+    doc.setFont(undefined, "normal");
+    startY += 6;
+
+    const tableRows = Object.entries(elements).map(([elementNom, el]) => [
+      "", // Le nom du panneau est déjà en titre
+      elementNom || "",
+      el.Etat || "--",
+      el.Interventions || "",
+      el.Observations || ""
+    ]);
+
+    autoTable(doc, {
+      head: [panneauxColumn],
+      body: tableRows,
+      startY,
+      theme: "grid",
+      headStyles: { fillColor: [52, 152, 219], textColor: 255 },
+      styles: { fontSize: 10 },
+    });
+
+    startY = doc.lastAutoTable.finalY + 10; // espace après le panneau
+  });
+
+  // ===================== ROTs =====================
+  const rotColumn = ["ROT", "Élément", "État", "Interventions", "Observations"];
+
+  Object.entries(selectedFiche.ROTs).forEach(([rotNom, elements]) => {
+    // Nom du ROT en gras
+    doc.setFont(undefined, "bold");
+    doc.text(rotNom, 14, startY);
+    doc.setFont(undefined, "normal");
+    startY += 6;
+
+    const tableRows = Object.entries(elements).map(([elementNom, el]) => [
+      "", // Le nom du ROT est déjà en titre
+      elementNom || "",
+      el.Etat || "--",
+      el.Interventions || "",
+      el.Observations || ""
+    ]);
+
+    autoTable(doc, {
+      head: [rotColumn],
+      body: tableRows,
+      startY,
+      theme: "grid",
+      headStyles: { fillColor: [52, 152, 219], textColor: 255 },
+      styles: { fontSize: 10 },
+    });
+
+    startY = doc.lastAutoTable.finalY + 10; // espace après le ROT
+  });
+
+  // ===================== Signature =====================
+  if (selectedFiche.signature) {
+    const imgProps = doc.getImageProperties(selectedFiche.signature);
+    const imgWidth = 100;
+    const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+    doc.text("Signature :", 14, startY + 6);
+    doc.addImage(selectedFiche.signature, "PNG", 14, startY + 10, imgWidth, imgHeight);
+  }
+
+  // Sauvegarder le PDF
+  doc.save(
+    `Fiche_Annuelle_Voie_${
+      selectedFiche.date ? new Date(selectedFiche.date).toISOString().slice(0, 10) : "date_inconnue"
+    }.pdf`
+  );
 
 
     } else {
@@ -1276,7 +1437,11 @@ const voirFicheAnnTgbt = async (ficheId, notifId) => {
                   } else if (n.type?.toLowerCase() === 'fiche_semes_dgs') {
                      voirFicheSemesDgs(ficheId, n._id);
                   } else if (n.type?.toLowerCase() === 'fiche_ann_tgbt') {
-                     voirFicheAnnTgbt(ficheId, n._id);     
+                     voirFicheAnnTgbt(ficheId, n._id); 
+                   } else if (n.type?.toLowerCase() === 'fiche_ann_voie') {
+                     voirFicheAnnVoie(ficheId, n._id); 
+                  } else if (n.type?.toLowerCase() === 'fiche_ann_infrastructure') {
+                     voirFicheAnnInfrastructure(ficheId, n._id);       
                   } else {
                     voirFiche(ficheId);
                   }
@@ -2194,6 +2359,179 @@ const voirFicheAnnTgbt = async (ficheId, notifId) => {
       <button onClick={exportPDF}>📄 Exporter PDF</button>
     </div>
   </>
+// ================= Anuelle voie =================
+): selectedFiche?.panneaux ? (
+  <>
+    <h3>Fiche Annuelle Voie</h3>
+
+    {/* Informations générales */}
+    <p>
+      📅 Date : {selectedFiche.date ? new Date(selectedFiche.date).toLocaleDateString() : ''}
+    </p>
+    <p>
+      👨‍🔧 Technicien / Opérateurs : {selectedFiche.techniciens_operateurs?.join(', ') || ''}
+    </p>
+    <p>
+      📝 Observations générales : {selectedFiche.observations_generales || ''}
+    </p>
+
+    {/* Tableau Panneaux */}
+    {selectedFiche.panneaux && (
+      <>
+        <h4>Panneaux indicateurs</h4>
+        <table style={{ borderCollapse: 'collapse', width: '100%', marginTop: '10px' }}>
+          <thead>
+            <tr style={{ backgroundColor: '#eee' }}>
+              <th style={{ border: '1px solid #000', padding: '5px' }}>Panneau</th>
+              <th style={{ border: '1px solid #000', padding: '5px' }}>Élément</th>
+              <th style={{ border: '1px solid #000', padding: '5px' }}>État</th>
+              <th style={{ border: '1px solid #000', padding: '5px' }}>Interventions</th>
+              <th style={{ border: '1px solid #000', padding: '5px' }}>Observations</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.entries(selectedFiche.panneaux).map(([panneauNom, elements]) =>
+              Object.entries(elements).map(([elementNom, el], idx) => (
+                <tr key={panneauNom + elementNom}>
+                  {idx === 0 && (
+                    <td
+                      rowSpan={Object.keys(elements).length}
+                      style={{ fontWeight: 'bold', backgroundColor: '#ddd', padding: '5px' }}
+                    >
+                      {panneauNom}
+                    </td>
+                  )}
+                  <td style={{ border: '1px solid #000', padding: '5px' }}>{elementNom}</td>
+                  <td style={{ border: '1px solid #000', padding: '5px' }}>{el.Etat || '--'}</td>
+                  <td style={{ border: '1px solid #000', padding: '5px' }}>{el.Interventions || ''}</td>
+                  <td style={{ border: '1px solid #000', padding: '5px' }}>{el.Observations || ''}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </>
+    )}
+
+    {/* Tableau ROTs */}
+    {selectedFiche.ROTs && (
+      <>
+        <h4>ROTs</h4>
+        <table style={{ borderCollapse: 'collapse', width: '100%', marginTop: '10px' }}>
+          <thead>
+            <tr style={{ backgroundColor: '#eee' }}>
+              <th style={{ border: '1px solid #000', padding: '5px' }}>ROT</th>
+              <th style={{ border: '1px solid #000', padding: '5px' }}>Élément</th>
+              <th style={{ border: '1px solid #000', padding: '5px' }}>État</th>
+              <th style={{ border: '1px solid #000', padding: '5px' }}>Interventions</th>
+              <th style={{ border: '1px solid #000', padding: '5px' }}>Observations</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.entries(selectedFiche.ROTs).map(([rotNom, elements]) =>
+              Object.entries(elements).map(([elementNom, el], idx) => (
+                <tr key={rotNom + elementNom}>
+                  {idx === 0 && (
+                    <td
+                      rowSpan={Object.keys(elements).length}
+                      style={{ fontWeight: 'bold', backgroundColor: '#ddd', padding: '5px' }}
+                    >
+                      {rotNom}
+                    </td>
+                  )}
+                  <td style={{ border: '1px solid #000', padding: '5px' }}>{elementNom}</td>
+                  <td style={{ border: '1px solid #000', padding: '5px' }}>{el.Etat || '--'}</td>
+                  <td style={{ border: '1px solid #000', padding: '5px' }}>{el.Interventions || ''}</td>
+                  <td style={{ border: '1px solid #000', padding: '5px' }}>{el.Observations || ''}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </>
+    )}
+
+    {/* Signature */}
+    {selectedFiche.signature && (
+      <div style={{ marginTop: '20px' }}>
+        <h4>Signature :</h4>
+        <img
+          src={selectedFiche.signature}
+          alt="Signature"
+          style={{ border: '1px solid #000', width: '400px', height: '150px' }}
+        />
+      </div>
+    )}
+
+    {/* Actions */}
+    <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+      <button onClick={() => validerFiche(selectedFiche._id, selectedFiche.notifId)}>✅ Valider</button>
+<button onClick={() => setSelectedFiche(null)}>
+                    ❌ Fermer
+                  </button>      <button onClick={() => exportPDF(selectedFiche)}>📄 Exporter PDF</button>
+    </div>
+  </>
+): selectedFiche?.PISTE ? (
+  <>
+    <h3>Fiche Annuelle Infrastructure</h3>
+
+    {/* Informations générales */}
+    <p>
+      📅 Date : {selectedFiche.date ? new Date(selectedFiche.date).toLocaleDateString() : ''}
+    </p>
+    <p>
+      👨‍🔧 Technicien / Opérateurs : {selectedFiche.techniciens_operateurs?.join(', ') || ''}
+    </p>
+    <p>
+      📝 Observations générales : {selectedFiche.observationsGenerales || ''}
+    </p>
+
+    {/* Tableau PISTE */}
+    {selectedFiche.PISTE && (
+      <>
+        <h4>Inspection PISTE</h4>
+        <table style={{ borderCollapse: 'collapse', width: '100%', marginTop: '10px' }}>
+          <thead>
+            <tr style={{ backgroundColor: '#eee' }}>
+              <th style={{ border: '1px solid #000', padding: '5px' }}>Zone</th>
+              <th style={{ border: '1px solid #000', padding: '5px' }}>Vérification</th>
+              <th style={{ border: '1px solid #000', padding: '5px' }}>État</th>
+              <th style={{ border: '1px solid #000', padding: '5px' }}>Interventions</th>
+              <th style={{ border: '1px solid #000', padding: '5px' }}>Observations</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.entries(selectedFiche.PISTE).map(([zone, verifs]) =>
+              Object.entries(verifs).map(([verifNom, verif], idx) => (
+                <tr key={zone + verifNom}>
+                  {idx === 0 && (
+                    <td
+                      rowSpan={Object.keys(verifs).length}
+                      style={{ fontWeight: 'bold', backgroundColor: '#ddd', padding: '5px' }}
+                    >
+                      {zone}
+                    </td>
+                  )}
+                  <td style={{ border: '1px solid #000', padding: '5px' }}>{verifNom}</td>
+                  <td style={{ border: '1px solid #000', padding: '5px' }}>{verif.etat || '--'}</td>
+                  <td style={{ border: '1px solid #000', padding: '5px' }}>{verif.intervention_a_faire || ''}</td>
+                  <td style={{ border: '1px solid #000', padding: '5px' }}>{verif.observation || ''}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </>
+    )}
+
+    {/* Actions */}
+    <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+      <button onClick={() => validerFiche(selectedFiche._id, selectedFiche.notifId)}>✅ Valider</button>
+      <button onClick={() => setSelectedFiche(null)}>❌ Fermer</button>
+      <button onClick={() => exportPDF(selectedFiche)}>📄 Exporter PDF</button>
+    </div>
+  </>
+
 
             ) : selectedFiche.installations?.length > 0 ? (
               <>

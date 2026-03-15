@@ -1,0 +1,211 @@
+/* ===== CONTAINER PRINCIPAL ===== */
+
+.fiche-container {
+    max-width: 1400px;
+    margin: auto;
+    padding: 30px;
+    background: #f5f7fa;
+    font-family: "Segoe UI", "Roboto", sans-serif;
+}
+
+
+/* ===== TITRE PRINCIPAL ===== */
+
+.fiche-container h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #1a3e6f;
+    font-size: 28px;
+    letter-spacing: 1px;
+}
+
+
+/* ===== TABLEAU CARD ===== */
+
+.table-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    margin-bottom: 40px;
+    overflow: hidden;
+    animation: fadeInCard 0.8s ease forwards;
+    opacity: 0;
+    /* pour l'animation */
+}
+
+
+/* ===== EN-TÊTE DU TABLEAU ===== */
+
+.table-card thead th {
+    background: #1a3e6f;
+    color: #ffffff;
+    padding: 14px 12px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+
+/* ===== LIGNES ===== */
+
+.table-card tbody tr {
+    border-bottom: 1px solid #eee;
+}
+
+
+/* ===== CELLULES ===== */
+
+.table-card td {
+    padding: 12px;
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+
+/* ===== INPUTS & SELECTS ===== */
+
+.table-card input,
+.table-card select {
+    width: 100%;
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid #c1c7d0;
+    font-size: 13px;
+}
+
+.table-card input:focus,
+.table-card select:focus {
+    outline: none;
+    border-color: #1a3e6f;
+    box-shadow: 0 0 5px rgba(26, 62, 111, 0.3);
+}
+
+
+/* ===== TITRE VERTICAL ===== */
+
+.vertical-title {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    text-align: center;
+    font-weight: 700;
+    background: #d7e3f5;
+    color: #1a3e6f;
+    padding: 12px;
+    letter-spacing: 1px;
+    font-size: 14px;
+}
+
+
+/* ===== ANIMATION POUR LES CARDS ===== */
+
+@keyframes fadeInCard {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* ===== DATE SECTION ===== */
+
+.date-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.date-display {
+    font-weight: 600;
+    color: #1a3e6f;
+    background: #e1ebf9;
+    padding: 6px 14px;
+    border-radius: 6px;
+}
+
+
+/* ===== TEXTAREA ===== */
+
+textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #c1c7d0;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: #1a3e6f;
+    box-shadow: 0 0 5px rgba(26, 62, 111, 0.3);
+}
+
+
+/* ===== INPUT TECHNICIENS ===== */
+
+input[type="text"] {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #c1c7d0;
+    width: 100%;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+
+/* ===== SIGNATURE ===== */
+
+.signature-canvas {
+    border: 1px solid #c1c7d0;
+    border-radius: 10px;
+    margin-bottom: 12px;
+}
+
+
+/* ===== BOUTONS ===== */
+
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+button:hover {
+    transform: translateY(-2px);
+}
+
+button:first-of-type {
+    background: #1a3e6f;
+    color: #fff;
+}
+
+button:last-of-type {
+    background: #28a745;
+    color: #fff;
+}
+
+.table-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    margin-bottom: 40px;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInCard 0.7s ease forwards;
+}
+
+@keyframes fadeInCard {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

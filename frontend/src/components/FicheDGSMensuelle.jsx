@@ -39,24 +39,53 @@ useEffect(() => {
 
     setFiche(newFiche);
   };
+
+const createEmptyFiche = () => ({
+  type: "inspection_dgs",
+  dgs: [
+    { numero: "DGS N°1", propreteFenetreFrontale: "", propreteAfficheur: "", boitierCommande: "", observation: "" },
+    { numero: "DGS N°2", propreteFenetreFrontale: "", propreteAfficheur: "", boitierCommande: "", observation: "" },
+    { numero: "DGS N°3", propreteFenetreFrontale: "", propreteAfficheur: "", boitierCommande: "", observation: "" },
+    { numero: "DGS N°4", propreteFenetreFrontale: "", propreteAfficheur: "", boitierCommande: "", observation: "" },
+    { numero: "DGS N°5", propreteFenetreFrontale: "", propreteAfficheur: "", boitierCommande: "", observation: "" },
+    { numero: "DGS N°6", propreteFenetreFrontale: "", propreteAfficheur: "", boitierCommande: "", observation: "" },
+    { numero: "DGS N°7", propreteFenetreFrontale: "", propreteAfficheur: "", boitierCommande: "", observation: "" },
+    { numero: "DGS N°8", propreteFenetreFrontale: "", propreteAfficheur: "", boitierCommande: "", observation: "" },
+    { numero: "DGS N°9", propreteFenetreFrontale: "", propreteAfficheur: "", boitierCommande: "", observation: "" },
+    { numero: "DGS N°10", propreteFenetreFrontale: "", propreteAfficheur: "", boitierCommande: "", observation: "" },
+    { numero: "DGS N°11", propreteFenetreFrontale: "", propreteAfficheur: "", boitierCommande: "", observation: "" },
+    { numero: "DGS N°12", propreteFenetreFrontale: "", propreteAfficheur: "", boitierCommande: "", observation: "" },
+    { numero: "DGS N°13", propreteFenetreFrontale: "", propreteAfficheur: "", boitierCommande: "", observation: "" },
+    { numero: "DGS N°14", propreteFenetreFrontale: "", propreteAfficheur: "", boitierCommande: "", observation: "" }
+  ],
+  observationGenerale: "",
+  date: new Date().toISOString().split('T')[0],
+  technicien: "",
+  statut: "brouillon"
+});
+const handleSave = async () => {
+  try {
+    await enregistrerFicheDGS(fiche._id, fiche);
+    alert("Fiche enregistrée avec succès !");
+    
+    // ⚡ réinitialiser la vue avec une nouvelle fiche vide
+    setFiche(createEmptyFiche());
+  } catch (error) {
+    console.error(error);
+    alert("Erreur lors de l'enregistrement");
+  }
+};
 const handleSend = async () => {
   try {
     const res = await envoyerFicheDGS(fiche._id);
     if (res.message) {
       alert(res.message);
     }
+    // ⚡ réinitialiser la vue avec une nouvelle fiche vide
+    setFiche(createEmptyFiche());
   } catch (error) {
     console.error("Erreur API Envoyer :", error);
     alert("Erreur lors de l'envoi de la fiche");
-  }
-};
-const handleSave = async () => {
-  try {
-    await enregistrerFicheDGS(fiche._id, fiche);
-    alert("Fiche enregistrée avec succès !");
-  } catch (error) {
-    console.error(error);
-    alert("Erreur lors de l'enregistrement");
   }
 };
   return (

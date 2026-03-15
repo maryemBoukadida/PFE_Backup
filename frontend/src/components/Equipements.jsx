@@ -8,7 +8,7 @@ import Inventaire from './Inventaire.jsx';
 import GestionInspections from './GestionInspections.jsx';
 import Notifications from './Notifications.jsx';
 import Historiques from './Historiques.jsx';
-
+import HistoriqueActions from './HistoriqueActions';
 import {
   getEquipements,
   createEquipement,
@@ -221,6 +221,12 @@ export default function EquipementsComponent() {
               <span className="notif-badge">{notifications.length}</span>
             )}
           </div>
+          <div
+            className={`submenu-item ${activeMenu === 'historique' ? 'active' : ''}`}
+            onClick={() => setActiveMenu('historique')}
+          >
+            Historiques Actions
+          </div>
         </div>
       </div>
       {/**Main */}
@@ -245,11 +251,14 @@ export default function EquipementsComponent() {
             />
           ) : activeMenu === 'inspection' ? (
             inspectionSubMenuActive === 'inspections' ? (
-            <GestionInspections />
-            ):(
-              <Historiques />)
+              <GestionInspections />
+            ) : (
+              <Historiques />
+            )
           ) : activeMenu === 'notification' ? (
             <Notifications />
+          ) : activeMenu === 'historique' ? (
+            <HistoriqueActions />
           ) : (
             <>
               {/*tool bar */}
