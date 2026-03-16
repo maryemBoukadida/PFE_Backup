@@ -1,49 +1,36 @@
-// controllers/authController.js
-const User = require("../models/User");
-const bcrypt = require("bcrypt");
+const User = require('../models/User');
+const GestionUser = require('../models/GestionUser');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 exports.login = async (req, res) => {
-    const { matricule, password } = req.body;
-
-    try {
-        console.log(`🔄 Tentative login: ${matricule}`);
-        
-        const user = await User.findOne({ matricule });
-
-        if (!user) {
-            return res.status(404).json({ 
-                success: false,
-                message: "Utilisateur introuvable" 
-            });
-        }
-
-        // Si vous avez modifié pour accepter tous les mots de passe :
-        // const isMatch = true; // ← Pour test
-        const isMatch = true
-
-        if (!isMatch) {
-            return res.status(400).json({ 
-                success: false,
-                message: "Mot de passe incorrect" 
-            });
-        }
-
-        console.log(`✅ Login réussi: ${matricule} (${user.role})`);
-
-        res.status(200).json({
-            success: true,
-            message: "Connexion réussie",
-            matricule: user.matricule,
-            role: user.role,
-            nom_complet: user.nom_complet || user.matricule,
-            isAdmin: user.role === 'admin'
-        });
-
-    } catch (error) {
-        console.error("❌ Erreur login:", error);
-        res.status(500).json({ 
-            success: false,
-            message: "Erreur serveur" 
-        });
+  try {
+    let { matricule, password } = req.body;
+    if (!matricule || !password) {
+      return res.status(400).json({ success: false, message: 'Champs requis' });
     }
+    matricule = matricule.toString();
+    const user = await User.findOne({ matricule });
+    if (!user) return res.status(400).json({ success: false, message: 'Utilisateur non trouvé' });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ success: false, message: 'Mot de passe incorrect' });
+
+    const token = jwt.sign(
+      { matricule: user.matricule, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    const gest = await GestionUser.findOne({ matricule: user.matricule });
+    const nom_complet = gest ? gest.nom_complet : user.matricule;
+
+    res.json({
+      success: true,
+      token,
+      user: { matricule: user.matricule, role: user.role, nom_complet }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };

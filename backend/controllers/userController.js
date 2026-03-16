@@ -47,6 +47,7 @@ exports.register = async (req, res) => {
 };
 
 // ================= LOGIN =================
+// ================= LOGIN =================
 exports.login = async (req, res) => {
   try {
     let { matricule, password } = req.body;
@@ -69,10 +70,23 @@ exports.login = async (req, res) => {
     if (!isMatch)
       return res.status(400).json({ message: "Mot de passe incorrect" });
 
+    // Générer le token JWT
+    const token = jwt.sign(
+      { matricule: user.matricule, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    // Récupérer les infos complémentaires depuis GestionUser si nécessaire
+    // (optionnel) mais on renvoie au moins matricule, role, nom_complet
     res.json({
-      message: "Connexion réussie",
-      role: user.role,
-      matricule: user.matricule,
+      success: true,
+      token,
+      user: {
+        matricule: user.matricule,
+        role: user.role,
+        nom_complet: user.nom_complet // si présent dans le modèle User
+      }
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
