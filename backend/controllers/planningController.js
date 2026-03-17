@@ -137,6 +137,12 @@ function getJourSemaine(dateStr) {
 
 // @desc    Dupliquer un planning pour une nouvelle année
 // @route   POST /api/planning/duplicate
+// @desc    Dupliquer un planning pour une nouvelle année
+// @route   POST /api/planning/duplicate
+// @desc    Dupliquer un planning pour une nouvelle année
+// @route   POST /api/planning/duplicate
+// @desc    Dupliquer un planning pour une nouvelle année avec gestion du max 2 tâches/jour
+// @route   POST /api/planning/duplicate
 const duplicatePlanning = async (req, res) => {
     try {
         console.log('📥 req.body reçu :', req.body);
@@ -157,20 +163,48 @@ const duplicatePlanning = async (req, res) => {
             });
         }
 
-        // Calcul du décalage calendaire entre les deux années
-        const dateRefSource = new Date(anneeSource, 0, 1); // 1er janvier année source
-        const dateRefCible = new Date(anneeCible, 0, 1);   // 1er janvier année cible
-        const diffJours = Math.round((dateRefCible - dateRefSource) / (1000 * 60 * 60 * 24));
-        console.log(`📅 Décalage calendaire : ${diffJours} jours`);
-
         const moisList = [
             'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
             'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
         ];
 
+        // Dictionnaire pour compter le nombre de tâches par date dans l'année cible
+        const tasksPerDate = new Map(); // clé : "YYYY-MM-DD"
         const newTasks = [];
 
-        for (const task of sourceTasks) {
+        // Fonction pour formater une date en string "YYYY-MM-DD"
+        const formatKey = (date) => `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,'0')}-${date.getDate().toString().padStart(2,'0')}`;
+
+        // Fonction pour vérifier si un jour est week-end (samedi=6, dimanche=0)
+        const isWeekend = (date) => date.getDay() === 0 || date.getDay() === 6;
+
+        // Fonction pour trouver la prochaine date disponible
+        const findNextAvailableDate = (startDate, maxAttempts = 365, forBalisage = false) => {
+            let currentDate = new Date(startDate);
+            for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                const key = formatKey(currentDate);
+                const count = tasksPerDate.get(key) || 0;
+                // Condition pour balisage/inspection : pas de week-end
+                if (forBalisage && isWeekend(currentDate)) {
+                    // jour non valide, on passe au suivant
+                } else if (count < 2) {
+                    return new Date(currentDate); // jour valide avec < 2 tâches
+                }
+                // Avancer d'un jour
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            throw new Error(`Aucune date disponible après ${maxAttempts} jours`);
+        };
+
+        // Traiter les tâches dans l'ordre (par exemple, par date d'affichage source)
+        const sortedSource = [...sourceTasks].sort((a, b) => {
+            // Trier par date_affichage pour garder une cohérence
+            if (a.date_affichage < b.date_affichage) return -1;
+            if (a.date_affichage > b.date_affichage) return 1;
+            return 0;
+        });
+
+        for (const task of sortedSource) {
             const newTask = task.toObject();
             delete newTask._id;
             delete newTask.createdAt;
@@ -178,57 +212,79 @@ const duplicatePlanning = async (req, res) => {
 
             newTask.annee = anneeCible;
 
-            if (newTask.date_affichage) {
-                try {
-                    const [jour, mois, annee] = newTask.date_affichage.split('/').map(Number);
-                    if (!jour || !mois || !annee) {
-                        console.warn(`⚠️ Format de date invalide : ${newTask.date_affichage}`);
-                        continue;
-                    }
-
-                    // Créer la date source
-                    const dateSource = new Date(annee, mois - 1, jour);
-                    // Ajouter le décalage
-                    const dateCible = new Date(dateSource);
-                    dateCible.setDate(dateSource.getDate() + diffJours);
-
-                    // Vérifier si c'est un dimanche (0 = dimanche)
-                    if (dateCible.getDay() === 0) {
-                        console.log(`⚠️ La date ${newTask.date_affichage} tombe un dimanche en ${anneeCible}, décalage au lundi`);
-                        dateCible.setDate(dateCible.getDate() + 1);
-                    }
-
-                    // Formater la nouvelle date
-                    const newJour = dateCible.getDate().toString().padStart(2, '0');
-                    const newMois = (dateCible.getMonth() + 1).toString().padStart(2, '0');
-                    const newAnnee = dateCible.getFullYear();
-                    newTask.date_affichage = `${newJour}/${newMois}/${newAnnee}`;
-
-                    // Mettre à jour le mois
-                    newTask.mois = moisList[dateCible.getMonth()];
-
-                    // Recalculer le numéro de semaine
-                    const firstDayOfMonth = new Date(newAnnee, dateCible.getMonth(), 1);
-                    const dayOfWeek = firstDayOfMonth.getDay();
-                    const adjustedFirstDay = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Lundi = 0
-                    const semaineNum = Math.floor((dateCible.getDate() + adjustedFirstDay - 1) / 7) + 1;
-                    newTask.semaine = `SEMAINE ${semaineNum}`;
-
-                } catch (err) {
-                    console.error(`❌ Erreur traitement date ${newTask.date_affichage}:`, err);
-                    continue;
-                }
-            }
-
-            // Vérifier les champs requis
-            const requiredFields = ['mois', 'semaine', 'equipement', 'tache', 'type', 'code_tache', 'statut', 'priorite', 'frequence', 'annee'];
-            const missing = requiredFields.filter(f => !newTask[f]);
-            if (missing.length > 0) {
-                console.warn('⚠️ Tâche ignorée - champs manquants:', missing);
+            if (!newTask.date_affichage) {
+                console.warn('⚠️ Tâche sans date_affichage ignorée');
                 continue;
             }
 
-            newTasks.push(newTask);
+            try {
+                const [jour, mois, annee] = newTask.date_affichage.split('/').map(Number);
+                if (!jour || !mois || !annee) {
+                    console.warn(`⚠️ Format de date invalide : ${newTask.date_affichage}`);
+                    continue;
+                }
+
+                // 1. Date initiale dans l'année cible (même jour/mois)
+                let dateCible = new Date(anneeCible, mois - 1, jour);
+                // Si la date est invalide (ex: 29/02 année non bissextile), JS passe au jour suivant
+                // On accepte ce comportement, mais on pourrait logger
+                if (dateCible.getMonth() !== mois - 1) {
+                    console.log(`⚠️ Date ${jour}/${mois} inexistante en ${anneeCible}, ajustée au ${dateCible.getDate()}/${dateCible.getMonth()+1}`);
+                }
+
+                // 2. Décalage week-end pour Balisage/Inspection
+                const isBalisageInspection = (task.type === 'Balisage' || task.type === 'Inspection');
+                if (isBalisageInspection && isWeekend(dateCible)) {
+                    console.log(`⚠️ ${task.tache} (${task.type}) tombe un ${dateCible.getDay()===0?'dimanche':'samedi'} en ${anneeCible}, recherche lundi suivant`);
+                    // On cherche le prochain jour qui n'est pas week-end
+                    let lundi = new Date(dateCible);
+                    do {
+                        lundi.setDate(lundi.getDate() + 1);
+                    } while (isWeekend(lundi));
+                    dateCible = lundi;
+                }
+
+                // 3. Vérifier le nombre de tâches à cette date (max 2)
+                const key = formatKey(dateCible);
+                const currentCount = tasksPerDate.get(key) || 0;
+                if (currentCount >= 2) {
+                    console.log(`⚠️ Date ${dateCible.toLocaleDateString()} a déjà 2 tâches, recherche prochaine disponible pour ${task.tache}`);
+                    // Chercher la prochaine date valide (avec la contrainte week-end si nécessaire)
+                    dateCible = findNextAvailableDate(dateCible, 365, isBalisageInspection);
+                }
+
+                // 4. Affecter la tâche à la date trouvée
+                const newJour = dateCible.getDate().toString().padStart(2, '0');
+                const newMois = (dateCible.getMonth() + 1).toString().padStart(2, '0');
+                const newAnnee = dateCible.getFullYear();
+                newTask.date_affichage = `${newJour}/${newMois}/${newAnnee}`;
+                newTask.mois = moisList[dateCible.getMonth()];
+
+                // Recalculer le numéro de semaine
+                const firstDayOfMonth = new Date(newAnnee, dateCible.getMonth(), 1);
+                const dayOfWeek = firstDayOfMonth.getDay();
+                const adjustedFirstDay = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Lundi = 0
+                const semaineNum = Math.floor((dateCible.getDate() + adjustedFirstDay - 1) / 7) + 1;
+                newTask.semaine = `SEMAINE ${semaineNum}`;
+
+                // Mettre à jour le compteur
+                const newKey = formatKey(dateCible);
+                tasksPerDate.set(newKey, (tasksPerDate.get(newKey) || 0) + 1);
+
+                // Vérifier les champs requis
+                const requiredFields = ['mois', 'semaine', 'equipement', 'tache', 'type', 'code_tache', 'statut', 'priorite', 'frequence', 'annee'];
+                const missing = requiredFields.filter(f => !newTask[f]);
+                if (missing.length > 0) {
+                    console.warn('⚠️ Tâche ignorée - champs manquants:', missing);
+                    continue;
+                }
+
+                newTasks.push(newTask);
+
+            } catch (err) {
+                console.error(`❌ Erreur traitement tâche ${task.tache}:`, err);
+                continue;
+            }
         }
 
         if (newTasks.length === 0) {
