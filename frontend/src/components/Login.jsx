@@ -27,14 +27,17 @@ const handleLogin = async (e) => {
         });
 
         const role = response.data.role;
-
+// 🔹 Stocker le technicien dans le localStorage
+        if (role === "technicien") {
+            localStorage.setItem("technicien",matricule);
+        }
 setMessage("Connexion réussie !");
 
 // Redirection selon le rôle
 if (role === "admin") {
     navigate("/equipements");
 } else if (role === "technicien") {
-    navigate("/technicien"); // même si page vide pour l'instant
+    navigate("/technicien"); 
 }
 
         

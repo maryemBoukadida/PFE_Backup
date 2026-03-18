@@ -1,0 +1,231 @@
+/* Style élégant pour la section Temps inspection */
+
+.temps-inspection-section {
+    margin: 2rem 0;
+}
+
+.temps-inspection-section h3 {
+    color: #1e293b;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    position: relative;
+    display: inline-block;
+}
+
+.temps-inspection-section h3::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #f39c12, #e74c3c);
+    border-radius: 3px;
+}
+
+
+/* Grille des périodes */
+
+.temps-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+
+/* Carte pour chaque période */
+
+.temps-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.25rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eef2f6;
+    transition: all 0.2s ease;
+}
+
+.temps-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    border-color: #f39c12;
+}
+
+
+/* En-tête de la carte */
+
+.temps-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+.temps-card-header h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.temps-card-header span {
+    font-size: 0.9rem;
+    padding: 0.25rem 0.75rem;
+    background: #f1f5f9;
+    border-radius: 20px;
+    color: #475569;
+}
+
+
+/* Corps de la carte */
+
+.temps-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.temps-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.temps-row label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #64748b;
+    min-width: 60px;
+}
+
+
+/* Style pour les TimePicker */
+
+.temps-row .react-time-picker {
+    width: 130px !important;
+}
+
+.temps-row .react-time-picker__wrapper {
+    border: 2px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    padding: 0.4rem !important;
+    background: #f8fafc;
+    transition: all 0.2s ease;
+}
+
+.temps-row .react-time-picker__wrapper:hover {
+    border-color: #f39c12 !important;
+    background: white;
+}
+
+.temps-row .react-time-picker__wrapper:focus-within {
+    border-color: #f39c12 !important;
+    box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
+}
+
+
+/* Badge temps alloué */
+
+.temps-alloue {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+    border-radius: 30px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #0f172a;
+    border: 1px solid #e2e8f0;
+}
+
+.temps-alloue::before {
+    content: '⏱️';
+    font-size: 1rem;
+}
+
+
+/* Total général */
+
+.temps-total {
+    margin-top: 1.5rem;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, #f39c12, #e74c3c);
+    border-radius: 50px;
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+}
+
+.temps-total::before {
+    content: '⌛';
+    font-size: 1.2rem;
+}
+
+.temps-total span {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.25rem 1rem;
+    border-radius: 30px;
+    font-size: 1.2rem;
+}
+
+
+/* Animation d'apparition */
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.temps-card {
+    animation: slideUp 0.3s ease-out forwards;
+}
+
+.temps-card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.temps-card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.temps-card:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+
+/* Responsive */
+
+@media (max-width: 768px) {
+    .temps-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    .temps-card {
+        padding: 1rem;
+    }
+    .temps-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    .temps-row .react-time-picker {
+        width: 100% !important;
+    }
+}

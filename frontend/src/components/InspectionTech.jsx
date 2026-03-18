@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getInspections, envoyerInspectionTech } from './apiservices/api';
 import '../styles/InspectionTech.css';
+import { FaBatteryFull, FaTrafficLight, FaTools, FaBolt } from 'react-icons/fa';
+
 import FichePapiMensuelle from './FichePapiMensuelle';
 import FichePisteMensuelle from './FichePisteMensuelle';
 import FicheDGSMensuelle from './FicheDGSMensuelle';
@@ -24,11 +26,14 @@ import FicheAnnCable from './FicheAnnCable';
 import FicheAnnFeuxSeq from './FicheAnnFeuxSeq';
 import FicheQuinquennalePapi from './FicheQuinquennalePapi';
 import FicheCorrective from './FicheCorrective';
+import FicheNoBreakForm from './FicheNoBreakForm';
+
+
 export default function InspectionTech({ activeMenu, activeSubMenu }) {
   const [periode, setPeriode] = useState('JOURNALIERE');
   const [typeFiche, setTypeFiche] = useState('');
   const [inspectionsData, setInspectionsData] = useState([]); // tableau de fiches complètes
-
+const [showNoBreak, setShowNoBreak] = useState(false);
   const typesFiches = [
     { value: 'PAPI', label: 'Papi' },
     { value: 'PISTE', label: 'Piste' },
@@ -236,12 +241,40 @@ export default function InspectionTech({ activeMenu, activeSubMenu }) {
 )}
       {/* INSPECTIONS */}
 
-      {activeMenu === 'inspection' && (
-        <>
-          <h3>Gestion des inspections</h3>
-          <p>Interface des inspections.</p>
-        </>
-      )}
+     {activeMenu === 'inspection' && (
+  <>
+    <h3>Gestion des inspections</h3>
+    {showNoBreak ? (
+      <FicheNoBreakForm />
+    ):(
+<div className="cards-container">
+  <div className="card"
+    onClick={() => setShowNoBreak(true)}
+    style={{ cursor: "pointer" }}
+    >
+    <FaBatteryFull size={40} color="#f39c12" />
+    <h4>Inspection des groupes NOBREAK</h4>
+  </div>
+
+  <div className="card">
+    <FaTrafficLight size={40} color="#27ae60" />
+    <h4>Inspection de balisage</h4>
+  </div>
+
+  <div className="card">
+    <FaTools size={40} color="#3498db" />
+    <h4>Inspection Olymin</h4>
+  </div>
+
+  <div className="card">
+    <FaBolt size={40} color="#e74c3c" />
+    <h4>Inspection 2250 KVA</h4>
+  </div>
+</div>
+    )}
+  </>
+)}
+     
     </div>
   );
 }

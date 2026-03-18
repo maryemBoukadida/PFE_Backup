@@ -46,6 +46,7 @@ const FICHE_ANN_CABLE_API = "http://localhost:5000/api/fiche-ann-cable";
 const FICHE_ANN_FEUX_SEQ_API = "http://localhost:5000/api/fiche-ann-feux-sequentiels";
 const FICHE_QUI_PAPI_API = "http://localhost:5000/api/fiche-qui-papi";
 const FICHE_CORRECTIVE_API = "http://localhost:5000/api/fiche-corrective";
+const FICHE_NOBREAK_API = "http://localhost:5000/api/fiche-nobreak";
 
   // ===================== CHARGER NOTIFICATIONS =====================
   const fetchNotifications = async () => {
@@ -113,6 +114,9 @@ const FICHE_CORRECTIVE_API = "http://localhost:5000/api/fiche-corrective";
        const res21 = await fetch(
         'http://localhost:5000/api/fiche-corrective/notifications'
       );
+       const res22 = await fetch(
+        'http://localhost:5000/api/fiche-nobreak/notifications'
+      );
 
       const data1 = res1.ok ? await res1.json() : [];
       const data2 = res2.ok ? await res2.json() : [];
@@ -135,6 +139,7 @@ const FICHE_CORRECTIVE_API = "http://localhost:5000/api/fiche-corrective";
       const data19 = res19.ok ? await res19.json() : [];
       const data20 = res20.ok ? await res20.json() : [];
       const data21 = res21.ok ? await res21.json() : [];
+      const data22 = res22.ok ? await res22.json() : [];
       setNotifications([
         ...(Array.isArray(data1) ? data1 : []),
         ...(Array.isArray(data2) ? data2 : []),
@@ -157,6 +162,7 @@ const FICHE_CORRECTIVE_API = "http://localhost:5000/api/fiche-corrective";
         ...(Array.isArray(data19) ? data19 : []),
         ...(Array.isArray(data20) ? data20 : []),
         ...(Array.isArray(data21) ? data21 : []),
+        ...(Array.isArray(data22) ? data22 : []),
       ]);
     } catch (err) {
       console.error('Erreur notifications :', err);
@@ -456,26 +462,7 @@ const voirFicheAnnObs = async (ficheId, notifId) => {
     console.error('Erreur voir fiche AnnObs :', err);
   }
 };
-/*
-const voirFicheAnnCable = async (ficheId, notifId) => {
-  try {
-    // Récupérer la fiche CABLE par ID
-    const res = await fetch(`${FICHE_ANN_CABLE_API}/${ficheId}`);
 
-    if (!res.ok) {
-      console.error('Erreur récupération fiche CABLE');
-      return;
-    }
-
-    const data = await res.json();
-
-    // Stocker la fiche + l'ID de notification pour marquer comme lu
-    setSelectedFiche({ ...data, notifId });
-  } catch (err) {
-    console.error('Erreur voir fiche CABLE :', err);
-  }
-};
-*/
 const voirFicheAnnCable = async (ficheId, notifId) => {
   try {
     const res = await fetch(`${FICHE_ANN_CABLE_API}/${ficheId}`);
@@ -561,6 +548,25 @@ const voirFicheCorrective = async (ficheId, notifId) => {
     console.error("Erreur voir fiche corrective :", err);
   }
 };
+const voirFicheNoBreak = async (ficheId, notifId) => {
+  try {
+    const res = await fetch(`http://localhost:5000/api/fiche-nobreak/${ficheId}`);
+
+    if (!res.ok) {
+      console.error("Erreur récupération fiche NoBreak");
+      return;
+    }
+
+    const data = await res.json();
+
+    // 🔥 stocker fiche + notifId
+    setSelectedFiche({ ...data, notifId });
+
+  } catch (err) {
+    console.error("Erreur voir fiche NoBreak :", err);
+  }
+};
+
 
   //marquer fiche comme lu
   const marquerNotifCommeLue = async (notifId) => {
@@ -669,7 +675,11 @@ const voirFicheCorrective = async (ficheId, notifId) => {
        } else if (selectedFiche?.ficheCorrective) { 
         url = 'http://localhost:5000/api/fiche-corrective/valider';
         body = { ficheId: id };
-        selectedFicheType = 'fiche_corrective';      
+        selectedFicheType = 'fiche_corrective';  
+        } else if (selectedFiche?.controles) { 
+        url = 'http://localhost:5000/api/fiche-nobreak/valider';
+        body = { ficheId: id };
+        selectedFicheType = 'fiche_nobreak';      
       } else {
         url = 'http://localhost:5000/api/inspections/valider';
         body = { inspectionId: id };
@@ -1770,7 +1780,9 @@ const voirFicheCorrective = async (ficheId, notifId) => {
                      } else if (n.type?.toLowerCase() === 'fiche_quinquennale_papi') {
                     voirFicheQuiPapi(ficheId, n._id); 
                       } else if (n.type?.toLowerCase() === 'fiche_corrective') {
-                    voirFicheCorrective(ficheId, n._id);  
+                    voirFicheCorrective(ficheId, n._id);
+                     } else if (n.type?.toLowerCase() === 'fiche_nobreak') {
+                    voirFicheNoBreak(ficheId, n._id);  
                   } else {
                     voirFiche(ficheId);
                   }
@@ -3877,7 +3889,125 @@ const voirFicheCorrective = async (ficheId, notifId) => {
       </div>
     ))}
   </>
+// fiche nobreak 
 
+  ):selectedFiche?.controles ? (
+    <>
+    <h3>Fiche No-Break</h3>
+
+    {/* ================= INFOS GENERALES ================= */}
+    <p>
+      📅 Date :{" "}
+      {selectedFiche.date
+        ? new Date(selectedFiche.date).toLocaleDateString()
+        : ""}
+    </p>
+    <p>📌 Désignation : {selectedFiche.designation}</p>
+    <p>📍 Lieu : {selectedFiche.lieuInstallation}</p>
+
+    {/* ================= TABLEAU CONTROLES ================= */}
+    <h4>Contrôles</h4>
+
+    <table
+      style={{
+        borderCollapse: "collapse",
+        width: "100%",
+        marginTop: "10px",
+      }}
+    >
+      <thead>
+        <tr style={{ backgroundColor: "#eee" }}>
+          <th style={th}>Spécification</th>
+          <th style={th}>Désignation</th>
+
+          <th colSpan="2" style={th}>Matin</th>
+          <th colSpan="2" style={th}>Après-midi</th>
+          <th colSpan="2" style={th}>Nuit</th>
+        </tr>
+
+        <tr style={{ backgroundColor: "#eee" }}>
+          <th style={th}></th>
+          <th style={th}></th>
+
+          <th style={th}>Normal</th>
+          <th style={th}>Anomalie</th>
+
+          <th style={th}>Normal</th>
+          <th style={th}>Anomalie</th>
+
+          <th style={th}>Normal</th>
+          <th style={th}>Anomalie</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {selectedFiche.controles.map((c, i) => (
+          <tr key={i}>
+            <td style={td}>{c.specification}</td>
+            <td style={td}>{c.designation}</td>
+
+            {/* MATIN */}
+            <td style={td}>{c.matin?.normal ? "✔" : ""}</td>
+            <td style={td}>{c.matin?.anomalie ? "❌" : ""}</td>
+
+            {/* APRES MIDI */}
+            <td style={td}>{c.apresMidi?.normal ? "✔" : ""}</td>
+            <td style={td}>{c.apresMidi?.anomalie ? "❌" : ""}</td>
+
+            {/* NUIT */}
+            <td style={td}>{c.nuit?.normal ? "✔" : ""}</td>
+            <td style={td}>{c.nuit?.anomalie ? "❌" : ""}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+
+    {/* ================= TEMPS ================= */}
+    <h4 style={{ marginTop: "20px" }}>Temps Inspection</h4>
+
+    {["matin", "apresMidi", "nuit"].map((p) => (
+      <p key={p}>
+        ⏱ {p} : {selectedFiche.tempsInspection?.[p]?.debut} →{" "}
+        {selectedFiche.tempsInspection?.[p]?.fin} (
+        {selectedFiche.tempsInspection?.[p]?.tempsAlloue})
+      </p>
+    ))}
+
+    <p>
+      🔢 Total : {selectedFiche.tempsInspection?.total}
+    </p>
+
+    {/* ================= OBSERVATIONS ================= */}
+    <h4>Observations</h4>
+    {["matin", "apresMidi", "nuit"].map((p) => (
+      <p key={p}>
+        📝 {p} : {selectedFiche.observations?.[p]}
+      </p>
+    ))}
+
+    {/* ================= TECHNICIENS ================= */}
+    <h4>Techniciens</h4>
+    {["matin", "apresMidi", "nuit"].map((p) => (
+      <p key={p}>
+        👨‍🔧 {p} : {(selectedFiche.techniciens?.[p] || []).join(", ")}
+      </p>
+    ))}
+
+    {/* ================= ACTIONS ================= */}
+    <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
+      <button onClick={() => validerFiche(selectedFiche._id, selectedFiche.notifId)}>
+        ✅ Valider
+      </button>
+
+      <button onClick={() => setSelectedFiche(null)}>
+        ❌ Fermer
+      </button>
+
+      <button onClick={() => exportPDF(selectedFiche)}>
+        📄 Exporter PDF
+      </button>
+    </div>
+  </>
 
 
 

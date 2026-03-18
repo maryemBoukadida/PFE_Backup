@@ -18,6 +18,8 @@ connectDB();
 // Route test
 app.get("/test", (req, res) => res.json({ message: "API fonctionne ✅" }));
 
+// Serve les fichiers statiques (uploads)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 //authentification 
 app.use("/", require("./routes/authRoutes"));
@@ -135,6 +137,17 @@ app.use("/api/fiche-qui-papi", ficheQuiPapiRoutes);
 // fice coorrective
 const ficheCorrectiveRoutes = require("./routes/ficheCorrectiveRoutes");
 app.use("/api/fiche-corrective", ficheCorrectiveRoutes);
+// dti 
+const dtiRoutes = require('./routes/dtiRoutes');
+app.use('/api/dti', dtiRoutes);
+
+// Notifications technicien
+const techNotificationRoutes = require('./routes/techNotificationRoutes');
+app.use('/api/notifications-tech', techNotificationRoutes);
+// fiche nobreak 
+const ficheNoBreakRoutes = require("./routes/ficheNoBreakRoutes");
+app.use("/api/fiche-nobreak", ficheNoBreakRoutes);
+
 // Catch-all 404
 
 app.use((req, res) => res.status(404).send("Route introuvable ❌"));

@@ -6,7 +6,8 @@ import InspectionTech from "./components/InspectionTech";
 import Layout from "./components/Layout";
 import Historiques from "./components/Historiques";
 import HistoriqueActions from "./components/HistoriqueActions";
-
+import FicheCorrective from "./components/FicheCorrective";
+//import TechNotifications from "./TechNotifications";
 function App() {
   return (
     <Router>
@@ -16,11 +17,15 @@ function App() {
               <Route path="/historiques" element={<Historiques />} />
               <Route path="/historique-actions" element={<HistoriqueActions />} />
 
-        <Route path="/technicien" element={
-          <Layout><InspectionTech />
-          </Layout>
+        <Route 
+        path="/technicien" 
+        element={
+         <Layout technicien={localStorage.getItem("technicien")} >
+      <InspectionTech />
+    </Layout>
         }
         />
+        <Route path="/fiche-corrective" element={<FicheCorrective />} />
         
       </Routes>
     </Router>

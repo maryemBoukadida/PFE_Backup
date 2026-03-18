@@ -29,6 +29,7 @@ const FICHE_ANN_CABLE_API = "http://localhost:5000/api/fiche-ann-cable";
 const FICHE_ANN_FEUX_SEQ_API = "http://localhost:5000/api/fiche-ann-feux-sequentiels";
 const FICHE_QUI_PAPI_API = "http://localhost:5000/api/fiche-qui-papi";
 const FICHE_CORRECTIVE_API = "http://localhost:5000/api/fiche-corrective";
+const FICHE_NOBREAK_API = "http://localhost:5000/api/fiche-nobreak";
 
 // 🔹 Récupérer tous les équipements
 export const getEquipements = async() => {
@@ -832,4 +833,29 @@ export const enregistrerFicheCorrective = async(fiche) => {
 export const envoyerFicheCorrective = async(id) => {
     const res = await axios.put(`${FICHE_CORRECTIVE_API}/envoyer/${id}`);
     return res.data;
+};
+//ffiche no break 
+// GET ALL
+export const getFichesNoBreak = async() => {
+    const res = await fetch(FICHE_NOBREAK_API);
+    if (!res.ok) throw new Error("Erreur récupération fiches No-Break");
+    return res.json();
+};
+
+// ENREGISTRER fiche
+export const enregistrerFicheNoBreak = async(fiche) => {
+    const res = await fetch(FICHE_NOBREAK_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fiche)
+    });
+    if (!res.ok) throw new Error("Erreur enregistrement fiche No-Break");
+    return res.json();
+};
+
+// ENVOYER fiche
+export const envoyerFicheNoBreak = async(id) => {
+    const res = await fetch(`${FICHE_NOBREAK_API}/envoyer/${id}`, { method: "PUT" });
+    if (!res.ok) throw new Error("Erreur envoi fiche No-Break");
+    return res.json();
 };

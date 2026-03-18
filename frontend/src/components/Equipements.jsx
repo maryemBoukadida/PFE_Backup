@@ -7,6 +7,7 @@ import Dashboard from './Dashboard.jsx';
 import Inventaire from './Inventaire.jsx';
 import Notifications from './Notifications.jsx';
 import HistoriqueActions from './HistoriqueActions';
+import DTI from './DTI';
 import { FaBell } from 'react-icons/fa';
 import {
   getEquipements,
@@ -273,6 +274,12 @@ const handleNotificationClick = async (notif) => {
           >
             Historiques Actions
           </div>
+           <div
+      className={`submenu-item ${activeMenu === 'dti' ? 'active' : ''}`}
+      onClick={() => setActiveMenu('dti')}
+    >
+      📌 DTI
+    </div>
         </div>
       </div>
 
@@ -345,6 +352,8 @@ const handleNotificationClick = async (notif) => {
             />
           ) : activeMenu === 'historique' ? (
             <HistoriqueActions />
+           ) : activeMenu === 'dti' ? (
+            <DTI />  
           ) : (
             <>
               {/* Toolbar */}

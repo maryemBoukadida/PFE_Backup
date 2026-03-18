@@ -1,0 +1,84 @@
+/* DTI.css */
+
+
+/* Conteneur principal des cards */
+
+.cards-container {
+    display: flex;
+    /* active le mode flex */
+    gap: 20px;
+    /* espace entre les cards */
+    flex-wrap: wrap;
+    /* permet le retour à la ligne si trop de cards */
+    margin-bottom: 20px;
+    /* espace sous les cards */
+}
+
+
+/* Style général des cards */
+
+.card {
+    flex: 1 1 250px;
+    /* largeur flexible, minimum 250px */
+    background-color: #f9f9f9;
+    /* couleur de fond douce */
+    padding: 20px;
+    /* espace intérieur */
+    border-radius: 12px;
+    /* coins arrondis */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* ombre légère */
+    text-align: center;
+    transition: transform 0.2s;
+    color: #333;
+    /* ✅ texte sombre pour bien voir */
+}
+
+.card p {
+    color: #333;
+    /* couleur sombre pour tous les paragraphes */
+    font-weight: bold;
+    /* si tu veux plus de visibilité */
+}
+
+
+/* Effet au survol */
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+
+/* Boutons dans les cards */
+
+.card button {
+    margin: 5px;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.card button:hover {
+    background-color: #0056b3;
+}
+
+
+/* Conteneur table résultat */
+
+.table-container {
+    margin-top: 20px;
+}
+
+
+/* Chaque item DTI dans le tableau */
+
+.dti-item {
+    padding: 10px;
+    border-bottom: 1px solid #aa2929;
+}
