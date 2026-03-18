@@ -596,3 +596,220 @@
     border-radius: 50%;
     margin-left: 5px;
 }
+
+
+/*icone de notifucations*/
+
+
+/* Navbar moderne */
+
+
+/* Navbar moderne */
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+
+/* Conteneur pour les éléments de droite */
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    /* Espace entre les éléments de droite */
+    margin-left: auto;
+    /* Pousse les éléments vers la droite */
+}
+
+
+/* Icône notification élégante */
+
+.notif-icon {
+    position: relative;
+    cursor: pointer;
+    font-size: 28px;
+    color: #bdd73c;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 12px 15px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.notif-icon:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 8px 25px rgba(103, 126, 234, 0.4);
+}
+
+
+/* Badge de notification raffiné */
+
+.notif-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: linear-gradient(135deg, #ff6b6b, #ff4757);
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    min-width: 22px;
+    height: 22px;
+    border-radius: 12px;
+    padding: 0 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+    box-shadow: 0 4px 10px rgba(255, 71, 87, 0.4);
+    animation: pulse 2s infinite;
+}
+
+
+/* Animation de pulsation subtile */
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 4px 10px rgba(255, 71, 87, 0.4);
+    }
+    50% {
+        box-shadow: 0 4px 20px rgba(255, 71, 87, 0.8);
+    }
+    100% {
+        box-shadow: 0 4px 10px rgba(255, 71, 87, 0.4);
+    }
+}
+
+
+/* Version avec plus de notifications */
+
+.notif-badge.multiple {
+    background: linear-gradient(135deg, #ff9f43, #ff6b6b);
+    font-size: 11px;
+}
+
+
+/* Animation d'entrée */
+
+.notif-icon {
+    animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+
+/* Dropdown des notifications */
+
+.notification-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.notif-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 350px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    margin-top: 15px;
+    animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.notif-dropdown-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #eef2f6;
+}
+
+.notif-dropdown-header h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.notif-dropdown-content {
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+.notif-item {
+    padding: 12px 20px;
+    border-bottom: 1px solid #f0f3f7;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s;
+}
+
+.notif-item:hover {
+    background: #f8fafd;
+}
+
+.notif-item.unread {
+    background: #ebf5ff;
+}
+
+.notif-item.unread:hover {
+    background: #e3f0ff;
+}
+
+.notif-message {
+    font-size: 14px;
+    color: #2c3e50;
+    margin-bottom: 5px;
+    padding-right: 15px;
+}
+
+.notif-time {
+    font-size: 11px;
+    color: #95a5a6;
+}
+
+.notif-dot {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    background: #3498db;
+    border-radius: 50%;
+}
+
+.notif-empty {
+    padding: 30px;
+    text-align: center;
+    color: #95a5a6;
+    font-size: 14px;
+}

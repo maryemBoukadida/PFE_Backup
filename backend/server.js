@@ -132,7 +132,9 @@ app.use("/api/fiche-ann-feux-sequentiels", ficheAnnFeuxSeqRoutes);
 const ficheQuiPapiRoutes = require("./routes/ficheQuiPapiRoutes");
 app.use("/api/fiche-qui-papi", ficheQuiPapiRoutes);
 
-
+// fice coorrective
+const ficheCorrectiveRoutes = require("./routes/ficheCorrectiveRoutes");
+app.use("/api/fiche-corrective", ficheCorrectiveRoutes);
 // Catch-all 404
 
 app.use((req, res) => res.status(404).send("Route introuvable ❌"));

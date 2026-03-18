@@ -22,17 +22,12 @@ import FicheEffar from './FicheEffar';
 import FicheAnnObs from './FicheAnnObs';
 import FicheAnnCable from './FicheAnnCable';
 import FicheAnnFeuxSeq from './FicheAnnFeuxSeq';
-import FicheQuinquennalePapi from './FicheQuinquennalePapi'
-export default function InspectionTech() {
+import FicheQuinquennalePapi from './FicheQuinquennalePapi';
+import FicheCorrective from './FicheCorrective';
+export default function InspectionTech({ activeMenu, activeSubMenu }) {
   const [periode, setPeriode] = useState('JOURNALIERE');
   const [typeFiche, setTypeFiche] = useState('');
   const [inspectionsData, setInspectionsData] = useState([]); // tableau de fiches complètes
-  const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 5;
-
-  const [ficheEnvoyee, setFicheEnvoyee] = useState(false);
-  const [technicienType, setTechnicienType] = useState('matin');
-  const currentHour = 22;
 
   const typesFiches = [
     { value: 'PAPI', label: 'Papi' },
@@ -45,6 +40,7 @@ export default function InspectionTech() {
     { value: 'REGULATEURES', label: 'Approche des Regulateures' },
     { value: 'POSTES', label: 'Postes' },
     { value: 'AIDES RADIOS', label: 'Aides Radios' },
+    { value: 'APPROCHE COTE 09', label: 'Approche cote 09' },
   ];
   const typesFichesSemestrielles = [
     { value: 'FEUX ENCASTRES', label: 'Feux Encastres' },
@@ -69,7 +65,7 @@ export default function InspectionTech() {
     { value: 'FEUX SEQUENTIELLES', label: 'Feux Sequentielles' },
   ];
   const typesFichesQuinquennale = [{ value: 'PAPI', label: 'PaPi' }];
-
+  const [interventionTab, setInterventionTab] = useState('preventif');
   // 🔹 Récupération des inspections depuis l’API
   useEffect(() => {
     const fetchData = async () => {
@@ -102,111 +98,15 @@ export default function InspectionTech() {
       ? allRows.filter((item) => item.type === typeFiche)
       : allRows;
 
-  const indexOfLastRow = currentPage * rowsPerPage;
-  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-  const currentRows = filteredRows.slice(indexOfFirstRow, indexOfLastRow);
-  const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
-
-  const hasMatinHS = allRows.some((item) => item.matin?.etat === 'HS');
-  const hasNuitHS = allRows.some((item) => item.nuit?.etat === 'HS');
-
-  // 🔹 Vérrouillage par heure et envoi
-  const isLocked = (cellType, periodeJour) => {
-    if (ficheEnvoyee) return true;
-    if (currentHour < 20) return periodeJour === 'nuit';
-    return periodeJour === 'matin';
-  };
-
-  // 🔹 Enregistrer / Envoyer fiche
-  const handleEnvoyer = async () => {
-    try {
-      const ficheAEnvoyer = {
-        ...inspectionsData[0],
-        matricule: inspectionsData[0].matricule || 'A002',
-        date: inspectionsData[0].date || new Date(),
-        sauvegardeSeule: false,
-      };
-      const data = await envoyerInspectionTech(ficheAEnvoyer);
-      alert(data.message || 'Fiche envoyée !');
-      setFicheEnvoyee(true);
-    } catch (err) {
-      console.error('Erreur serveur :', err);
-      alert(err.message || 'Erreur serveur');
-    }
-  };
-
-  const handleEnregistrer = async () => {
-    try {
-      const ficheAEnvoyer = {
-        ...inspectionsData[0],
-        matricule: inspectionsData[0].matricule || 'A002',
-        date: inspectionsData[0].date || new Date(),
-        sauvegardeSeule: true,
-      };
-      await envoyerInspectionTech(ficheAEnvoyer);
-      alert('Travail enregistré !');
-    } catch (err) {
-      console.error('Erreur serveur :', err);
-      alert(err.message || 'Erreur serveur');
-    }
-  };
-
   // 🔹 Rend le composant principal
   return (
     <div className="inspection-container">
-      {/* 🔹 Affichage des fiches mensuelles séparées */}
-      {periode === 'MENSUELLE' && typeFiche === 'PAPI' ? (
-        <FichePapiMensuelle />
-      ) : periode === 'MENSUELLE' && typeFiche === 'PISTE' ? (
-        <FichePisteMensuelle />
-      ) : periode === 'MENSUELLE' && typeFiche === 'LVP' ? (
-        <FicheLVPMensuelle />
-      ) : periode === 'MENSUELLE' && typeFiche === 'DGS' ? (
-        <FicheDGSMensuelle />
-      ) : periode === 'MENSUELLE' && typeFiche === 'REGULATEURES' ? (
-        <FicheRegulateuresMensuelle />
-      ) : periode === 'MENSUELLE' && typeFiche === 'POSTES' ? (
-        <FichePostesMensuelle />
-      ) : periode === 'MENSUELLE' && typeFiche === 'AIDES RADIOS' ? (
-        <FicheAidesRadiosMensuelle />
-      ) : periode === 'SEMESTRIELLE' && typeFiche === 'FEUX ENCASTRES' ? (
-        <FicheFeuxEncastresSemesterielle />
-      ) : periode === 'SEMESTRIELLE' && typeFiche === 'REGULATEURES' ? (
-        <FicheSemesRegulateures />
-      ) : periode === 'SEMESTRIELLE' && typeFiche === 'POSTES' ? (
-        <FicheSemesPostes />
-      ) : periode === 'SEMESTRIELLE' && typeFiche === 'DGS' ? (
-        <FicheSemesDgs />
-      ) : periode === 'MENSUELLE' && typeFiche === 'FEUX DOBSTACLES' ? (
-        <FicheFeuxObstaclesMensuelle />
-      ) : periode === 'ANNUELLE' &&
-        typeFiche === 'PANNEAUX DES INDICTAUERE SUR VOIE' ? (
-        <FicheVoieAnnuelle />
-      ) : periode === 'ANNUELLE' && typeFiche === 'TGBT' ? (
-        <FicheTGBTAnnuelle />
-      ) : periode === 'ANNUELLE' && typeFiche === 'PAPI ET MANCHE AVANT' ? (
-        <FicheAnnPaMa />
-      ) : periode === 'ANNUELLE' && typeFiche === 'EFFAROUCHEUR' ? (
-        <FicheEffar /> // 🔹 Utilise le nouveau composant
-      ) : periode === 'ANNUELLE' && typeFiche === 'FEUX HORS SQL' ? (
-        <FicheFeuxHorsSql />
-      ) : periode === 'ANNUELLE' && typeFiche === 'INFRASTRUCTURE' ? (
-        <FicheAnnInfrastructure />
-      ) : periode === 'ANNUELLE' && typeFiche === 'FEUX OBSTACLES' ? (
-        // 🔹 Utilisation du nouveau composant pour FEUX OBSTACLES annuelles
-        <FicheAnnObs />
-      ) : periode === 'ANNUELLE' && typeFiche === 'CABLES' ? (
-        <FicheAnnCable />
-      ) : periode === 'ANNUELLE' && typeFiche === 'FEUX SEQUENTIELLES' ? (
-        <FicheAnnFeuxSeq />
-        ) : periode === 'QUINQUENNALE' && typeFiche === 'PAPI' ? (
-        <FicheQuinquennalePapi />
-      ) : (
-        // 🔹 Interface journalière / hebdo / annuelle
-        <>
-          <h2>Fiche inspection journalière balisage</h2>
+      {/* MAINTENANCE PREVENTIVE */}
 
-          {/* 🔹 Filtres */}
+      {activeMenu === 'intervention' && activeSubMenu === 'preventif' && (
+        <>
+          <h3>Maintenance Préventive</h3>
+
           <div className="inspection-header">
             <select
               value={periode}
@@ -235,7 +135,6 @@ export default function InspectionTech() {
               </select>
             )}
 
-            {/* 🔹 Sélecteur pour SEMESTRIELLE */}
             {periode === 'SEMESTRIELLE' && (
               <select
                 value={typeFiche}
@@ -278,202 +177,69 @@ export default function InspectionTech() {
             )}
           </div>
 
-          {/* 🔹 Tableau */}
-          <table className="inspection-table">
-            <thead>
-              <tr>
-                <th>Zone</th>
-                <th>Élément</th>
-                <th>État Matin</th>
-                {hasMatinHS && <th>Nbr NF</th>}
-                <th>Observation</th>
-                <th>Intervention</th>
-                <th>État Nuit</th>
-                {hasNuitHS && <th>Nbr NF</th>}
-                <th>Observation</th>
-                <th>Intervention</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentRows.map((item) => {
-                const index = item.inspIndex;
-                const i = item.itemIndex;
-                return (
-                  <tr key={`${index}-${i}`}>
-                    <td>{item.zone}</td>
-                    <td>{item.element}</td>
+          {periode === 'MENSUELLE' && typeFiche === 'PAPI' ? (
+            <FichePapiMensuelle />
+          ) : periode === 'MENSUELLE' && typeFiche === 'PISTE' ? (
+            <FichePisteMensuelle />
+          ) : periode === 'MENSUELLE' && typeFiche === 'LVP' ? (
+            <FicheLVPMensuelle />
+          ) : periode === 'MENSUELLE' && typeFiche === 'DGS' ? (
+            <FicheDGSMensuelle />
+          ) : periode === 'MENSUELLE' && typeFiche === 'REGULATEURES' ? (
+            <FicheRegulateuresMensuelle />
+          ) : periode === 'MENSUELLE' && typeFiche === 'POSTES' ? (
+            <FichePostesMensuelle />
+          ) : periode === 'MENSUELLE' && typeFiche === 'AIDES RADIOS' ? (
+            <FicheAidesRadiosMensuelle />
+          ) : periode === 'SEMESTRIELLE' && typeFiche === 'FEUX ENCASTRES' ? (
+            <FicheFeuxEncastresSemesterielle />
+          ) : periode === 'SEMESTRIELLE' && typeFiche === 'REGULATEURES' ? (
+            <FicheSemesRegulateures />
+          ) : periode === 'SEMESTRIELLE' && typeFiche === 'POSTES' ? (
+            <FicheSemesPostes />
+          ) : periode === 'SEMESTRIELLE' && typeFiche === 'DGS' ? (
+            <FicheSemesDgs />
+          ) : periode === 'MENSUELLE' && typeFiche === 'FEUX DOBSTACLES' ? (
+            <FicheFeuxObstaclesMensuelle />
+          ) : periode === 'ANNUELLE' &&
+            typeFiche === 'PANNEAUX DES INDICTAUERE SUR VOIE' ? (
+            <FicheVoieAnnuelle />
+          ) : periode === 'ANNUELLE' && typeFiche === 'TGBT' ? (
+            <FicheTGBTAnnuelle />
+          ) : periode === 'ANNUELLE' && typeFiche === 'PAPI ET MANCHE AVANT' ? (
+            <FicheAnnPaMa />
+          ) : periode === 'ANNUELLE' && typeFiche === 'EFFAROUCHEUR' ? (
+            <FicheEffar /> // 🔹 Utilise le nouveau composant
+          ) : periode === 'ANNUELLE' && typeFiche === 'FEUX HORS SQL' ? (
+            <FicheFeuxHorsSql />
+          ) : periode === 'ANNUELLE' && typeFiche === 'INFRASTRUCTURE' ? (
+            <FicheAnnInfrastructure />
+          ) : periode === 'ANNUELLE' && typeFiche === 'FEUX OBSTACLES' ? (
+            <FicheAnnObs />
+          ) : periode === 'ANNUELLE' && typeFiche === 'CABLES' ? (
+            <FicheAnnCable />
+          ) : periode === 'ANNUELLE' && typeFiche === 'FEUX SEQUENTIELLES' ? (
+            <FicheAnnFeuxSeq />
+          ) : periode === 'QUINQUENNALE' && typeFiche === 'PAPI' ? (
+            <FicheQuinquennalePapi />
+          ) : null}
+          {/** ) : ( */}
+        </>
+      )}
+      {/* MAINTENANCE CORRECTIVE */}
 
-                    {/* Matin */}
-                    <td>
-                      <select
-                        className={`etat-select ${item.matin?.etat === 'OK' ? 'etat-ok' : item.matin?.etat === 'HS' ? 'etat-hs' : ''}`}
-                        value={item.matin?.etat || ''}
-                        onChange={(e) => {
-                          const newData = [...inspectionsData];
-                          newData[index].inspections[i].matin.etat =
-                            e.target.value;
-                          if (e.target.value !== 'HS')
-                            newData[index].inspections[i].matin.nbrNF = 0;
-                          setInspectionsData(newData);
-                        }}
-                        disabled={isLocked('etat', 'matin')}
-                      >
-                        <option value="">--</option>
-                        <option value="OK">OK</option>
-                        <option value="HS">HS</option>
-                      </select>
-                    </td>
+     {activeMenu === 'intervention' && activeSubMenu === 'correctif' && (
+  <>
+    <h3>Maintenance Corrective</h3>
+    <FicheCorrective />
+  </>
+)}
+      {/* INSPECTIONS */}
 
-                    {hasMatinHS && (
-                      <td>
-                        {item.matin?.etat === 'HS' && (
-                          <input
-                            type="number"
-                            placeholder="Nbr NF"
-                            value={item.matin?.nbrNF || ''}
-                            onChange={(e) => {
-                              const newData = [...inspectionsData];
-                              newData[index].inspections[i].matin.nbrNF =
-                                e.target.value;
-                              setInspectionsData(newData);
-                            }}
-                            disabled={isLocked('nbrNF', 'matin')}
-                          />
-                        )}
-                      </td>
-                    )}
-
-                    <td>
-                      <input
-                        type="text"
-                        value={item.matin?.observation || ''}
-                        onChange={(e) => {
-                          const newData = [...inspectionsData];
-                          newData[index].inspections[i].matin.observation =
-                            e.target.value;
-                          setInspectionsData(newData);
-                        }}
-                        disabled={isLocked('observation', 'matin')}
-                      />
-                    </td>
-
-                    <td>
-                      <input
-                        type="text"
-                        value={item.matin?.intervention || ''}
-                        onChange={(e) => {
-                          const newData = [...inspectionsData];
-                          newData[index].inspections[i].matin.intervention =
-                            e.target.value;
-                          setInspectionsData(newData);
-                        }}
-                        disabled={isLocked('intervention', 'matin')}
-                      />
-                    </td>
-
-                    {/* Nuit */}
-                    <td>
-                      <select
-                        className={`etat-select ${item.nuit?.etat === 'OK' ? 'etat-ok' : item.nuit?.etat === 'HS' ? 'etat-hs' : ''}`}
-                        value={item.nuit?.etat || ''}
-                        onChange={(e) => {
-                          const newData = [...inspectionsData];
-                          newData[index].inspections[i].nuit.etat =
-                            e.target.value;
-                          if (e.target.value !== 'HS')
-                            newData[index].inspections[i].nuit.nbrNF = 0;
-                          setInspectionsData(newData);
-                        }}
-                        disabled={isLocked('etat', 'nuit')}
-                      >
-                        <option value="">--</option>
-                        <option value="OK">OK</option>
-                        <option value="HS">HS</option>
-                      </select>
-                    </td>
-
-                    {hasNuitHS && (
-                      <td>
-                        {item.nuit?.etat === 'HS' && (
-                          <input
-                            type="number"
-                            placeholder="Nbr NF"
-                            value={item.nuit?.nbrNF || ''}
-                            onChange={(e) => {
-                              const newData = [...inspectionsData];
-                              newData[index].inspections[i].nuit.nbrNF =
-                                e.target.value;
-                              setInspectionsData(newData);
-                            }}
-                            disabled={isLocked('nbrNF', 'nuit')}
-                          />
-                        )}
-                      </td>
-                    )}
-
-                    <td>
-                      <input
-                        type="text"
-                        value={item.nuit?.observation || ''}
-                        onChange={(e) => {
-                          const newData = [...inspectionsData];
-                          newData[index].inspections[i].nuit.observation =
-                            e.target.value;
-                          setInspectionsData(newData);
-                        }}
-                        disabled={isLocked('observation', 'nuit')}
-                      />
-                    </td>
-
-                    <td>
-                      <input
-                        type="text"
-                        value={item.nuit?.intervention || ''}
-                        onChange={(e) => {
-                          const newData = [...inspectionsData];
-                          newData[index].inspections[i].nuit.intervention =
-                            e.target.value;
-                          setInspectionsData(newData);
-                        }}
-                        disabled={isLocked('intervention', 'nuit')}
-                      />
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-
-          {/* 🔹 Boutons */}
-          <div className="send-container">
-            <button className="save-btn" onClick={handleEnregistrer}>
-              Enregistrer
-            </button>
-            <button className="send-btn" onClick={handleEnvoyer}>
-              Envoyer
-            </button>
-          </div>
-
-          {/* 🔹 Pagination */}
-          <div className="pagination">
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              Précédent
-            </button>
-            <span>
-              Page {currentPage} / {totalPages}
-            </span>
-            <button
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-            >
-              Suivant
-            </button>
-          </div>
+      {activeMenu === 'inspection' && (
+        <>
+          <h3>Gestion des inspections</h3>
+          <p>Interface des inspections.</p>
         </>
       )}
     </div>

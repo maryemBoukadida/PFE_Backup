@@ -1,0 +1,1125 @@
+/* ===== VARIABLES ===== */
+
+:root {
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --gray-bg: #f8f9fa;
+    --border: #dee2e6;
+    --text-dark: #212529;
+    --text-gray: #6c757d;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+
+/* ===== GLOBAL ===== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.container {
+    padding: 20px;
+    background: #f5f7fa;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    min-height: 100vh;
+}
+
+.title {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 20px;
+}
+
+
+/* ===== FORM ===== */
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+
+/* ===== CARD BASE ===== */
+
+.card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 15px 18px;
+    box-shadow: var(--shadow);
+    width: 100%;
+}
+
+
+/* ===== ROW 2 CARDS ===== */
+
+.row-2-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.row-2-cards .card {
+    width: 100% !important;
+    margin: 0;
+    padding: 20px 25px;
+    /* Ajouter les mêmes propriétés que full-width */
+    grid-column: 1 / -1;
+    max-width: 100%;
+}
+
+
+/* Supprimer les bordures spéciales */
+
+.row-2-cards .card:first-child,
+.row-2-cards .card:last-child {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+}
+
+
+/* ===== GRID POUR LES CHAMPS ===== */
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.grid-4 {
+    display: grid;
+    grid-template-columns: 1.5fr 2.5fr 1.5fr 2fr;
+    gap: 12px;
+    align-items: start;
+}
+
+
+/* ===== LABELS ===== */
+
+label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-gray);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+}
+
+
+/* ===== INPUTS ===== */
+
+.input {
+    width: 100%;
+    padding: 12px 15px;
+    /* Plus grand pour meilleure lisibilité */
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 14px;
+    color: var(--text-dark);
+    background: white;
+    transition: all 0.2s;
+}
+
+.input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.input::placeholder {
+    color: #adb5bd;
+    font-size: 12px;
+}
+
+
+/* ===== DATEPICKER ===== */
+
+.react-datepicker-wrapper {
+    width: 100%;
+}
+
+
+/* ===== TITRES SECTIONS ===== */
+
+.card h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+}
+
+
+/* ===== CARTES PLEINE LARGEUR ===== */
+
+
+/* Correction importante : forcer les cartes full-width à prendre toute la largeur */
+
+.full-width {
+    width: 100% !important;
+    grid-column: 1 / -1;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+
+/* S'assurer que les cartes avec full-width dans le formulaire prennent toute la largeur */
+
+form .full-width {
+    width: 100%;
+    max-width: 100%;
+}
+
+
+/* ===== DIAGNOSTIC - STYLE TABLEAU ===== */
+
+.card.full-width .grid-3 {
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    border: 1px solid var(--border);
+}
+
+
+/* Style entête du tableau diagnostic */
+
+.card.full-width .grid-3:first-of-type {
+    background: #e9ecef;
+    font-weight: 500;
+    margin-top: 0;
+}
+
+
+/* ===== DEPANNAGE ===== */
+
+.card.full-width .input {
+    margin-bottom: 8px;
+}
+
+
+/* ===== CARTE TECHNICIEN/SIGNATURE ===== */
+
+.card.grid-4.full-width {
+    width: 100% !important;
+    display: grid;
+    grid-template-columns: 1.5fr 2.5fr 1.5fr 2fr;
+    gap: 12px;
+    align-items: start;
+}
+
+
+/* Style pour la zone de signature */
+
+.card.grid-4.full-width div:last-child {
+    width: 100%;
+}
+
+
+/* ===== BOUTON AJOUT ===== */
+
+.add-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: var(--primary);
+    color: white;
+    border-radius: 4px;
+    font-size: 18px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.2s;
+}
+
+.add-btn:hover {
+    background: var(--primary-hover);
+}
+
+
+/* ===== SIGNATURE ===== */
+
+.signature {
+    width: 100%;
+    height: 80px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: white;
+}
+
+.signature-buttons {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.signature-buttons button {
+    padding: 4px 10px;
+    font-size: 11px;
+    background: #e9ecef;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    cursor: pointer;
+    color: var(--text-dark);
+    font-weight: 500;
+}
+
+.signature-buttons button:hover {
+    background: #dee2e6;
+}
+
+
+/* ===== TEXTAREA ===== */
+
+textarea.input {
+    min-height: 80px;
+    resize: vertical;
+}
+
+
+/* ===== BOUTONS ACTIONS ===== */
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border);
+}
+
+.actions button {
+    padding: 8px 24px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+}
+
+.actions button:first-child {
+    background: white;
+    border: 1px solid var(--border);
+    color: var(--text-dark);
+}
+
+.actions button:first-child:hover {
+    background: #e9ecef;
+}
+
+.actions button:last-child {
+    background: var(--primary);
+    color: white;
+}
+
+.actions button:last-child:hover {
+    background: var(--primary-hover);
+}
+
+
+/* ===== RESPONSIVE ===== */
+
+@media (max-width: 1200px) {
+    .grid-4,
+    .card.grid-4.full-width {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+}
+
+@media (max-width: 900px) {
+    .row-2-cards {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    .grid-2,
+    .grid-3 {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    .grid-4,
+    .card.grid-4.full-width {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+}
+
+@media (max-width: 640px) {
+    .container {
+        padding: 10px;
+    }
+    .card {
+        padding: 12px;
+    }
+}
+
+
+/*selectionn heuree*/
+
+
+/* ===== TIME PICKER STYLES - CORRECTION COMPLÈTE ===== */
+
+
+/* Style du conteneur principal */
+
+.react-time-picker {
+    width: 100%;
+    display: inline-flex;
+    position: relative;
+    height: 48px;
+}
+
+
+/* Style du wrapper - corrigé pour afficher correctement l'heure */
+
+.react-time-picker__wrapper {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: white;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s;
+    min-height: 48px;
+}
+
+.react-time-picker__wrapper:focus-within {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+
+/* Style du champ d'entrée - CORRECTION POUR AFFICHER LES CHIFFRES */
+
+.react-time-picker__inputGroup {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+}
+
+.react-time-picker__inputGroup__input {
+    border: none;
+    outline: none;
+    font-size: 20px !important;
+    /* Forcer la taille */
+    font-weight: 600;
+    color: var(--text-dark);
+    background: transparent;
+    padding: 4px 2px;
+    text-align: center;
+    min-width: 30px;
+    width: auto;
+    display: inline-block;
+}
+
+
+/* CORRECTION IMPORTANTE : Forcer l'affichage des chiffres */
+
+.react-time-picker__inputGroup__input[value] {
+    color: var(--text-dark);
+    opacity: 1;
+}
+
+
+/* Style pour le séparateur (:) */
+
+.react-time-picker__inputGroup__divider {
+    color: var(--text-gray);
+    font-weight: 600;
+    font-size: 22px;
+    margin: 0 2px;
+}
+
+
+/* Style des boutons */
+
+.react-time-picker__button {
+    border: none;
+    background: transparent;
+    padding: 6px 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #10b981;
+    /* Vert pour l'icône comme demandé */
+    transition: color 0.2s;
+}
+
+.react-time-picker__button:hover {
+    color: #059669;
+    /* Vert plus foncé au hover */
+}
+
+.react-time-picker__button svg {
+    width: 22px;
+    height: 22px;
+    stroke: currentColor;
+    stroke-width: 2;
+}
+
+
+/* Style pour l'icône d'horloge personnalisée en VERT */
+
+.custom-clock-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 3px solid #10b981;
+    /* Vert */
+    position: relative;
+    transition: border-color 0.2s;
+}
+
+.custom-clock-icon:hover {
+    border-color: #059669;
+    /* Vert plus foncé au hover */
+}
+
+.custom-clock-icon::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: #10b981;
+    /* Vert */
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: background 0.2s;
+}
+
+.custom-clock-icon:hover::before {
+    background: #059669;
+}
+
+.custom-clock-icon::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 50%;
+    width: 2.5px;
+    height: 8px;
+    background: #10b981;
+    /* Vert */
+    transform: translateX(-50%);
+    transition: background 0.2s;
+}
+
+.custom-clock-icon:hover::after {
+    background: #059669;
+}
+
+
+/* ===== STYLE DE L'HORLOGE POPUP - AVEC CHIFFRES ===== */
+
+.react-time-picker__clock {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    margin-top: 8px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    padding: 12px;
+    /* Réduit de 20px à 12px */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    /* Ombre plus légère */
+    width: 200px !important;
+    /* Réduit de 280px à 200px */
+    height: 200px !important;
+    /* Réduit de 280px à 200px */
+}
+
+
+/* Style du composant react-clock */
+
+.react-clock {
+    display: block;
+    background-color: white;
+    border-radius: 50%;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+
+/* Style du cadran */
+
+.react-clock__face {
+    border: 2px solid #e5e7eb;
+    background-color: white;
+}
+
+
+/* Style pour les chiffres des heures */
+
+.react-clock__hour-mark__text {
+    font-size: 12px !important;
+    /* Réduit de 16px à 12px */
+    font-weight: 600;
+    fill: var(--text-dark);
+    dominant-baseline: middle;
+    text-anchor: middle;
+}
+
+
+/* Style pour les marques des heures */
+
+.react-clock__hour-mark__body {
+    background-color: var(--text-dark);
+    width: 2px;
+    border-radius: 2px;
+}
+
+
+/* Style pour les marques des minutes */
+
+.react-clock__minute-mark__body {
+    background-color: var(--text-gray);
+    width: 1px;
+    border-radius: 1px;
+}
+
+
+/* Style pour les aiguilles */
+
+.react-clock__hour-hand__body {
+    background-color: var(--primary);
+    width: 4px;
+    border-radius: 4px;
+}
+
+.react-clock__minute-hand__body {
+    background-color: var(--text-dark);
+    width: 3px;
+    border-radius: 3px;
+}
+
+.react-clock__second-hand__body {
+    background-color: #ef4444;
+    width: 2px;
+    border-radius: 2px;
+}
+
+
+/* Centre de l'horloge */
+
+.react-clock__face::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: var(--primary);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+}
+
+
+/* Animation pour l'ouverture de l'horloge */
+
+.react-time-picker__clock {
+    animation: clockFadeIn 0.2s ease-out;
+}
+
+@keyframes clockFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* Style pour l'état désactivé */
+
+.react-time-picker--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.react-time-picker--disabled .react-time-picker__wrapper {
+    background-color: var(--gray-bg);
+}
+
+
+/* ===== CORRECTION POUR L'AFFICHAGE DES HEURES ===== */
+
+.react-time-picker__inputGroup__hour,
+.react-time-picker__inputGroup__minute {
+    font-size: 20px !important;
+    font-weight: 600 !important;
+    color: var(--text-dark) !important;
+}
+
+
+/* Forcer l'affichage des valeurs */
+
+.react-time-picker__inputGroup input {
+    color: var(--text-dark) !important;
+    font-size: 20px !important;
+    font-weight: 600 !important;
+}
+
+
+/* label temps allou*/
+
+
+/* ===== STYLE PROFESSIONNEL POUR TEMPS ALLOUÉ ===== */
+
+
+/* Style pour le conteneur du temps alloué */
+
+.temps-alloue-container {
+    position: relative;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 8px;
+    padding: 4px;
+    margin-bottom: 0;
+}
+
+
+/* Style pour le label amélioré */
+
+.temps-alloue-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #2c3e50;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    padding-left: 4px;
+}
+
+.temps-alloue-label::before {
+    content: '⏱️';
+    font-size: 16px;
+    margin-right: 4px;
+}
+
+
+/* Style pour l'input du temps alloué (lecture seule) */
+
+.input-temps-alloue {
+    width: 100%;
+    padding: 14px 18px;
+    border: 2px solid var(--primary);
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--primary);
+    background: white;
+    transition: all 0.3s ease;
+    cursor: default;
+    box-shadow: 0 4px 6px rgba(37, 99, 235, 0.1);
+    letter-spacing: 1px;
+}
+
+.input-temps-alloue:focus {
+    outline: none;
+    border-color: var(--primary-hover);
+    box-shadow: 0 6px 12px rgba(37, 99, 235, 0.15);
+}
+
+
+/* Animation quand le temps est calculé */
+
+.input-temps-alloue:not(:placeholder-shown) {
+    animation: tempsCalcule 0.5s ease-out;
+}
+
+@keyframes tempsCalcule {
+    0% {
+        transform: scale(1);
+        background-color: white;
+    }
+    50% {
+        transform: scale(1.02);
+        background-color: #e8f0fe;
+    }
+    100% {
+        transform: scale(1);
+        background-color: white;
+    }
+}
+
+
+/* Style pour l'icône d'horloge dans le temps alloué */
+
+.temps-alloue-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: var(--primary);
+    border-radius: 50%;
+    color: white;
+    font-size: 18px;
+    margin-right: 10px;
+}
+
+
+/* Style pour le badge de durée */
+
+.duree-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: var(--primary);
+    color: white;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 10px;
+    text-transform: uppercase;
+}
+
+
+/* Style pour le message quand les heures ne sont pas définies */
+
+.temps-alloue-placeholder {
+    color: #adb5bd;
+    font-style: italic;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+
+/* ===== AMÉLIORATION DE LA CARTE FINALE ===== */
+
+.card.grid-4.full-width {
+    background: linear-gradient(to bottom, white, #fafbfc);
+    border-left: 4px solid var(--primary);
+}
+
+
+/* Style pour la section temps alloué dans grid-4 */
+
+.card.grid-4.full-width> :first-child {
+    position: relative;
+}
+
+
+/* Tooltip pour expliquer le calcul */
+
+.temps-alloue-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2c3e50;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s;
+    margin-bottom: 8px;
+    z-index: 100;
+}
+
+.temps-alloue-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: #2c3e50 transparent transparent transparent;
+}
+
+.temps-alloue-container:hover .temps-alloue-tooltip {
+    opacity: 1;
+    visibility: visible;
+}
+
+
+/* Style pour l'affichage du calcul */
+
+.temps-alloue-calculation {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-gray);
+    margin-top: 4px;
+    padding: 4px 8px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.temps-alloue-calculation span {
+    font-weight: 600;
+    color: var(--primary);
+}
+
+
+/* label gravite*/
+
+
+/* ===== SÉLECTEUR DE GRAVITÉ AVEC CERCLES ===== */
+
+
+/* Conteneur principal du sélecteur */
+
+.gravite-selecteur-container {
+    position: relative;
+    width: 100%;
+}
+
+
+/* Style pour le label cliquable */
+
+.gravite-label-cliquable {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-gray);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+    cursor: pointer;
+    padding: 5px 0;
+    transition: color 0.2s;
+}
+
+.gravite-label-cliquable:hover {
+    color: var(--primary);
+}
+
+.gravite-label-cliquable::before {
+    content: '⚠️';
+    font-size: 14px;
+    margin-right: 4px;
+}
+
+
+/* Valeur sélectionnée affichée à côté du label */
+
+.gravite-valeur-selectionnee {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 8px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.gravite-valeur-selectionnee.faible {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.gravite-valeur-selectionnee.moyenne {
+    background: #fed7aa;
+    color: #92400e;
+}
+
+.gravite-valeur-selectionnee.elevee {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+
+/* Menu déroulant des options de gravité */
+
+.gravite-options-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 8px;
+    margin-top: 4px;
+    display: none;
+    animation: slideDown 0.2s ease-out;
+}
+
+.gravite-options-menu.visible {
+    display: block;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* Option de gravité individuelle */
+
+.gravite-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 2px;
+}
+
+.gravite-option:hover {
+    background: #f8f9fa;
+    transform: translateX(4px);
+}
+
+.gravite-option.selected {
+    background: #f0f2f5;
+    border-left: 3px solid;
+}
+
+
+/* Cercle coloré pour chaque option */
+
+.gravite-cercle {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: inline-block;
+    transition: transform 0.2s;
+}
+
+.gravite-option:hover .gravite-cercle {
+    transform: scale(1.15);
+}
+
+.gravite-cercle.faible {
+    background: #10b981;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+}
+
+.gravite-cercle.moyenne {
+    background: #f59e0b;
+    box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+}
+
+.gravite-cercle.elevee {
+    background: #ef4444;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+}
+
+
+/* Texte de l'option */
+
+.gravite-option-texte {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dark);
+    flex: 1;
+}
+
+.gravite-option.faible .gravite-option-texte {
+    color: #065f46;
+}
+
+.gravite-option.moyenne .gravite-option-texte {
+    color: #92400e;
+}
+
+.gravite-option.elevee .gravite-option-texte {
+    color: #991b1b;
+}
+
+
+/* Checkmark pour l'option sélectionnée */
+
+.gravite-checkmark {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.gravite-option.selected .gravite-checkmark {
+    opacity: 1;
+}
+
+
+/* Style pour l'input caché */
+
+.gravite-input-cache {
+    display: none;
+}
+
+
+/* Style pour l'affichage dans le tableau */
+
+.grid-3 .gravite-selecteur-container {
+    width: 100%;
+}
+
+
+/* Responsive */
+
+@media (max-width: 768px) {
+    .gravite-options-menu {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        max-width: 300px;
+        z-index: 10000;
+    }
+    .gravite-options-menu.visible {
+        display: block;
+    }
+}

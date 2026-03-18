@@ -5,10 +5,9 @@ import { FaSearch, FaFilter } from 'react-icons/fa';
 import logo from '../tav5.png';
 import Dashboard from './Dashboard.jsx';
 import Inventaire from './Inventaire.jsx';
-import GestionInspections from './GestionInspections.jsx';
 import Notifications from './Notifications.jsx';
-import Historiques from './Historiques.jsx';
 import HistoriqueActions from './HistoriqueActions';
+import { FaBell } from 'react-icons/fa';
 import {
   getEquipements,
   createEquipement,
@@ -33,12 +32,14 @@ export default function EquipementsComponent() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeMenu, setActiveMenu] = useState('statistiques');
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
-  const [isInspectionSubMenuOpen, setIsInspectionSubMenuOpen] = useState(false);
-  const [inspectionSubMenuActive, setInspectionSubMenuActive] =
-    useState('inspections'); // "inspections" ou "historiques"
   const [inventaireType, setInventaireType] = useState('');
   const [inventaires, setInventaires] = useState([]);
   const [notifications, setNotifications] = useState([]);
+  const [showNotifDropdown, setShowNotifDropdown] = useState(false);
+  const BACKEND_URL = 'http://localhost:5000';
+
+  // Calculer le nombre de notifications non lues
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   // 🔹 Charger tous les équipements
   const loadEquipements = async () => {
@@ -54,20 +55,95 @@ export default function EquipementsComponent() {
   useEffect(() => {
     loadEquipements();
   }, []);
+
   // Charger les notifications depuis l'API
   useEffect(() => {
     const fetchNotifs = async () => {
       try {
-        const res = await fetch('/api/inspections/notifications');
+        const res = await fetch(
+          `${BACKEND_URL}/api/fiche-corrective/notifications`
+        );
+        if (!res.ok) throw new Error('Erreur serveur notifications');
         const data = await res.json();
         setNotifications(data);
       } catch (err) {
         console.error(err);
       }
     };
+
     fetchNotifs();
+    const interval = setInterval(fetchNotifs, 15000);
+    return () => clearInterval(interval);
   }, []);
-  // 🔹 Création ou modification
+
+  // Marquer une notification comme lue
+  const markAsRead = async (notifId) => {
+    try {
+      await fetch(
+        `${BACKEND_URL}/api/fiche-corrective/notifications/${notifId}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ read: true }),
+        }
+      );
+
+      // Mettre à jour l'état local
+      setNotifications((prev) =>
+        prev.map((n) => (n._id === notifId ? { ...n, read: true } : n))
+      );
+    } catch (err) {
+      console.error('Erreur lors du marquage de la notification:', err);
+    }
+  };
+
+  // Gérer le clic sur une notification
+ // Gérer le clic sur une notification
+const handleNotificationClick = async (notif) => {
+  try {
+    // Ouvrir la fiche corrective dans un nouvel onglet si URL existe
+    if (notif.url) {
+      window.open(notif.url, '_blank');
+    }
+
+    // Marquer comme lue uniquement si elle ne l'est pas déjà
+    if (!notif.read) {
+      await fetch(`${BACKEND_URL}/api/fiche-corrective/notifications/${notif._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ read: true })
+      });
+
+      // Mettre à jour l'état local
+      setNotifications(prev => 
+        prev.map(n => n._id === notif._id ? { ...n, read: true } : n)
+      );
+    }
+
+    // Fermer le dropdown
+    setShowNotifDropdown(false);
+    
+    // Naviguer vers la page notification
+    setActiveMenu('notification');
+    
+  } catch (err) {
+    console.error('Erreur lors du traitement de la notification:', err);
+  }
+};
+
+  // Marquer toutes les notifications comme lues quand on ouvre la page notifications
+  const handleNotifIconClick = () => {
+    setActiveMenu('notification');
+    setShowNotifDropdown(false);
+
+    // Optionnel: Marquer toutes comme lues quand on ouvre la page
+    notifications.forEach((notif) => {
+      if (!notif.read) {
+        markAsRead(notif._id);
+      }
+    });
+  };
+
   const handleSubmit = async () => {
     try {
       if (editMode && currentId) {
@@ -88,7 +164,6 @@ export default function EquipementsComponent() {
     }
   };
 
-  // 🔹 Supprimer un équipement
   const handleDeleteClick = (equipement) => {
     setDeleteTarget(equipement);
     setShowDeleteModal(true);
@@ -132,13 +207,12 @@ export default function EquipementsComponent() {
     indexOfFirst,
     indexOfLast
   );
-  // Nombre total de pages
   const totalPages = Math.ceil(filteredEquipements.length / itemsPerPage);
 
   const handleViewDetails = async (code) => {
     try {
       const { fileUrl } = await getFileByCode(code);
-      window.open(fileUrl, '_blank'); // ouvre le fichier Excel dans un nouvel onglet
+      window.open(fileUrl, '_blank');
     } catch (err) {
       console.error(err);
       alert(err.message);
@@ -147,7 +221,7 @@ export default function EquipementsComponent() {
 
   return (
     <div className={`layout ${sidebarCollapsed ? 'collapsed' : ''}`}>
-      {/*sidebar*/}
+      {/* Sidebar */}
       <div className="sidebar">
         <div className="logo">
           <img src={logo} alt="TAV logo" />
@@ -183,42 +257,14 @@ export default function EquipementsComponent() {
           >
             Inventaire
           </div>
-          <div
-            className={`menu-title ${inspectionSubMenuActive ? 'active' : ''}`}
-            onClick={() => setIsInspectionSubMenuOpen(!isInspectionSubMenuOpen)}
-          >
-            Gestion Inspections
-          </div>
 
-          {isInspectionSubMenuOpen && (
-            <div className="submenu">
-              <div
-                className={`submenu-item ${inspectionSubMenuActive === 'inspections' ? 'active' : ''}`}
-                onClick={() => {
-                  setActiveMenu('inspection');
-                  setInspectionSubMenuActive('inspections');
-                }}
-              >
-                Inspections
-              </div>
-              <div
-                className={`submenu-item ${inspectionSubMenuActive === 'historiques' ? 'active' : ''}`}
-                onClick={() => {
-                  setActiveMenu('inspection');
-                  setInspectionSubMenuActive('historiques');
-                }}
-              >
-                Historiques
-              </div>
-            </div>
-          )}
           <div
             className={`submenu-item ${activeMenu === 'notification' ? 'active' : ''}`}
             onClick={() => setActiveMenu('notification')}
           >
-            Notification{' '}
-            {notifications.length > 0 && (
-              <span className="notif-badge">{notifications.length}</span>
+            Notifications
+            {unreadCount > 0 && (
+              <span className="notif-badge">{unreadCount}</span>
             )}
           </div>
           <div
@@ -229,9 +275,10 @@ export default function EquipementsComponent() {
           </div>
         </div>
       </div>
-      {/**Main */}
+
+      {/* Main */}
       <div className="main">
-        {/**navbar */}
+        {/* Navbar */}
         <div className="navbar">
           <button
             className="hamburger"
@@ -239,8 +286,45 @@ export default function EquipementsComponent() {
           >
             ☰
           </button>
+
+          {/* Notification Icon avec Dropdown */}
+          <div
+            className="notif-icon"
+            onClick={() => {
+              setActiveMenu('notification');
+              setShowNotifDropdown(false); // Ferme le dropdown si ouvert
+            }}
+          >
+            <FaBell />
+            {unreadCount > 0 && (
+              <span className="notif-badge">{unreadCount}</span>
+            )}
+          </div>
+
+          {/* Dropdown des notifications */}
+          <div className="notif-dropdown">
+            <div className="notif-dropdown-content">
+              {notifications.length > 0 ? (
+                notifications.slice(0, 5).map((notif) => (
+                  <div
+                    key={notif._id}
+                    className={`notif-item ${!notif.read ? 'unread' : ''}`}
+                    onClick={() => {
+                      handleNotificationClick(notif);
+                      setActiveMenu('notification'); // Ouvre l'interface notification
+                    }}
+                  >
+                    {!notif.read && <span className="notif-dot"></span>}
+                  </div>
+                ))
+              ) : (
+                <div className="notif-empty">Aucune notification</div>
+              )}
+            </div>
+          </div>
         </div>
 
+        {/* Content */}
         <div className="content">
           {activeMenu === 'statistiques' ? (
             <Dashboard />
@@ -249,19 +333,21 @@ export default function EquipementsComponent() {
               inventaires={inventaires}
               loadInventaires={loadInventaires}
             />
-          ) : activeMenu === 'inspection' ? (
-            inspectionSubMenuActive === 'inspections' ? (
-              <GestionInspections />
-            ) : (
-              <Historiques />
-            )
           ) : activeMenu === 'notification' ? (
-            <Notifications />
+            <Notifications
+              notifications={notifications}
+              onNotificationClick={handleNotificationClick}
+              onMarkAllAsRead={() => {
+                notifications.forEach((n) => {
+                  if (!n.read) markAsRead(n._id);
+                });
+              }}
+            />
           ) : activeMenu === 'historique' ? (
             <HistoriqueActions />
           ) : (
             <>
-              {/*tool bar */}
+              {/* Toolbar */}
               <div className="toolbar">
                 <div className="search-area">
                   <div className="search-box">
@@ -276,7 +362,6 @@ export default function EquipementsComponent() {
                   <button className="filter-btn">
                     <FaFilter />
                   </button>
-                  */
                 </div>
 
                 <button className="add-btn" onClick={() => setShowModal(true)}>
@@ -284,7 +369,7 @@ export default function EquipementsComponent() {
                 </button>
               </div>
 
-              {/* Tbale équipements */}
+              {/* Table équipements */}
               <div className="big-box">
                 <table className="equip-table">
                   <thead>
@@ -335,6 +420,7 @@ export default function EquipementsComponent() {
                   </tbody>
                 </table>
               </div>
+
               {/* Pagination */}
               {totalPages > 1 && (
                 <div className="pagination">
@@ -366,7 +452,7 @@ export default function EquipementsComponent() {
                 </div>
               )}
 
-              {/* Modal suppression */}
+              {/* Modals */}
               {showDeleteModal && (
                 <div className="modal">
                   <div className="modal-content">
@@ -384,8 +470,6 @@ export default function EquipementsComponent() {
                 </div>
               )}
 
-              {/* Formulaire création/modification */}
-              {/* Modal édition / création */}
               {showForm && (
                 <div className="modal">
                   <div className="modal-content">
@@ -433,7 +517,6 @@ export default function EquipementsComponent() {
                 </div>
               )}
 
-              {/* Formulaire d'ajout équipements */}
               <div>
                 {showModal && (
                   <div className="modal">
@@ -442,7 +525,7 @@ export default function EquipementsComponent() {
                         closeModal={(selectedType) => {
                           setShowModal(false);
                           loadEquipements();
-                          setInventaireType(selectedType); // ✅ met à jour le type pour Inventaire
+                          setInventaireType(selectedType);
                           loadInventaires();
                         }}
                       />

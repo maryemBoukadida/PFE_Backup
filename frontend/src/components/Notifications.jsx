@@ -10,6 +10,16 @@ import {
   ajouterHistoriqueAction,
 } from './apiservices/api';
 export default function Notifications() {
+const th = {
+  border: '1px solid #ccc',
+  padding: '8px',
+  textAlign: 'left'
+};
+
+const td = {
+  border: '1px solid #ccc',
+  padding: '8px'
+};
   const [notifications, setNotifications] = useState([]);
   const [selectedFiche, setSelectedFiche] = useState(null);
   const navigate = useNavigate();
@@ -35,6 +45,7 @@ const FICHE_ANN_OBS_API = "http://localhost:5000/api/fiche-ann-obs";
 const FICHE_ANN_CABLE_API = "http://localhost:5000/api/fiche-ann-cable";
 const FICHE_ANN_FEUX_SEQ_API = "http://localhost:5000/api/fiche-ann-feux-sequentiels";
 const FICHE_QUI_PAPI_API = "http://localhost:5000/api/fiche-qui-papi";
+const FICHE_CORRECTIVE_API = "http://localhost:5000/api/fiche-corrective";
 
   // ===================== CHARGER NOTIFICATIONS =====================
   const fetchNotifications = async () => {
@@ -99,6 +110,9 @@ const FICHE_QUI_PAPI_API = "http://localhost:5000/api/fiche-qui-papi";
       const res20 = await fetch(
         'http://localhost:5000/api/fiche-qui-papi/notifications'
       );
+       const res21 = await fetch(
+        'http://localhost:5000/api/fiche-corrective/notifications'
+      );
 
       const data1 = res1.ok ? await res1.json() : [];
       const data2 = res2.ok ? await res2.json() : [];
@@ -120,6 +134,7 @@ const FICHE_QUI_PAPI_API = "http://localhost:5000/api/fiche-qui-papi";
       const data18 = res18.ok ? await res18.json() : [];
       const data19 = res19.ok ? await res19.json() : [];
       const data20 = res20.ok ? await res20.json() : [];
+      const data21 = res21.ok ? await res21.json() : [];
       setNotifications([
         ...(Array.isArray(data1) ? data1 : []),
         ...(Array.isArray(data2) ? data2 : []),
@@ -141,6 +156,7 @@ const FICHE_QUI_PAPI_API = "http://localhost:5000/api/fiche-qui-papi";
         ...(Array.isArray(data18) ? data18 : []),
         ...(Array.isArray(data19) ? data19 : []),
         ...(Array.isArray(data20) ? data20 : []),
+        ...(Array.isArray(data21) ? data21 : []),
       ]);
     } catch (err) {
       console.error('Erreur notifications :', err);
@@ -526,6 +542,25 @@ const voirFicheQuiPapi = async (ficheId, notifId) => {
     console.error("Erreur voir fiche quinquennale PAPI :", err);
   }
 };
+const voirFicheCorrective = async (ficheId, notifId) => {
+  try {
+    // Récupérer la fiche corrective par ID
+    const res = await fetch(`${FICHE_CORRECTIVE_API}/${ficheId}`);
+
+    if (!res.ok) {
+      console.error("Erreur récupération fiche corrective");
+      return;
+    }
+
+    const data = await res.json();
+
+    // Stocker la fiche + l'ID de notification pour marquer comme lu
+    setSelectedFiche({ ...data, notifId });
+
+  } catch (err) {
+    console.error("Erreur voir fiche corrective :", err);
+  }
+};
 
   //marquer fiche comme lu
   const marquerNotifCommeLue = async (notifId) => {
@@ -550,7 +585,7 @@ const voirFicheQuiPapi = async (ficheId, notifId) => {
         url = 'http://localhost:5000/api/fiche_papi/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_papi';
-      } else if (selectedFiche?.zonePrincipale) {
+      } else if (selectedFiche?.zones) {
         url = 'http://localhost:5000/api/fiche-piste/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_piste';
@@ -558,23 +593,23 @@ const voirFicheQuiPapi = async (ficheId, notifId) => {
         url = 'http://localhost:5000/api/fiche-dgs/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_dgs';
-      } else if (selectedFiche?.feuxObstacles) {
+      } else if (selectedFiche?.installations) {
         url = 'http://localhost:5000/api/feux-obstacles/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_feux_obstacles';
-      } else if (selectedFiche?.lvp) {
+      } else if (selectedFiche?.lvp) {  
         url = 'http://localhost:5000/api/fiche-lvp/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_lvp';
-      } else if (selectedFiche?.regulateures) {
+      } else if (selectedFiche?.boucles) { 
         url = 'http://localhost:5000/api/fiche-regulateures/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_regulateures';
-      } else if (selectedFiche?.postes) {
+      } else if (selectedFiche?.postes) { 
         url = 'http://localhost:5000/api/fiche-postes/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_postes';
-      } else if (selectedFiche?.aidesRadios) {
+      } else if (selectedFiche?.aidesRadios) { 
         url = 'http://localhost:5000/api/fiche-aides-radios/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_aides_radios';
@@ -582,7 +617,7 @@ const voirFicheQuiPapi = async (ficheId, notifId) => {
         url = 'http://localhost:5000/api/fiche_feux_encastres/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_feux_encastres';
-      } else if (selectedFiche?.regul) {
+      } else if (selectedFiche?.boucles) { 
         url = 'http://localhost:5000/api/fiche-semes-regulateures/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_semes_regulateures';
@@ -590,47 +625,51 @@ const voirFicheQuiPapi = async (ficheId, notifId) => {
         url = 'http://localhost:5000/api/fiche-semes-postes/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_semes_postes';
-      } else if (selectedFiche?.controle) {
+      } else if (selectedFiche?.dgs) { 
         url = 'http://localhost:5000/api/fiche_semes_dgs/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_semes_dgs';
-      } else if (selectedFiche?.tgbt) {
+      } else if (selectedFiche?.postesY) {  
         url = 'http://localhost:5000/api/fiche-ann-tgbt/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_ann_tgbt';
-      } else if (selectedFiche?.voie) {
+      } else if (selectedFiche?.panneaux) { 
         url = 'http://localhost:5000/api/fiche-ann-voie/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_ann_voie';
-      } else if (selectedFiche?.piste) {
+      } else if (selectedFiche?.piste) {  
         url = 'http://localhost:5000/api/fiche-ann-infrastructure/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_ann_infrastructure';
-      } else if (selectedFiche?.hors) {
+      } else if (selectedFiche?.feuxHorsSol) { 
         url = 'http://localhost:5000/api/fiche-hors-sql/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_hors_sql';
-      } else if (selectedFiche?.effar) {
+      } else if (selectedFiche?.fiches) { 
         url = 'http://localhost:5000/api/fiche-effar/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_effar';
-      } else if (selectedFiche?.obs) {
+      } else if (selectedFiche?.sections) { 
         url = 'http://localhost:5000/api/fiche-ann-obs/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_ann_obs';  
-        } else if (selectedFiche?.cable) {
+        } else if (selectedFiche?.postesa) {
         url = 'http://localhost:5000/api/fiche-ann-cable/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_ann_cable';  
 
-        } else if (selectedFiche?.bloc) {
+        } else if (selectedFiche?.blocs) {
         url = 'http://localhost:5000/api/fiche-ann-feux-sequentiels/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_ann_feux_sequentiels'; 
-      } else if (selectedFiche?.papi) {
+      } else if (selectedFiche?.papi) { 
         url = 'http://localhost:5000/api/fiche-qui-papi/valider';
         body = { ficheId: id };
-        selectedFicheType = 'fiche_quinquennale_papi';    
+        selectedFicheType = 'fiche_quinquennale_papi';
+       } else if (selectedFiche?.ficheCorrective) { 
+        url = 'http://localhost:5000/api/fiche-corrective/valider';
+        body = { ficheId: id };
+        selectedFicheType = 'fiche_corrective';      
       } else {
         url = 'http://localhost:5000/api/inspections/valider';
         body = { inspectionId: id };
@@ -1729,7 +1768,9 @@ const voirFicheQuiPapi = async (ficheId, notifId) => {
                      } else if (n.type?.toLowerCase() === 'fiche_ann_feux_sequentiels') {
                     voirFicheAnnFeuxSeq(ficheId, n._id); 
                      } else if (n.type?.toLowerCase() === 'fiche_quinquennale_papi') {
-                    voirFicheQuiPapi(ficheId, n._id);  
+                    voirFicheQuiPapi(ficheId, n._id); 
+                      } else if (n.type?.toLowerCase() === 'fiche_corrective') {
+                    voirFicheCorrective(ficheId, n._id);  
                   } else {
                     voirFiche(ficheId);
                   }
@@ -3731,6 +3772,113 @@ const voirFicheQuiPapi = async (ficheId, notifId) => {
       <button onClick={() => exportPDF(selectedFiche)}>📄 Exporter PDF</button>
     </div>
   </>
+  
+
+) : selectedFiche?.ficheCorrective?.length > 0 ? (
+  <>
+    <h3>Fiche Corrective</h3>
+
+    {selectedFiche.ficheCorrective.map((fiche, fi) => (
+      <div key={fi} style={{ marginBottom: '30px' }}>
+        {/* ================= INFOS GÉNÉRALES ================= */}
+        <p>
+          📅 Date :{' '}
+          {fiche.date ? new Date(fiche.date).toLocaleDateString() : 'Non renseignée'}
+        </p>
+
+        <p>🛠️ Désignation : {fiche.designation || 'Non renseignée'}</p>
+        <p>📍 Lieu : {fiche.lieuInstallation || 'Non renseigné'}</p>
+        <p>
+          📅 Date détection :{' '}
+          {fiche.dateDetection
+            ? new Date(fiche.dateDetection).toLocaleDateString()
+            : 'Non renseignée'}
+        </p>
+
+        <p>📢 Réclamation par : {fiche.reclamationPar || 'Non renseigné'}</p>
+        <p>👤 Personne contactée : {fiche.personneContactee || 'Non renseignée'}</p>
+
+        <p>⏱️ Début : {fiche.debutIntervention || '-'}</p>
+        <p>⏱️ Remise en service : {fiche.remiseEnService || '-'}</p>
+        <p>⌛ Temps alloué : {fiche.tempsAlloue || '-'}</p>
+        <p>📝 Observations : {fiche.observationsGenerales || 'Aucune'}</p>
+
+        <p>
+          👨‍🔧 Technicien :{' '}
+          {fiche.techniciensOperateurs?.[0]?.nom || 'Non renseigné'}
+        </p>
+
+        {/* ================= DIAGNOSTIC ================= */}
+        <h4 style={{ marginTop: '20px' }}>Diagnostic</h4>
+        {fiche.diagnostic?.length > 0 ? (
+          <table style={{ borderCollapse: 'collapse', width: '100%', marginTop: '10px' }}>
+            <thead>
+              <tr style={{ backgroundColor: '#eee' }}>
+                <th style={th}>Panne</th>
+                <th style={th}>Effet</th>
+                <th style={th}>Gravité</th>
+              </tr>
+            </thead>
+            <tbody>
+              {fiche.diagnostic.map((d, i) => (
+                <tr key={i}>
+                  <td style={td}>{d.panneCause || '-'}</td>
+                  <td style={td}>{d.effet || '-'}</td>
+                  <td style={td}>{d.gravite || '-'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p>Aucun diagnostic disponible</p>
+        )}
+
+        {/* ================= DEPANNAGE ================= */}
+        <h4 style={{ marginTop: '20px' }}>Dépannage / Réparation</h4>
+        {fiche.depannageReparation?.length > 0 ? (
+          <table style={{ borderCollapse: 'collapse', width: '100%', marginTop: '10px' }}>
+            <thead>
+              <tr style={{ backgroundColor: '#eee' }}>
+                <th style={th}>Pièces de rechange</th>
+              </tr>
+            </thead>
+            <tbody>
+              {fiche.depannageReparation.map((d, i) => (
+                <tr key={i}>
+                  <td style={td}>{d.piecesDeRechange || '-'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p>Aucun dépannage / réparation disponible</p>
+        )}
+
+        {/* ================= SIGNATURE ================= */}
+        {fiche.signature && (
+          <div style={{ marginTop: '20px' }}>
+            <h4>Signature</h4>
+            <img
+              src={fiche.signature}
+              alt="signature"
+              style={{ border: '1px solid #000', width: '200px' }}
+            />
+          </div>
+        )}
+
+        {/* ================= ACTIONS ================= */}
+        <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+          <button onClick={() => validerFiche(selectedFiche._id, selectedFiche.notifId)}>
+            ✅ Valider
+          </button>
+          <button onClick={() => setSelectedFiche(null)}>❌ Fermer</button>
+          <button onClick={() => exportPDF(selectedFiche)}>📄 Exporter PDF</button>
+        </div>
+      </div>
+    ))}
+  </>
+
+
 
 
 
