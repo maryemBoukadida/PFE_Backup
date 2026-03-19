@@ -27,13 +27,18 @@ import FicheAnnFeuxSeq from './FicheAnnFeuxSeq';
 import FicheQuinquennalePapi from './FicheQuinquennalePapi';
 import FicheCorrective from './FicheCorrective';
 import FicheNoBreakForm from './FicheNoBreakForm';
-
+import Fiche2250KVAForm from './Fiche2250KVAForm';
+import FicheOlapionForm from './FicheOlapionForm';
+import FicheBalisageForm from './FicheBalisageForm';
 
 export default function InspectionTech({ activeMenu, activeSubMenu }) {
   const [periode, setPeriode] = useState('JOURNALIERE');
   const [typeFiche, setTypeFiche] = useState('');
   const [inspectionsData, setInspectionsData] = useState([]); // tableau de fiches complètes
 const [showNoBreak, setShowNoBreak] = useState(false);
+const [show2250KVA, setShow2250KVA] = useState(false);
+const [showOlapion, setShowOlapion] = useState(false);
+const [showBalisage, setShowBalisage] = useState(false);
   const typesFiches = [
     { value: 'PAPI', label: 'Papi' },
     { value: 'PISTE', label: 'Piste' },
@@ -246,6 +251,12 @@ const [showNoBreak, setShowNoBreak] = useState(false);
     <h3>Gestion des inspections</h3>
     {showNoBreak ? (
       <FicheNoBreakForm />
+    ) : show2250KVA ? (
+  <Fiche2250KVAForm />  
+  ) : showOlapion ? (
+  <FicheOlapionForm />
+  ) : showBalisage ? (
+  <FicheBalisageForm />
     ):(
 <div className="cards-container">
   <div className="card"
@@ -256,20 +267,45 @@ const [showNoBreak, setShowNoBreak] = useState(false);
     <h4>Inspection des groupes NOBREAK</h4>
   </div>
 
-  <div className="card">
-    <FaTrafficLight size={40} color="#27ae60" />
-    <h4>Inspection de balisage</h4>
-  </div>
+  <div 
+  className="card"
+  onClick={() => {
+    setShowBalisage(true);
+    setShowNoBreak(false);
+    setShow2250KVA(false);
+    setShowOlapion(false);
+  }}
+  style={{ cursor: "pointer" }}
+>
+  <FaTrafficLight size={40} color="#27ae60" />
+  <h4>Inspection de balisage</h4>
+</div>
 
-  <div className="card">
-    <FaTools size={40} color="#3498db" />
-    <h4>Inspection Olymin</h4>
-  </div>
+  <div 
+  className="card"
+  onClick={() => {
+    setShowOlapion(true);
+    setShowNoBreak(false);
+    setShow2250KVA(false);
+  }}
+  style={{ cursor: "pointer" }}
+>
+  <FaTools size={40} color="#3498db" />
+  <h4>Inspection Olapion</h4>
+</div>
 
-  <div className="card">
-    <FaBolt size={40} color="#e74c3c" />
-    <h4>Inspection 2250 KVA</h4>
-  </div>
+<div 
+  className="card"
+  onClick={() => {
+  setShowOlapion(true);
+  setShowNoBreak(false);
+  setShow2250KVA(false);
+}}
+  style={{ cursor: "pointer" }}
+>
+  <FaBolt size={40} color="#e74c3c" />
+  <h4>Inspection 2250 KVA</h4>
+</div>
 </div>
     )}
   </>

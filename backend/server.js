@@ -147,7 +147,15 @@ app.use('/api/notifications-tech', techNotificationRoutes);
 // fiche nobreak 
 const ficheNoBreakRoutes = require("./routes/ficheNoBreakRoutes");
 app.use("/api/fiche-nobreak", ficheNoBreakRoutes);
-
+/// fiche 2250 KVA 
+const fiche2250KVARoutes = require("./routes/fiche2250KVARoutes");
+app.use("/api/fiche-2250kva", fiche2250KVARoutes);
+// fiche olumpion
+const ficheOlapionRoutes = require("./routes/ficheOlapionRoutes");
+app.use("/api/fiche-olapion", ficheOlapionRoutes);
+// fiche balsiage 
+const ficheBalisageRoutes = require("./routes/ficheBalisageRoutes");
+app.use("/api/fiche-balisage", ficheBalisageRoutes);
 // Catch-all 404
 
 app.use((req, res) => res.status(404).send("Route introuvable ❌"));

@@ -30,6 +30,9 @@ const FICHE_ANN_FEUX_SEQ_API = "http://localhost:5000/api/fiche-ann-feux-sequent
 const FICHE_QUI_PAPI_API = "http://localhost:5000/api/fiche-qui-papi";
 const FICHE_CORRECTIVE_API = "http://localhost:5000/api/fiche-corrective";
 const FICHE_NOBREAK_API = "http://localhost:5000/api/fiche-nobreak";
+const FICHE_2250KVA_API = "http://localhost:5000/api/fiche-2250kva";
+const FICHE_OLAPION_API = "http://localhost:5000/api/fiche-olapion";
+const FICHE_BALISAGE_API = "http://localhost:5000/api/fiche-balisage";
 
 // 🔹 Récupérer tous les équipements
 export const getEquipements = async() => {
@@ -858,4 +861,82 @@ export const envoyerFicheNoBreak = async(id) => {
     const res = await fetch(`${FICHE_NOBREAK_API}/envoyer/${id}`, { method: "PUT" });
     if (!res.ok) throw new Error("Erreur envoi fiche No-Break");
     return res.json();
+};
+
+// fiche KVA 
+// GET toutes les fiches
+export const getFiches2250KVA = async() => {
+    const res = await fetch(FICHE_2250KVA_API);
+    if (!res.ok) throw new Error("Erreur récupération fiches 2250KVA");
+    return res.json();
+};
+
+// ENREGISTRER
+export const enregistrerFiche2250KVA = async(fiche) => {
+    const res = await fetch(FICHE_2250KVA_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fiche)
+    });
+    if (!res.ok) throw new Error("Erreur enregistrement fiche 2250KVA");
+    return res.json();
+};
+
+// ENVOYER
+export const envoyerFiche2250KVA = async(id) => {
+    const res = await axios.put(`${FICHE_2250KVA_API}/envoyer/${id}`);
+    return res.data;
+};
+
+// fiche olupion 
+// ================= GET ALL =================
+export const getFichesOlapion = async() => {
+    const res = await fetch(FICHE_OLAPION_API);
+    if (!res.ok) throw new Error("Erreur récupération fiches Olapion");
+    return res.json();
+};
+
+// ================= CREATE =================
+export const enregistrerFicheOlapion = async(fiche) => {
+    const res = await fetch(FICHE_OLAPION_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fiche)
+    });
+
+    if (!res.ok) throw new Error("Erreur enregistrement fiche Olapion");
+    return res.json();
+};
+
+// ================= ENVOYER =================
+export const envoyerFicheOlapion = async(id) => {
+    const res = await axios.put(`${FICHE_OLAPION_API}/envoyer/${id}`);
+    return res.data;
+};
+
+// fiche olaapion 
+
+// ================= GET ALL =================
+export const getFichesBalisage = async() => {
+    const res = await fetch(FICHE_BALISAGE_API);
+    if (!res.ok) throw new Error("Erreur récupération fiches Balisage");
+    return res.json();
+};
+
+// ================= CREATE =================
+export const enregistrerFicheBalisage = async(fiche) => {
+    const res = await fetch(FICHE_BALISAGE_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fiche)
+    });
+
+    if (!res.ok) throw new Error("Erreur enregistrement fiche Balisage");
+    return res.json();
+};
+
+// ================= ENVOYER =================
+export const envoyerFicheBalisage = async(id) => {
+    const res = await axios.put(`${FICHE_BALISAGE_API}/envoyer/${id}`);
+    return res.data;
 };
