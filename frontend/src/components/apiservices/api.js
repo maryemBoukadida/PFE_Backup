@@ -33,6 +33,7 @@ const FICHE_NOBREAK_API = "http://localhost:5000/api/fiche-nobreak";
 const FICHE_2250KVA_API = "http://localhost:5000/api/fiche-2250kva";
 const FICHE_OLAPION_API = "http://localhost:5000/api/fiche-olapion";
 const FICHE_BALISAGE_API = "http://localhost:5000/api/fiche-balisage";
+const BASE_URL = "http://localhost:5000";
 
 // 🔹 Récupérer tous les équipements
 export const getEquipements = async() => {
@@ -939,4 +940,78 @@ export const enregistrerFicheBalisage = async(fiche) => {
 export const envoyerFicheBalisage = async(id) => {
     const res = await axios.put(`${FICHE_BALISAGE_API}/envoyer/${id}`);
     return res.data;
+};
+
+// 🔹 GET BALISAGE
+export const getBalisage = async() => {
+    const response = await fetch(`${BASE_URL}/api/gestionequipements/balisage`);
+
+    if (!response.ok) {
+        throw new Error("Erreur lors de la récupération des données");
+    }
+
+    return response.json();
+};
+
+// 🔹 GET PG (pour plus tard)
+export const getPG = async() => {
+    const response = await fetch(`${BASE_URL}/api/gestionequipements/pg`);
+
+    if (!response.ok) {
+        throw new Error("Erreur lors de la récupération des données");
+    }
+
+    return response.json();
+};
+
+// 🔹 GET PG (pour plus tard)
+export const getAutre = async() => {
+    const response = await fetch(`${BASE_URL}/api/gestionequipements/autre`);
+
+    if (!response.ok) {
+        throw new Error("Erreur lors de la récupération des données");
+    }
+
+    return response.json();
+};
+
+
+export const getDesignations = async(type) => {
+    try {
+        const response = await fetch(`${BASE_URL}/api/stock/designations/${type}`);
+
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        return Array.isArray(data) ? data : [];
+
+    } catch (error) {
+        console.error("Erreur getDesignations :", error);
+        return [];
+    }
+};
+export const addEquipement = async(data) => {
+    try {
+        const response = await fetch(`${BASE_URL}/api/stock/equipement`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || "Erreur ajout équipement");
+        }
+
+        return await response.json();
+
+    } catch (error) {
+        console.error("Erreur addEquipement :", error);
+        throw error;
+    }
 };

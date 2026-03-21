@@ -157,6 +157,16 @@ app.use("/api/fiche-olapion", ficheOlapionRoutes);
 const ficheBalisageRoutes = require("./routes/ficheBalisageRoutes");
 app.use("/api/fiche-balisage", ficheBalisageRoutes);
 // Catch-all 404
+const gestionEquipementRoutes = require("./routes/gestionEquipementRoutes");
+app.use("/api/gestionequipements", gestionEquipementRoutes);
+
+const stockRoutes = require("./routes/stockRoutes");
+app.use("/api/stock", stockRoutes);
+
+
+
+
+
 
 app.use((req, res) => res.status(404).send("Route introuvable ❌"));
 

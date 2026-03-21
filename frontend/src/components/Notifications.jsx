@@ -49,6 +49,7 @@ const FICHE_CORRECTIVE_API = "http://localhost:5000/api/fiche-corrective";
 const FICHE_NOBREAK_API = "http://localhost:5000/api/fiche-nobreak";
 const FICHE_2250KVA_API = "http://localhost:5000/api/fiche-2250kva";
 const FICHE_OLAPION_API = "http://localhost:5000/api/fiche-olapion";
+const FICHE_BALISAGE_API = "http://localhost:5000/api/fiche-balisage";
 
 
   // ===================== CHARGER NOTIFICATIONS =====================
@@ -126,6 +127,9 @@ const FICHE_OLAPION_API = "http://localhost:5000/api/fiche-olapion";
       const res24 = await fetch(
         'http://localhost:5000/api/fiche-olapion/notifications'
       );
+      const res25 = await fetch(
+        'http://localhost:5000/api/fiche-balisage/notifications'
+      );
 
       const data1 = res1.ok ? await res1.json() : [];
       const data2 = res2.ok ? await res2.json() : [];
@@ -151,6 +155,7 @@ const FICHE_OLAPION_API = "http://localhost:5000/api/fiche-olapion";
       const data22 = res22.ok ? await res22.json() : [];
       const data23 = res23.ok ? await res23.json() : [];
       const data24 = res24.ok ? await res24.json() : [];
+      const data25 = res25.ok ? await res25.json() : [];
       setNotifications([
         ...(Array.isArray(data1) ? data1 : []),
         ...(Array.isArray(data2) ? data2 : []),
@@ -176,6 +181,7 @@ const FICHE_OLAPION_API = "http://localhost:5000/api/fiche-olapion";
         ...(Array.isArray(data22) ? data22 : []),
         ...(Array.isArray(data23) ? data23: []),
         ...(Array.isArray(data24) ? data24: []),
+        ...(Array.isArray(data25) ? data25: []),
       ]);
     } catch (err) {
       console.error('Erreur notifications :', err);
@@ -618,6 +624,25 @@ const voirFicheOlapion = async (ficheId, notifId) => {
 
   } catch (err) {
     console.error("Erreur voir fiche Olapion :", err);
+  }
+};
+const voirFicheBalisage = async (ficheId, notifId) => {
+  try {
+    // 🔹 Récupérer la fiche balisage
+    const res = await fetch(`${FICHE_BALISAGE_API}/${ficheId}`);
+
+    if (!res.ok) {
+      console.error("Erreur récupération fiche balisage");
+      return;
+    }
+
+    const data = await res.json();
+
+    // 🔹 Stocker la fiche + notifId
+    setSelectedFiche({ ...data, notifId });
+
+  } catch (err) {
+    console.error("Erreur voir fiche balisage :", err);
   }
 };
   //marquer fiche comme lu
@@ -1846,7 +1871,9 @@ const voirFicheOlapion = async (ficheId, notifId) => {
                     } else if (n.type?.toLowerCase() === 'fiche_2250kva') {
                     voirFiche2250KVA(ficheId, n._id); 
                      } else if (n.type?.toLowerCase() === 'fiche_olapion') {
-                    voirFicheOlapion(ficheId, n._id);  
+                    voirFicheOlapion(ficheId, n._id); 
+                     } else if (n.type?.toLowerCase() === 'fiche_balisage') {
+                    voirFicheBalisage(ficheId, n._id);  
                   } else {
                     voirFiche(ficheId);
                   }
@@ -4305,6 +4332,103 @@ const voirFicheOlapion = async (ficheId, notifId) => {
     </button>
   </div>
 </>
+): selectedFiche?.groupes ? (
+  <>
+    <h3>📡 Fiche Balisage</h3>
+
+    {/* ================= INFOS GENERALES ================= */}
+    <p>
+      📅 Date :{" "}
+      {selectedFiche.date
+        ? new Date(selectedFiche.date).toLocaleDateString()
+        : ""}
+    </p>
+
+    <p>👨‍🔧 Technicien : {selectedFiche.technicien}</p>
+
+    <p>📌 Statut : {selectedFiche.statut}</p>
+
+    {/* ================= TABLEAU ================= */}
+    <h4>Inspection Balisage</h4>
+
+    <table style={{ borderCollapse: "collapse", width: "100%" }}>
+      <thead>
+        <tr style={{ backgroundColor: "#eee" }}>
+          <th style={th}>Fonction</th>
+          <th style={th}>Désignation</th>
+
+          <th colSpan="4" style={th}>Matin</th>
+          <th colSpan="4" style={th}>Nuit</th>
+        </tr>
+
+        <tr style={{ backgroundColor: "#eee" }}>
+          <th></th>
+          <th></th>
+
+          <th style={th}>NF</th>
+          <th style={th}>Fonctionnement</th>
+          <th style={th}>Interventions</th>
+          <th style={th}>Obs</th>
+
+          <th style={th}>NF</th>
+          <th style={th}>Fonctionnement</th>
+          <th style={th}>Interventions</th>
+          <th style={th}>Obs</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {selectedFiche.groupes.map((g, gi) => (
+          <React.Fragment key={gi}>
+            {g.lignes.map((l, li) => (
+              <tr key={li}>
+                {/* Groupe */}
+                {li === 0 && (
+                  <td rowSpan={g.lignes.length}>
+                    <b>{g.titre}</b>
+                  </td>
+                )}
+
+                {/* Désignation */}
+                <td>{l.designation}</td>
+
+                {/* ================= MATIN ================= */}
+                <td>{l.matin?.nf}</td>
+                <td>{l.matin?.fonctionnement}</td>
+                <td>{l.matin?.interventions}</td>
+                <td>{l.matin?.observations}</td>
+
+                {/* ================= NUIT ================= */}
+                <td>{l.nuit?.nf}</td>
+                <td>{l.nuit?.fonctionnement}</td>
+                <td>{l.nuit?.interventions}</td>
+                <td>{l.nuit?.observations}</td>
+              </tr>
+            ))}
+          </React.Fragment>
+        ))}
+      </tbody>
+    </table>
+
+    {/* ================= ACTIONS ================= */}
+    <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
+      <button
+        onClick={() =>
+          validerFiche(selectedFiche._id, selectedFiche.notifId)
+        }
+      >
+        ✅ Valider
+      </button>
+
+      <button onClick={() => setSelectedFiche(null)}>
+        ❌ Fermer
+      </button>
+
+      <button onClick={() => exportPDF(selectedFiche)}>
+        📄 Exporter PDF
+      </button>
+    </div>
+  </>
 
             ) : selectedFiche.installations?.length > 0 ? (
               <>

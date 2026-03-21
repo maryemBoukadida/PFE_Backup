@@ -1,0 +1,98 @@
+.invoice-container.dark {
+    max-width: 950px;
+    margin: auto;
+    padding: 30px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: white;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.title {
+    text-align: center;
+    margin-bottom: 25px;
+    font-weight: bold;
+}
+
+.section {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+input,
+select {
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    background: #1e293b;
+    color: white;
+}
+
+input:focus {
+    border: 1px solid #38bdf8;
+}
+
+.actions {
+    display: flex;
+    justify-content: space-between;
+}
+
+.confirm {
+    background: linear-gradient(45deg, #22c55e, #16a34a);
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.confirm:hover {
+    transform: scale(1.08);
+}
+
+.cancel {
+    background: #334155;
+    color: white;
+    padding: 12px 25px;
+    border-radius: 10px;
+}
+
+.suggestions {
+    background: #1e293b;
+    border-radius: 10px;
+    margin-top: 5px;
+}
+
+.suggestions li {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.suggestions li:hover {
+    background: #334155;
+}
+
+.fade-in {
+    animation: fade 0.4s ease;
+}
+
+@keyframes fade {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

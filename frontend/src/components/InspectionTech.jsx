@@ -27,10 +27,9 @@ import FicheAnnFeuxSeq from './FicheAnnFeuxSeq';
 import FicheQuinquennalePapi from './FicheQuinquennalePapi';
 import FicheCorrective from './FicheCorrective';
 import FicheNoBreakForm from './FicheNoBreakForm';
+import FicheBalisageForm from './FicheBalisageForm';
 import Fiche2250KVAForm from './Fiche2250KVAForm';
 import FicheOlapionForm from './FicheOlapionForm';
-import FicheBalisageForm from './FicheBalisageForm';
-
 export default function InspectionTech({ activeMenu, activeSubMenu }) {
   const [periode, setPeriode] = useState('JOURNALIERE');
   const [typeFiche, setTypeFiche] = useState('');

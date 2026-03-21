@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState ,useEffect } from "react";
 import {
   enregistrerFicheBalisage,
   envoyerFicheBalisage
@@ -7,82 +7,145 @@ import {
 // =======================
 // INITIAL DATA
 // =======================
+
+const emptyObs = {
+  nf: "",
+  fonctionnement: "",
+  interventions: "",
+  observations: ""
+};
+
 const initialFiche = {
   date: new Date(),
-  designation: "",
-  lieuInstallation: "",
 
   groupes: [
     {
       titre: "Approche 09",
       lignes: [
-        { designation: "Approche 450 derniers mètres", matin: {}, nuit: {} },
-        { designation: "Approche en amont des 450 derniers mètres", matin: {}, nuit: {} }
+        { designation: "Approche 450 derniers mètres", matin: {...emptyObs}, nuit: {...emptyObs} },
+        { designation: "Approche en amont des 450 derniers mètres", matin: {...emptyObs}, nuit: {...emptyObs} }
       ]
     },
     {
       titre: "Approche 27",
       lignes: [
-        { designation: "Approche 450 derniers mètres", matin: {}, nuit: {} },
-        { designation: "Approche en amont des 450 derniers mètres", matin: {}, nuit: {} }
+        { designation: "Approche 450 derniers mètres", matin: {...emptyObs}, nuit: {...emptyObs} },
+        { designation: "Approche en amont des 450 derniers mètres", matin: {...emptyObs}, nuit: {...emptyObs} }
       ]
     },
     {
       titre: "PAPI 09",
       lignes: [
-        { designation: "Fonctionnement électrique de chaque unité PAPI", matin: {}, nuit: {} },
-        { designation: "Contrôle de l'intégrité physique des unités PAPI", matin: {}, nuit: {} },
-        { designation: "Contrôle visuel de la végétation", matin: {}, nuit: {} },
-        { designation: "Lampes H/S", matin: {}, nuit: {} }
+        { designation: "Fonctionnement électrique de chaque unité PAPI", matin: {...emptyObs}, nuit: {...emptyObs} },
+        { designation: "Contrôle de l'intégrité physique des unités PAPI", matin: {...emptyObs}, nuit: {...emptyObs} },
+        { designation: "Contrôle visuel de la végétation", matin: {...emptyObs}, nuit: {...emptyObs} },
+        { designation: "Lampes H/S", matin: {...emptyObs}, nuit: {...emptyObs} }
       ]
     },
     {
       titre: "PAPI 27",
       lignes: [
-        { designation: "Fonctionnement électrique de chaque unité PAPI", matin: {}, nuit: {} },
-        { designation: "Contrôle de l'intégrité physique des unités PAPI", matin: {}, nuit: {} },
-        { designation: "Contrôle visuel de la végétation", matin: {}, nuit: {} },
-        { designation: "Lampes H/S", matin: {}, nuit: {} }
+        { designation: "Fonctionnement électrique de chaque unité PAPI", matin: {...emptyObs}, nuit: {...emptyObs} },
+        { designation: "Contrôle de l'intégrité physique des unités PAPI", matin: {...emptyObs}, nuit: {...emptyObs} },
+        { designation: "Contrôle visuel de la végétation", matin: {...emptyObs}, nuit: {...emptyObs} },
+        { designation: "Lampes H/S", matin: {...emptyObs}, nuit: {...emptyObs} }
       ]
     },
     {
       titre: "Piste",
       lignes: [
-        { designation: "Seuil de piste", matin: {}, nuit: {} },
-        { designation: "Bord de piste", matin: {}, nuit: {} },
-        { designation: "Axe de piste", matin: {}, nuit: {} },
-        { designation: "Zone de toucher des roues", matin: {}, nuit: {} },
-        { designation: "Fin de piste", matin: {}, nuit: {} },
-        { designation: "RTIL", matin: {}, nuit: {} },
-        { designation: "Voies de sortie rapide", matin: {}, nuit: {} },
-        { designation: "Barres d’arrêt", matin: {}, nuit: {} }
+        { designation: "Seuil de piste", matin: {...emptyObs}, nuit: {...emptyObs} },
+        { designation: "Bord de piste", matin: {...emptyObs}, nuit: {...emptyObs} },
+        { designation: "Axe de piste", matin: {...emptyObs}, nuit: {...emptyObs} },
+        { designation: "Zone de toucher des roues", matin: {...emptyObs}, nuit: {...emptyObs} },
+        { designation: "Fin de piste", matin: {...emptyObs}, nuit: {...emptyObs} },
+        { designation: "RTIL", matin: {...emptyObs}, nuit: {...emptyObs} },
+        { designation: "Voies de sortie rapide", matin: {...emptyObs}, nuit: {...emptyObs} },
+        { designation: "Barres d’arrêt", matin: {...emptyObs}, nuit: {...emptyObs} }
       ]
     },
     {
       titre: "Taxiway",
       lignes: [
-        { designation: "Panneaux d’indication", matin: {}, nuit: {} },
-        { designation: "Panneaux d'obligation", matin: {}, nuit: {} },
-        { designation: "Bord de Taxi way", matin: {}, nuit: {} },
-        { designation: "Center line East", matin: {}, nuit: {} },
-        { designation: "Center line West", matin: {}, nuit: {} }
+        { designation: "Panneaux d’indication", matin: {...emptyObs}, nuit: {...emptyObs} },
+        { designation: "Panneaux d'obligation", matin: {...emptyObs}, nuit: {...emptyObs} },
+        { designation: "Bord de Taxi way", matin: {...emptyObs}, nuit: {...emptyObs} },
+        { designation: "Center line East", matin: {...emptyObs}, nuit: {...emptyObs} },
+        { designation: "Center line West", matin: {...emptyObs}, nuit: {...emptyObs} }
       ]
     },
     {
       titre: "Feux d'obstacles",
       lignes: [
-        { designation: "Balise d'obstacle", matin: {}, nuit: {} }
+        { designation: "Balise d'obstacle", matin: {...emptyObs}, nuit: {...emptyObs} }
       ]
-    }
+    },
+    {
+      titre: "MANCHE A VENT Cote 09 ",
+      lignes: [
+        { designation: "Balise d'obstacle ", matin: {...emptyObs}, nuit: {...emptyObs} },
+        { designation: "Balise d'éclairage de manche à air", matin: {...emptyObs}, nuit: {...emptyObs} },
+        { designation: "Manche en textile", matin: {...emptyObs}, nuit: {...emptyObs} },
+      ]
+    },
+     {
+      titre: "MANCHE A VENT Cote 27 ",
+      lignes: [
+        { designation: "Balise d'obstacle ", matin: {...emptyObs}, nuit: {...emptyObs} },
+        { designation: "Balise d'éclairage de manche à air", matin: {...emptyObs}, nuit: {...emptyObs} },
+        { designation: "Manche en textile", matin: {...emptyObs}, nuit: {...emptyObs} },
+      ]
+    },
+    {
+      titre: "IHM",
+      lignes: [
+        { designation: "Essai fonctionnel IHM ATS", matin: {...emptyObs}, nuit: {...emptyObs} },
+        { designation: "Essai fonctionnel IHM Technique", matin: {...emptyObs}, nuit: {...emptyObs} },
+      ]
+    },
+    {
+      titre: "Balisage de L’Héliport",
+      lignes: [
+        { designation: "", matin: {...emptyObs}, nuit: {...emptyObs} },
+      ]
+    },
+    {
+      titre: "Parkings",
+      lignes: [
+        { designation: "Balisage Des Parkings", matin: {...emptyObs}, nuit: {...emptyObs} },
+        { designation: "Eclairage Des  Parkings", matin: {...emptyObs}, nuit: {...emptyObs} },
+      ]
+    },
+    {
+      titre: "Régulateurs de courant",
+      lignes: [
+        { designation: "", matin: {...emptyObs}, nuit: {...emptyObs} },
+      ]
+    },
+     {
+      titre: "DGS",
+      lignes: [
+        { designation: "", matin: {...emptyObs}, nuit: {...emptyObs} },
+      ]
+    },
+     {
+      titre: "Eclairage Solaire",
+      lignes: [
+        { designation: "", matin: {...emptyObs}, nuit: {...emptyObs} },
+      ]
+    },
+    
   ],
 
-  techniciens: []
+technicien: "",
+statutMatin: false,
+  statutNuit: false
 };
 
 export default function FicheBalisageForm() {
   const [fiche, setFiche] = useState(initialFiche);
   const [ficheId, setFicheId] = useState(null);
-
+const [phase, setPhase] = useState("matin"); // "matin" ou "nuit"
   // =======================
 // HANDLE CHANGE SIMPLE
 // =======================
@@ -93,18 +156,36 @@ export default function FicheBalisageForm() {
   // =======================
 // HANDLE CHECKBOX
 // =======================
-  const handleCheckbox = (gIndex, lIndex, period, field) => {
-    const data = [...fiche.groupes];
+const handleInput = (gIndex, lIndex, period, field, value) => {
+  const data = [...fiche.groupes];
 
-    if (!data[gIndex].lignes[lIndex][period]) {
-      data[gIndex].lignes[lIndex][period] = {};
+  if (!data[gIndex].lignes[lIndex][period]) {
+    data[gIndex].lignes[lIndex][period] = {};
+  }
+
+  data[gIndex].lignes[lIndex][period][field] = value;
+
+  setFiche({ ...fiche, groupes: data });
+};
+
+
+useEffect(() => {
+  const updatePhase = () => {
+    const hour = new Date().getHours();
+
+    if (hour >= 6 && hour < 18) {
+      setPhase("matin");
+    } else {
+      setPhase("nuit");
     }
-
-    data[gIndex].lignes[lIndex][period][field] =
-      !data[gIndex].lignes[lIndex][period][field];
-
-    setFiche({ ...fiche, groupes: data });
   };
+
+  updatePhase(); // appel initial
+
+  const interval = setInterval(updatePhase, 60000); // chaque minute
+
+  return () => clearInterval(interval);
+}, []);
 
   // =======================
 // HANDLE OBSERVATION
@@ -124,12 +205,20 @@ export default function FicheBalisageForm() {
   // =======================
 // SUBMIT
 // =======================
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const res = await enregistrerFicheBalisage(fiche);
-    setFicheId(res._id);
-    alert("Fiche enregistrée ✅");
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  const res = await enregistrerFicheBalisage(fiche);
+
+  setFicheId(res._id);
+
+  setFiche({
+    ...fiche,
+    statutMatin: true
+  });
+
+  alert("Fiche enregistrée ✅");
+};
 
   const handleEnvoyer = async () => {
     if (!ficheId) return alert("Veuillez enregistrer d'abord !");
@@ -142,7 +231,7 @@ export default function FicheBalisageForm() {
 // =======================
   return (
     <form onSubmit={handleSubmit} style={{ width: "95%", margin: "auto" }}>
-      <h2>Fiche Balisage</h2>
+      <h2>Fiche d'inspection journaliere de Balisage</h2>
 
       <label>Date</label>
       <input
@@ -151,19 +240,9 @@ export default function FicheBalisageForm() {
         onChange={(e) => handleChange("date", new Date(e.target.value))}
       />
 
-      <label>Désignation</label>
-      <input
-        value={fiche.designation}
-        onChange={(e) => handleChange("designation", e.target.value)}
-      />
+     
 
-      <label>Lieu d'installation</label>
-      <input
-        value={fiche.lieuInstallation}
-        onChange={(e) => handleChange("lieuInstallation", e.target.value)}
-      />
-
-      <br /><br />
+      <br />
 
       <table border="1" width="100%">
         <thead>
@@ -199,43 +278,49 @@ export default function FicheBalisageForm() {
               {g.lignes.map((l, li) => (
                 <tr key={li}>
                   <td>{l.designation}</td>
-
-                  {["nf", "fonctionnement", "interventions"].map((f) => (
-                    <td key={f}>
-                      <input
-                        type="checkbox"
-                        checked={l.matin?.[f] || false}
-                        onChange={() => handleCheckbox(gi, li, "matin", f)}
-                      />
-                    </td>
-                  ))}
+{["nf", "fonctionnement", "interventions"].map((f) => (
+  <td key={f}>
+    <input
+  type="text"
+  value={l.matin?.[f] || ""}
+  onChange={(e) =>
+    handleInput(gi, li, "matin", f, e.target.value)
+  }
+  disabled={phase === "nuit"}   // 🔥 IMPORTANT
+/>
+  </td>
+))}
 
                   <td>
                     <input
-                      value={l.matin?.observations || ""}
-                      onChange={(e) =>
-                        handleObservation(gi, li, "matin", e.target.value)
-                      }
-                    />
+  value={l.matin?.observations || ""}
+  onChange={(e) =>
+    handleObservation(gi, li, "matin", e.target.value)
+  }
+  disabled={phase === "nuit"}   // 🔥 IMPORTANT
+/>
                   </td>
-
-                  {["nf", "fonctionnement", "interventions"].map((f) => (
-                    <td key={f}>
-                      <input
-                        type="checkbox"
-                        checked={l.nuit?.[f] || false}
-                        onChange={() => handleCheckbox(gi, li, "nuit", f)}
-                      />
-                    </td>
-                  ))}
+{["nf", "fonctionnement", "interventions"].map((f) => (
+  <td key={f}>
+    <input
+  type="text"
+  value={l.nuit?.[f] || ""}
+  onChange={(e) =>
+    handleInput(gi, li, "nuit", f, e.target.value)
+  }
+  disabled={phase === "matin"}   // 🔥 IMPORTANT
+/>
+  </td>
+))}
 
                   <td>
-                    <input
-                      value={l.nuit?.observations || ""}
-                      onChange={(e) =>
-                        handleObservation(gi, li, "nuit", e.target.value)
-                      }
-                    />
+                   <input
+  value={l.nuit?.observations || ""}
+  onChange={(e) =>
+    handleObservation(gi, li, "nuit", e.target.value)
+  }
+  disabled={phase === "matin"}   // 🔥 IMPORTANT
+/>
                   </td>
                 </tr>
               ))}
@@ -243,7 +328,20 @@ export default function FicheBalisageForm() {
           ))}
         </tbody>
       </table>
+<br />
 
+<label><b>Technicien :</b></label>
+<br />
+
+<input
+  type="text"
+  placeholder="Nom du technicien"
+  value={fiche.technicien || ""}
+  onChange={(e) =>
+    setFiche({ ...fiche, technicien: e.target.value })
+  }
+  style={{ width: "300px", marginTop: "5px" }}
+/>
       <br />
 
       <button type="submit">Enregistrer</button>

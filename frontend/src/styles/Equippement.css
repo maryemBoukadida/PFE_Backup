@@ -813,3 +813,19 @@
     color: #95a5a6;
     font-size: 14px;
 }
+
+.submenu-level2 {
+    margin-left: 25px;
+    /* 🔥 décalage pour montrer le sous-niveau */
+    padding-left: 10px;
+    border-left: 2px solid #ccc;
+    /* 🔥 ligne visuelle */
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.submenu-level2 .submenu-item {
+    font-size: 14px;
+    padding: 6px 10px;
+}

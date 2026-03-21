@@ -9,6 +9,8 @@ import Notifications from './Notifications.jsx';
 import HistoriqueActions from './HistoriqueActions';
 import DTI from './DTI';
 import { FaBell } from 'react-icons/fa';
+import { useNavigate } from "react-router-dom";
+
 import {
   getEquipements,
   createEquipement,
@@ -37,6 +39,9 @@ export default function EquipementsComponent() {
   const [inventaires, setInventaires] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
+  const [activeInventaireTab, setActiveInventaireTab] = useState("equipement");
+  const [openInventaire, setOpenInventaire] = useState(false);
+  const navigate = useNavigate();
   const BACKEND_URL = 'http://localhost:5000';
 
   // Calculer le nombre de notifications non lues
@@ -99,38 +104,40 @@ export default function EquipementsComponent() {
   };
 
   // Gérer le clic sur une notification
- // Gérer le clic sur une notification
-const handleNotificationClick = async (notif) => {
-  try {
-    // Ouvrir la fiche corrective dans un nouvel onglet si URL existe
-    if (notif.url) {
-      window.open(notif.url, '_blank');
+  // Gérer le clic sur une notification
+  const handleNotificationClick = async (notif) => {
+    try {
+      // Ouvrir la fiche corrective dans un nouvel onglet si URL existe
+      if (notif.url) {
+        window.open(notif.url, '_blank');
+      }
+
+      // Marquer comme lue uniquement si elle ne l'est pas déjà
+      if (!notif.read) {
+        await fetch(
+          `${BACKEND_URL}/api/fiche-corrective/notifications/${notif._id}`,
+          {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ read: true }),
+          }
+        );
+
+        // Mettre à jour l'état local
+        setNotifications((prev) =>
+          prev.map((n) => (n._id === notif._id ? { ...n, read: true } : n))
+        );
+      }
+
+      // Fermer le dropdown
+      setShowNotifDropdown(false);
+
+      // Naviguer vers la page notification
+      setActiveMenu('notification');
+    } catch (err) {
+      console.error('Erreur lors du traitement de la notification:', err);
     }
-
-    // Marquer comme lue uniquement si elle ne l'est pas déjà
-    if (!notif.read) {
-      await fetch(`${BACKEND_URL}/api/fiche-corrective/notifications/${notif._id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ read: true })
-      });
-
-      // Mettre à jour l'état local
-      setNotifications(prev => 
-        prev.map(n => n._id === notif._id ? { ...n, read: true } : n)
-      );
-    }
-
-    // Fermer le dropdown
-    setShowNotifDropdown(false);
-    
-    // Naviguer vers la page notification
-    setActiveMenu('notification');
-    
-  } catch (err) {
-    console.error('Erreur lors du traitement de la notification:', err);
-  }
-};
+  };
 
   // Marquer toutes les notifications comme lues quand on ouvre la page notifications
   const handleNotifIconClick = () => {
@@ -274,12 +281,36 @@ const handleNotificationClick = async (notif) => {
           >
             Historiques Actions
           </div>
-           <div
-      className={`submenu-item ${activeMenu === 'dti' ? 'active' : ''}`}
-      onClick={() => setActiveMenu('dti')}
+          <div
+            className={`submenu-item ${activeMenu === 'dti' ? 'active' : ''}`}
+            onClick={() => setActiveMenu('dti')}
+          >
+            📌 DTI
+          </div>
+<div
+  className="submenu-item"
+  onClick={() => setOpenInventaire(!openInventaire)}
+>
+  🗂️ Gestion Inventaire
+</div>
+
+{openInventaire && (
+  <div className="submenu-level2">
+    <div
+      className="submenu-item"
+      onClick={() => navigate("/gestion-inventaire/equipements")}
     >
-      📌 DTI
+      ⚙️ Gestion Équipements
     </div>
+
+    <div
+      className="submenu-item"
+      onClick={() => navigate("/gestion-inventaire/stocks")}
+    >
+      📦 Gestion Stock
+    </div>
+  </div>
+)}
         </div>
       </div>
 
@@ -352,8 +383,8 @@ const handleNotificationClick = async (notif) => {
             />
           ) : activeMenu === 'historique' ? (
             <HistoriqueActions />
-           ) : activeMenu === 'dti' ? (
-            <DTI />  
+          ) : activeMenu === 'dti' ? (
+            <DTI />
           ) : (
             <>
               {/* Toolbar */}
