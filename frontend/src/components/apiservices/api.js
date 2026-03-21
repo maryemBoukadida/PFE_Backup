@@ -993,6 +993,37 @@ export const getDesignations = async(type) => {
         return [];
     }
 };
+
+// récupére tous les designations avec stock pour fiche corrective
+export const getAllDesignations = async() => {
+    const res = await fetch(`${BASE_URL}/api/fiche-corrective/all`);
+
+    if (!res.ok) {
+        throw new Error("Erreur récupération designations ❌");
+    }
+
+    return res.json();
+};
+
+export const updateStock = async(data) => {
+    const res = await fetch(`${BASE_URL}/api/fiche-corrective/update-stock`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+        throw new Error("Erreur update stock ❌");
+    }
+
+    return res.json();
+};
+
+
+
+
 export const addEquipement = async(data) => {
     try {
         const response = await fetch(`${BASE_URL}/api/stock/equipement`, {
@@ -1007,7 +1038,6 @@ export const addEquipement = async(data) => {
             const errorText = await response.text();
             throw new Error(errorText || "Erreur ajout équipement");
         }
-
         return await response.json();
 
     } catch (error) {

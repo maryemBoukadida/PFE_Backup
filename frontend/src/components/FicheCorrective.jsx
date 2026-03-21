@@ -11,7 +11,10 @@ import 'react-clock/dist/Clock.css'; // IMPORTANT pour l'horloge
 import {
   enregistrerFicheCorrective,
   envoyerFicheCorrective,
+  getAllDesignations, 
+  updateStock
 } from './apiservices/api';
+
 
 // ================= COMPOSANT SÉLECTEUR DE GRAVITÉ =================
 const GraviteSelector = ({ valeur, onChange, index }) => {
@@ -92,7 +95,7 @@ date: new Date(),
       debutIntervention: '',
       remiseEnService: null,
       diagnostic: [{ panneCause: '', effet: '', gravite: '' }],
-      depannageReparation: [{ piecesDeRechange: '' }],
+      depannageReparation: [{ piecesDeRechange: '' ,quantite: ''}],
       tempsAlloue: '',
       observationsGenerales: '',
 techniciensOperateurs: [{ nom: '' }],
@@ -104,6 +107,8 @@ techniciensOperateurs: [{ nom: '' }],
 export default function FicheCorrective() {
   const [fiche, setFiche] = useState(initialFiche);
   const [ficheId, setFicheId] = useState(null);
+  const [designations, setDesignations] = useState([]);
+const [filtered, setFiltered] = useState({});
 
   const sigRef = useRef();
 
@@ -127,34 +132,77 @@ export default function FicheCorrective() {
     const signature = sigRef.current.toDataURL();
     updateField('signature', signature);
   };
+useEffect(() => {
+  const load = async () => {
+    const data = await getAllDesignations();
+    console.log("📦 DESIGNATIONS :", data);
+    setDesignations(data);
+  };
+  load();
+}, []);
+const handleSearch = (value, index) => {
+  if (!value) {
+    setFiltered(prev => ({ ...prev, [index]: [] }));
+    return;
+  }
 
+  const filteredData = designations.filter((d) =>
+    d.designation?.toLowerCase().includes(value.toLowerCase())
+  );
+
+  setFiltered(prev => ({ ...prev, [index]: filteredData }));
+};
   const clearSignature = () => {
     sigRef.current.clear();
     updateField('signature', '');
   };
 
   // ================= SUBMIT =================
- const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
   e.preventDefault();
 
-  console.log("DATA ENVOYÉE :", fiche);
-
   try {
+    console.log("📤 DATA :", fiche);
+
     const res = await enregistrerFicheCorrective(fiche);
     setFicheId(res._id);
-    alert('Fiche enregistrée ✅');
+
+    const pieces = fiche?.ficheCorrective?.[0]?.depannageReparation || [];
+
+    const piecesFormatees = pieces
+      .filter(p => p.piecesDeRechange && p.quantite)
+      .map(p => ({
+        designation: p.piecesDeRechange,
+        quantite: Number(p.quantite),
+      }));
+
+    if (piecesFormatees.length > 0) {
+      await updateStock({
+        pieces: piecesFormatees
+      });
+    }
+
+    alert(" Fiche enregistrée + stock mis à jour");
+
   } catch (err) {
     console.error(err);
-    alert('Erreur ❌');
+    alert(" Erreur lors de l'enregistrement");
   }
 };
 
-  const handleEnvoyer = async () => {
-    if (!ficheId) return alert("Enregistrer d'abord !");
-    await envoyerFicheCorrective(ficheId);
-    alert('Fiche envoyée ✅');
-  };
+const handleEnvoyer = async () => {
+  if (!ficheId) return alert("Enregistrer d'abord !");
 
+  try {
+    await envoyerFicheCorrective(ficheId);
+
+    alert(" Fiche envoyée avec succès");
+
+  } catch (err) {
+    console.error(err);
+    alert(" Erreur envoi");
+  }
+};
   // ================= CALCUL DU TEMPS ALLOUÉ =================
   const calculerTempsAlloue = () => {
     if (fc.debutIntervention && fc.remiseEnService) {
@@ -340,35 +388,76 @@ export default function FicheCorrective() {
         </div>
 
         {/* ===== DEPANNAGE ===== */}
-        <div className="card full-width">
-          <h3>Dépannage</h3>
+   <div className="card full-width">
+  <h3>Dépannage</h3>
 
-          {fc.depannageReparation.map((d, i) => (
-            <input
-              key={i}
-              className="input"
-              placeholder="Pièces"
-              value={d.piecesDeRechange}
-              onChange={(e) => {
-                const newDep = [...fc.depannageReparation];
-                newDep[i].piecesDeRechange = e.target.value;
-                updateField('depannageReparation', newDep);
-              }}
-            />
-          ))}
+  {fc.depannageReparation.map((d, i) => (
+    <div key={i} className="grid-2">
+      {/* Pièces */}
+      <input
+        className="input"
+        placeholder="Pièces"
+        value={d.piecesDeRechange}
+onChange={(e) => {
+  const value = e.target.value;
 
-          <span
-            className="add-btn"
-            onClick={() =>
-              updateField('depannageReparation', [
-                ...fc.depannageReparation,
-                { piecesDeRechange: '' },
-              ])
-            }
-          >
-            ➕
-          </span>
-        </div>
+  const newDep = [...fc.depannageReparation];
+  newDep[i].piecesDeRechange = value;
+
+  updateField('depannageReparation', newDep);
+
+  handleSearch(value, i); 
+}}
+      />
+{filtered[i]?.length > 0 && (
+  <div className="search-results">
+    {filtered[i].map((item) => (
+      <div
+        key={item._id}
+        className="search-item"
+        onClick={() => {
+          const newDep = [...fc.depannageReparation];
+          newDep[i].piecesDeRechange = item.designation;
+
+          updateField('depannageReparation', newDep);
+
+          // 🔥 vider uniquement ce champ
+          setFiltered(prev => ({ ...prev, [i]: [] }));
+        }}
+      >
+        {item.designation} (stock: {item.quantite})
+      </div>
+    ))}
+  </div>
+)}
+
+      {/* Quantité */}
+      <input
+        className="input"
+        type="number"
+        placeholder="Quantité"
+        value={d.quantite}
+        onChange={(e) => {
+          const newDep = [...fc.depannageReparation];
+          newDep[i].quantite = e.target.value;
+          updateField('depannageReparation', newDep);
+        }}
+      />
+    </div>
+  ))}
+
+  <span
+    className="add-btn"
+    onClick={() =>
+      updateField('depannageReparation', [
+        ...fc.depannageReparation,
+        { piecesDeRechange: '', quantite: '' }, // ✅ IMPORTANT
+      ])
+    }
+  >
+    ➕
+  </span>
+</div>
 
         {/* ===== FINAL ===== */}
         <div className="card grid-4 full-width">

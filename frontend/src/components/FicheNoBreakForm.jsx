@@ -307,8 +307,12 @@ useEffect(() => {
       {/* Actions */}
       <div style={{ marginTop: "20px" }}>
         <button type="submit">Enregistrer</button>
+       
         <button type="button" onClick={handleEnvoyer} style={{ marginLeft: "10px" }}>Envoyer</button>
-      </div>
+     <button type="button" onClick={() => window.location.reload()}>
+  Retour
+</button>
+     </div>
     </form>
   );
 }

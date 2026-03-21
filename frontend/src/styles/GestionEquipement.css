@@ -116,7 +116,7 @@ h2 {
 }
 
 .autre {
-    background: linear-gradient(135deg, #6c757d, #495057);
+    background: linear-gradient(135deg, #6c757d, #a7aeb5);
 }
 
 .equipement-card {
@@ -127,4 +127,36 @@ h2 {
 .equipement-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+
+/* filtre et recherc */
+
+.search-container {
+    margin: 15px 0;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.search-input {
+    padding: 8px 12px;
+    width: 250px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    transition: 0.3s;
+}
+
+.search-input:focus {
+    border-color: #007bff;
+}
+
+.kpi-card.danger {
+    background-color: #ffe5e5;
+    color: red;
+}
+
+.kpi-card.warning {
+    background-color: #fff4e5;
+    color: orange;
 }

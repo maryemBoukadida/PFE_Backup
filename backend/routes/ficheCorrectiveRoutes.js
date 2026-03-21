@@ -6,16 +6,37 @@ const {
     getFichesCorrective,
     getFicheCorrectiveById,
     envoyerFicheCorrective,
-    validerFicheCorrective
+    validerFicheCorrective,
+    updateStock,
+    getAllDesignations
 } = require("../controllers/ficheCorrectiveController");
 
 const Notification = require("../models/Notification");
+
+
 
 // POST
 router.post("/", creerFicheCorrective);
 
 // GET ALL
 router.get("/", getFichesCorrective);
+
+
+// ✅ 🔥 METTRE AVANT :id
+router.get("/all", getAllDesignations);
+// UPDATE STOCK
+router.put("/update-stock", updateStock);
+// GET BY ID
+router.get("/:id", getFicheCorrectiveById);
+
+// ENVOYER
+router.put("/envoyer/:id", envoyerFicheCorrective);
+
+// VALIDER
+router.post("/valider", validerFicheCorrective);
+
+
+
 // NOTIFICATIONS
 router.get("/notifications", async(req, res) => {
     try {
@@ -25,15 +46,5 @@ router.get("/notifications", async(req, res) => {
         res.status(500).json({ message: "Erreur récupération notifications" });
     }
 });
-// ENVOYER
-router.put("/envoyer/:id", envoyerFicheCorrective);
-
-// VALIDER
-router.post("/valider", validerFicheCorrective);
-// GET BY ID
-router.get("/:id", getFicheCorrectiveById);
-
-
-
 
 module.exports = router;

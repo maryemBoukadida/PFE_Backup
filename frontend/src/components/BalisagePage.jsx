@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
-import "../styles/GestionEquipement.css";
+//import "../styles/GestionEquipement.css";
+import "../styles/BalisagePage.css";
+
 import { getBalisage } from "../components/apiservices/api";
 
 export default function BalisagePage() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [filterType, setFilterType] = useState("all"); // ✅ IMPORTANT
 
   // 🔹 Appel API
   useEffect(() => {
@@ -12,7 +16,6 @@ export default function BalisagePage() {
       try {
         const result = await getBalisage();
         setData(result);
-
       } catch (error) {
         console.error(error);
       } finally {
@@ -25,10 +28,41 @@ export default function BalisagePage() {
 
   // 🔹 KPI
   const totalArticles = data.length;
+
   const totalStock = data.reduce(
     (acc, item) => acc + (item.stock || 0),
     0
   );
+
+  const rupture = data.filter((item) => item.stock === 0).length;
+
+  const stockFaible = data.filter(
+    (item) => item.stock > 0 && item.stock <= 5
+  ).length;
+
+  //  + 🎯 FILTRAGE
+  const filteredData = data
+    .filter((item) => {
+      const matchSearch = item.designation
+        .toLowerCase()
+        .includes(search.toLowerCase());
+
+      if (filterType === "rupture") {
+        return matchSearch && item.stock === 0;
+      }
+
+      if (filterType === "faible") {
+        return matchSearch && item.stock > 0 && item.stock <= 5;
+      }
+
+      return matchSearch;
+    })
+    .sort((a, b) => {
+      if (filterType === "rupture" || filterType === "faible") {
+        return a.stock - b.stock;
+      }
+      return 0;
+    });
 
   if (loading) {
     return <h3>Chargement...</h3>;
@@ -40,15 +74,44 @@ export default function BalisagePage() {
 
       {/* KPI */}
       <div className="kpi-container">
-        <div className="kpi-card">
+        <div className="kpi-card" onClick={() => setFilterType("all")}>
           <h4>Total Articles</h4>
           <p>{totalArticles}</p>
         </div>
 
-        <div className="kpi-card">
+        <div className="kpi-card" onClick={() => setFilterType("all")}>
           <h4>Stock Total</h4>
           <p>{totalStock}</p>
         </div>
+
+        <div
+          className="kpi-card danger"
+          onClick={() => setFilterType("rupture")}
+        >
+          <h4>⚠️ Rupture</h4>
+          <p>{rupture}</p>
+        </div>
+
+        <div
+          className="kpi-card warning"
+          onClick={() => setFilterType("faible")}
+        >
+          <h4>🔻 Stock faible</h4>
+          <p>{stockFaible}</p>
+        </div>
+      </div>
+
+  
+
+      {/* Recherche */}
+      <div className="search-container">
+        <input
+          type="text"
+          placeholder="🔍 Rechercher un équipement..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="search-input"
+        />
       </div>
 
       {/* TABLE */}
@@ -61,12 +124,18 @@ export default function BalisagePage() {
         </thead>
 
         <tbody>
-          {data.map((item, index) => (
-            <tr key={index}>
-              <td>{item.designation}</td>
-              <td>{item.stock}</td>
+          {filteredData.length === 0 ? (
+            <tr>
+              <td colSpan="2">Aucun équipement trouvé</td>
             </tr>
-          ))}
+          ) : (
+            filteredData.map((item, index) => (
+              <tr key={index}>
+                <td>{item.designation}</td>
+                <td>{item.stock}</td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>

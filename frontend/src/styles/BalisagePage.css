@@ -1,0 +1,451 @@
+/* BalisagePage.css */
+
+
+/* Variables globales pour la thématique GMAO */
+
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #3498db;
+    --success-color: #27ae60;
+    --danger-color: #e74c3c;
+    --warning-color: #f39c12;
+    --info-color: #3498db;
+    --light-bg: #f8f9fa;
+    --dark-text: #2c3e50;
+    --border-color: #e0e0e0;
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
+
+/* Container principal */
+
+.page-container {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    font-family: 'Segoe UI', 'Roboto', 'Inter', sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+}
+
+
+/* Titre principal */
+
+.page-container h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 3px solid var(--secondary-color);
+    display: inline-block;
+    position: relative;
+}
+
+.page-container h2::before {
+    content: '';
+    margin-right: 12px;
+    font-size: 1.8rem;
+}
+
+
+/* KPI Container */
+
+.kpi-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.kpi-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+    cursor: pointer;
+    transition: var(--transition);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--secondary-color);
+    transform: scaleX(0);
+    transition: var(--transition);
+}
+
+.kpi-card:hover::before {
+    transform: scaleX(1);
+}
+
+.kpi-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.kpi-card h4 {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #7f8c8d;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.kpi-card p {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin: 0;
+}
+
+
+/* KPI Cards spécifiques */
+
+.kpi-card.danger {
+    border-left: 4px solid var(--danger-color);
+}
+
+.kpi-card.danger p {
+    color: var(--danger-color);
+}
+
+.kpi-card.warning {
+    border-left: 4px solid var(--warning-color);
+}
+
+.kpi-card.warning p {
+    color: var(--warning-color);
+}
+
+.kpi-card:first-child {
+    border-left: 4px solid var(--secondary-color);
+}
+
+.kpi-card:first-child p {
+    color: var(--secondary-color);
+}
+
+
+/* Container de recherche */
+
+.search-container {
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.search-input {
+    width: 100%;
+    max-width: 400px;
+    padding: 12px 20px 12px 45px;
+    font-size: 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    transition: var(--transition);
+    background: rgb(233, 223, 223);
+    font-family: inherit;
+    color: rgb(44, 44, 76);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.search-container::before {
+    content: '🔍';
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    color: #c3d8e7;
+    pointer-events: none;
+}
+
+
+/* Table stylée */
+
+.table {
+    width: 100%;
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table thead {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #34495e 100%);
+    color: white;
+}
+
+.table th {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.table th:first-child {
+    border-top-left-radius: 16px;
+}
+
+.table th:last-child {
+    border-top-right-radius: 16px;
+}
+
+.table td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--dark-text);
+    transition: var(--transition);
+}
+
+.table tbody tr {
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.table tbody tr:hover {
+    background: linear-gradient(90deg, #f8f9fa 0%, #ffffff 100%);
+    transform: scale(1.01);
+    box-shadow: var(--shadow-sm);
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* Style pour les cellules de stock */
+
+.table td:last-child {
+    font-weight: 600;
+    position: relative;
+}
+
+
+/* Indicateur visuel pour les stocks */
+
+.table td:last-child::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+
+/* Couleurs selon la valeur du stock */
+
+tr td:last-child[data-stock="0"]::before {
+    background: var(--danger-color);
+    box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2);
+}
+
+tr td:last-child[data-stock="1"],
+tr td:last-child[data-stock="2"],
+tr td:last-child[data-stock="3"],
+tr td:last-child[data-stock="4"],
+tr td:last-child[data-stock="5"]::before {
+    background: var(--warning-color);
+    box-shadow: 0 0 0 2px rgba(243, 156, 18, 0.2);
+}
+
+
+/* Message quand aucun équipement trouvé */
+
+.table tbody tr td[colspan="2"] {
+    text-align: center;
+    padding: 3rem;
+    color: #95a5a6;
+    font-size: 1.1rem;
+    background: #f8f9fa;
+}
+
+
+/* Animation de chargement */
+
+.page-container h3 {
+    text-align: center;
+    padding: 3rem;
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+
+/* Responsive Design */
+
+@media (max-width: 768px) {
+    .page-container {
+        padding: 1rem;
+    }
+    .kpi-container {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    .kpi-card {
+        padding: 1rem;
+    }
+    .kpi-card p {
+        font-size: 1.5rem;
+    }
+    .table {
+        display: block;
+        overflow-x: auto;
+    }
+    .table th,
+    .table td {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+    .search-input {
+        max-width: 100%;
+    }
+}
+
+
+/* Scrollbar personnalisée */
+
+.table::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.table::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.table::-webkit-scrollbar-thumb {
+    background: var(--secondary-color);
+    border-radius: 4px;
+}
+
+.table::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}
+
+
+/* Effet de focus pour l'accessibilité */
+
+.kpi-card:focus-visible,
+.search-input:focus-visible,
+.table tbody tr:focus-visible {
+    outline: 2px solid var(--secondary-color);
+    outline-offset: 2px;
+}
+
+
+/* Animation d'entrée pour les éléments */
+
+.kpi-card,
+.table {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* Badge pour les statistiques supplémentaires (optionnel) */
+
+.kpi-card::after {
+    content: '';
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    font-size: 2rem;
+    opacity: 0.1;
+    pointer-events: none;
+}
+
+.kpi-card:first-child::after {
+    content: '📦';
+}
+
+.kpi-card:nth-child(2)::after {
+    content: '📊';
+}
+
+.kpi-card.danger::after {
+    content: '⚠️';
+}
+
+.kpi-card.warning::after {
+    content: '⚠️';
+}
+
+
+/* Style pour les lignes avec stock faible ou rupture */
+
+.table tbody tr[data-stock-status="rupture"] {
+    background: rgba(231, 76, 60, 0.05);
+}
+
+.table tbody tr[data-stock-status="faible"] {
+    background: rgba(243, 156, 18, 0.05);
+}
+
+
+/* Tooltip pour les indicateurs de stock */
+
+.table td:last-child {
+    position: relative;
+    cursor: help;
+}
+
+.table td:last-child:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary-color);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+}

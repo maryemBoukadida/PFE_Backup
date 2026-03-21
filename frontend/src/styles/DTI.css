@@ -5,13 +5,10 @@
 
 .cards-container {
     display: flex;
-    /* active le mode flex */
     gap: 20px;
-    /* espace entre les cards */
     flex-wrap: wrap;
-    /* permet le retour à la ligne si trop de cards */
     margin-bottom: 20px;
-    /* espace sous les cards */
+    color: #007bff;
 }
 
 
@@ -35,10 +32,10 @@
 }
 
 .card p {
-    color: #333;
+    color: #440707;
     /* couleur sombre pour tous les paragraphes */
     font-weight: bold;
-    /* si tu veux plus de visibilité */
+    color: #440707;
 }
 
 
@@ -59,7 +56,7 @@
     border-radius: 6px;
     cursor: pointer;
     background-color: #007bff;
-    color: white;
+    color: rgb(31, 4, 4);
     font-weight: bold;
     transition: background-color 0.2s;
 }
@@ -73,6 +70,7 @@
 
 .table-container {
     margin-top: 20px;
+    color: #007bff;
 }
 
 

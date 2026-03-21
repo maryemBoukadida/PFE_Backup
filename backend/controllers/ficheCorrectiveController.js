@@ -1,6 +1,7 @@
 const FicheCorrective = require("../models/ficheCorrective");
 const Notification = require("../models/Notification");
 const HistoriqueAction = require("../models/HistoriqueAction");
+const InventaireGmao = require("../models/Inventaire");
 
 // ================= CREER UNE FICHE =================
 exports.creerFicheCorrective = async(req, res) => {
@@ -88,6 +89,75 @@ exports.validerFicheCorrective = async(req, res) => {
         if (notifId) await Notification.findByIdAndUpdate(notifId, { read: true });
 
         res.json({ message: "Fiche validée ✅", fiche });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+exports.getAllDesignations = async(req, res) => {
+    try {
+        const data = await InventaireGmao.find();
+
+        let result = [];
+
+        data.forEach(doc => {
+            if (doc.balisage_gmao) {
+                result = result.concat(doc.balisage_gmao);
+            }
+
+            if (doc.PG_gmao) {
+                result = result.concat(doc.PG_gmao);
+            }
+
+            if (doc.autre) {
+                result = result.concat(doc.autre);
+            }
+        });
+
+        // 🔥 garder فقط designation + stock
+        const cleaned = result.map(item => ({
+            designation: item.designation,
+            stock: item.stock
+        }));
+
+        res.json(cleaned);
+
+    } catch (err) {
+        console.error("Erreur getAllDesignations :", err);
+        res.status(500).json({ message: err.message });
+    }
+};
+exports.updateStock = async(req, res) => {
+    try {
+        const { pieces } = req.body;
+        // pieces = [{ designation, quantite }, ...]
+
+        const doc = await InventaireGmao.findOne();
+
+        if (!doc) {
+            return res.status(404).json({ message: "Inventaire introuvable" });
+        }
+
+        const updateArray = (arr) => {
+            for (let item of arr) {
+                pieces.forEach(p => {
+                    if (item.designation === p.designation) {
+                        if (item.stock < p.quantite) {
+                            throw new Error(`Stock insuffisant pour ${p.designation}`);
+                        }
+                        item.stock -= p.quantite;
+                    }
+                });
+            }
+        };
+
+        updateArray(doc.balisage_gmao || []);
+        updateArray(doc.PG_gmao || []);
+        updateArray(doc.autre || []);
+
+        await doc.save();
+
+        res.json({ message: "Stock mis à jour ✅" });
+
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

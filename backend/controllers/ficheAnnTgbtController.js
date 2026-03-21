@@ -1,6 +1,17 @@
 const FicheAnnTgbt = require("../models/ficheAnnTgbt");
 const Notification = require("../models/Notification");
 
+exports.createFicheAnnTgbt = async(req, res) => {
+    try {
+        const fiche = await FicheAnnTgbt.create(req.body);
+        res.status(201).json(fiche);
+    } catch (err) {
+        console.error("Erreur create :", err);
+        res.status(500).json({ message: err.message });
+    }
+};
+
+
 // GET dernière fiche annuelle TGBT
 exports.getFicheAnnTgbt = async(req, res) => {
     try {
@@ -37,10 +48,16 @@ exports.getFicheTgbtById = async(req, res) => {
 exports.enregistrerFicheAnnTgbt = async(req, res) => {
     try {
         const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({ message: "ID manquant" });
+        }
+
         const data = req.body;
 
         const fiche = await FicheAnnTgbt.findByIdAndUpdate(id, data, {
             new: true,
+            runValidators: true, // 🔥 IMPORTANT
         });
 
         if (!fiche) {
@@ -49,7 +66,7 @@ exports.enregistrerFicheAnnTgbt = async(req, res) => {
 
         res.json(fiche);
     } catch (err) {
-        console.error(err);
+        console.error("Erreur enregistrerFicheAnnTgbt :", err);
         res.status(500).json({ message: err.message });
     }
 };
@@ -70,7 +87,7 @@ exports.envoyerFicheAnnTgbt = async(req, res) => {
         }
 
         // statut
-        fiche.statut = "envoyee";
+        fiche.statut = "envoyé";
         await fiche.save();
 
         // notification admin

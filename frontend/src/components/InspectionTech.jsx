@@ -296,10 +296,11 @@ const [showBalisage, setShowBalisage] = useState(false);
 <div 
   className="card"
   onClick={() => {
-  setShowOlapion(true);
-  setShowNoBreak(false);
-  setShow2250KVA(false);
-}}
+    setShow2250KVA(true);
+    setShowNoBreak(false);
+    setShowOlapion(false);
+    setShowBalisage(false);
+  }}
   style={{ cursor: "pointer" }}
 >
   <FaBolt size={40} color="#e74c3c" />

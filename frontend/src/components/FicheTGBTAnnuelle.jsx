@@ -1,171 +1,239 @@
-import React, { useEffect, useState, useRef } from "react";
-import { getFicheAnnTgbt, enregistrerFicheAnnTgbt, envoyerFicheAnnTgbt } from './apiservices/api';
+import React, { useState, useRef } from "react";
 import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import SignatureCanvas from "react-signature-canvas";
+import "react-datepicker/dist/react-datepicker.css";
+//import "../styles/FicheTGBT.css";
+import axios from "axios";
+import {
+  enregistrerFicheAnnTgbt,
+  envoyerFicheAnnTgbt,
+} from "./apiservices/api";
+
+// ================= INITIAL DATA =================
+const FICHE_TGBT_API = "http://localhost:5000/api/fiche-ann-tgbt";
+
+const initialFiche = {
+  date: new Date(),
+  postes: [
+    {
+      nom: "POSTE SST1",
+      elements: [
+        { nom: "Propreté", etat: "", interventions: "", observations: "" },
+        { nom: "Serrages des bornes aux niveau TGBT", etat: "", interventions: "", observations: "" },
+        { nom: "Mesure de la prise de terre", etat: "", interventions: "", observations: "" },
+        { nom: "Contrôle d'isolement au niveau TGBT", etat: "", interventions: "", observations: "" },
+        { nom: "Continuités des conducteurs depuis TGBT", etat: "", interventions: "", observations: "" },
+        { nom: "Continuités des liaisons équipotentielles", etat: "", interventions: "", observations: "" },
+      ],
+    },
+    {
+      nom: "POSTE SST2",
+      elements: [
+        { nom: "Propreté", etat: "", interventions: "", observations: "" },
+        { nom: "Serrages des bornes aux niveau TGBT", etat: "", interventions: "", observations: "" },
+        { nom: "Mesure de la prise de terre", etat: "", interventions: "", observations: "" },
+        { nom: "Contrôle d'isolement au niveau TGBT", etat: "", interventions: "", observations: "" },
+        { nom: "Continuités des conducteurs depuis TGBT", etat: "", interventions: "", observations: "" },
+        { nom: "Continuités des liaisons équipotentielles", etat: "", interventions: "", observations: "" },
+      ],
+    },
+  ],
+  observations_generales: "",
+  technicien_operateurs: "",
+  signature: "",
+};
 
 export default function FicheTGBTAnnuelle() {
-  const [fiche, setFiche] = useState(null);
-  const [date, setDate] = useState(new Date()); // date par défaut = maintenant
-  const [loading, setLoading] = useState(true);
+  const [fiche, setFiche] = useState(initialFiche);
+  const [date, setDate] = useState(new Date());
+  const [ficheId, setFicheId] = useState(null);
+
   const signatureRef = useRef();
 
-  useEffect(() => {
-    const fetchFiche = async () => {
-      try {
-        const data = await getFicheAnnTgbt();
-        setFiche(data);
-        setDate(data.date ? new Date(data.date) : new Date());
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchFiche();
-  }, []);
-
-  if (loading) return <p>Chargement...</p>;
-  if (!fiche) return <p>Aucune fiche trouvée</p>;
-
+  // ================= UPDATE ELEMENT =================
   const updateElement = (posteIndex, elementIndex, field, value) => {
-    const newFiche = { ...fiche };
-    newFiche.postes[posteIndex].elements[elementIndex][field] = value;
-    setFiche(newFiche);
-  };
+    setFiche((prev) => {
+      const updated = { ...prev };
 
-  const handleSave = async () => {
-    try {
-      const updated = {
-        ...fiche,
-        date: date ? date.toISOString() : fiche.date,
-        signature: signatureRef.current.isEmpty() ? "" : signatureRef.current.toDataURL()
+      const postes = [...updated.postes];
+      const elements = [...postes[posteIndex].elements];
+
+      elements[elementIndex] = {
+        ...elements[elementIndex],
+        [field]: value,
       };
-      await enregistrerFicheAnnTgbt(fiche._id, updated);
-      alert("Fiche enregistrée avec succès");
-    } catch (err) {
-      console.error(err);
-      alert("Erreur enregistrement");
-    }
+
+      postes[posteIndex] = {
+        ...postes[posteIndex],
+        elements,
+      };
+
+      return { ...updated, postes };
+    });
   };
 
+  // ================= SAVE =================
+const handleSave = async () => {
+  try {
+    const updated = {
+      ...fiche,
+      date: date.toISOString(),
+      signature: signatureRef.current.isEmpty()
+        ? ""
+        : signatureRef.current.toDataURL(),
+    };
+
+    let res;
+
+    // 🔥 SI PAS D'ID → CREATE
+    if (!fiche._id) {
+      res = await axios.post(FICHE_TGBT_API, updated); // ⚠️ POST
+    } else {
+      res = await enregistrerFicheAnnTgbt(fiche._id, updated);
+    }
+
+    setFiche(res.data);
+    setFicheId(res.data._id);
+
+    alert("Fiche enregistrée ✅");
+  } catch (err) {
+    console.error(err);
+    alert("Erreur enregistrement ❌");
+  }
+};
+
+  // ================= SEND =================
   const handleSend = async () => {
+    if (!ficheId) return alert("Enregistrer d'abord !");
+
     try {
-      if (!fiche.technicien_operateurs || fiche.technicien_operateurs.trim() === "") {
-        return alert("Veuillez saisir le technicien");
-      }
-      await envoyerFicheAnnTgbt(fiche._id);
-      alert("Fiche envoyée avec succès");
+      await envoyerFicheAnnTgbt(ficheId);
+      alert("Fiche envoyée ✅");
     } catch (err) {
       console.error(err);
-      alert("Erreur envoi");
+      alert("Erreur envoi ❌");
     }
   };
 
+  // ================= UI =================
   return (
     <div className="fiche-container">
-      {/* Titre avec date */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h2>Fiche Annuelle TGBT</h2>
-        <span><strong>Le : {date.toLocaleDateString()}</strong></span>
+      <h2>Fiche Annuelle TGBT</h2>
+
+      {/* DATE */}
+      <div>
+        <label>Date :</label>
+        <DatePicker selected={date} onChange={(d) => setDate(d)} />
       </div>
 
-      {/* Tableau des postes */}
-      <div className="table-card">
-        <table className="inspection-table">
-          <thead>
-            <tr>
-              <th>Élément</th>
-              <th>État</th>
-              <th>Interventions</th>
-              <th>Observations</th>
-            </tr>
-          </thead>
-          <tbody>
-            {fiche.postes.map((poste, posteIndex) => (
-              <React.Fragment key={poste.nom}>
-                <tr>
-                  <td colSpan="4" className="section-title">{poste.nom}</td>
+      {/* TABLE */}
+      <table className="table">
+        <thead>
+          <tr>
+            <th>Élément</th>
+            <th>État</th>
+            <th>Interventions</th>
+            <th>Observations</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {fiche.postes.map((poste, posteIndex) => (
+            <React.Fragment key={poste.nom}>
+              <tr>
+                <td colSpan="4" className="poste">
+                  {poste.nom}
+                </td>
+              </tr>
+
+              {poste.elements.map((el, elIndex) => (
+                <tr key={el.nom}>
+                  <td>{el.nom}</td>
+
+                  <td>
+                    <select
+                      value={el.etat}
+                      onChange={(e) =>
+                        updateElement(posteIndex, elIndex, "etat", e.target.value)
+                      }
+                    >
+                      <option value="">--</option>
+                      <option value="OK">OK</option>
+                      <option value="HS">HS</option>
+                    </select>
+                  </td>
+
+                  <td>
+                    <input
+                      value={el.interventions}
+                      onChange={(e) =>
+                        updateElement(
+                          posteIndex,
+                          elIndex,
+                          "interventions",
+                          e.target.value
+                        )
+                      }
+                    />
+                  </td>
+
+                  <td>
+                    <input
+                      value={el.observations}
+                      onChange={(e) =>
+                        updateElement(
+                          posteIndex,
+                          elIndex,
+                          "observations",
+                          e.target.value
+                        )
+                      }
+                    />
+                  </td>
                 </tr>
-                {poste.elements.map((el, elIndex) => (
-                  <tr key={el.nom}>
-                    <td>{el.nom}</td>
-                    <td>
-                      <select
-                        value={el.etat}
-                        onChange={(e) => updateElement(posteIndex, elIndex, "etat", e.target.value)}
-                      >
-                        <option value="">--</option>
-                        <option value="OK">OK</option>
-                        <option value="HS">HS</option>
-                      </select>
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        value={el.interventions}
-                        onChange={(e) => updateElement(posteIndex, elIndex, "interventions", e.target.value)}
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        value={el.observations}
-                        onChange={(e) => updateElement(posteIndex, elIndex, "observations", e.target.value)}
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </React.Fragment>
-            ))}
-          </tbody>
-        </table>
+              ))}
+            </React.Fragment>
+          ))}
+        </tbody>
+      </table>
 
-        {/* DatePicker au bas du tableau */}
-        <div style={{ marginTop: "15px" }}>
-          <label>Date de la fiche :</label>
-          <DatePicker
-            selected={date}
-            onChange={(d) => setDate(d)}
-            dateFormat="dd/MM/yyyy"
-          />
-        </div>
-      </div>
-
-      {/* Observations générales */}
-      <div className="obs-section">
+      {/* OBSERVATIONS */}
+      <div>
         <h3>Observations générales</h3>
         <textarea
           value={fiche.observations_generales}
-          onChange={(e) => setFiche({ ...fiche, observations_generales: e.target.value })}
+          onChange={(e) =>
+            setFiche({ ...fiche, observations_generales: e.target.value })
+          }
         />
       </div>
 
-      {/* Technicien / opérateurs */}
-      <div className="technicien-section">
-        <h3>Technicien / Opérateurs</h3>
+      {/* TECHNICIEN */}
+      <div>
+        <h3>Technicien</h3>
         <input
-          type="text"
           value={fiche.technicien_operateurs}
-          onChange={(e) => setFiche({ ...fiche, technicien_operateurs: e.target.value })}
+          onChange={(e) =>
+            setFiche({ ...fiche, technicien_operateurs: e.target.value })
+          }
         />
       </div>
 
-      {/* Signature */}
-      <div className="signature-section">
+      {/* SIGNATURE */}
+      <div>
         <h3>Signature</h3>
         <SignatureCanvas
           ref={signatureRef}
           penColor="black"
-          canvasProps={{ width: 400, height: 150, className: "signature-canvas" }}
+          canvasProps={{ width: 400, height: 150 }}
         />
-        <button className="btn-clear" onClick={() => signatureRef.current.clear()}>Effacer</button>
+        <button onClick={() => signatureRef.current.clear()}>Effacer</button>
       </div>
 
-      {/* Boutons */}
-      <div className="button-section">
-        <button className="btn-save" onClick={handleSave}>Enregistrer</button>
-        <button className="btn-send" onClick={handleSend}>Envoyer</button>
+      {/* BUTTONS */}
+      <div>
+        <button onClick={handleSave}>Enregistrer</button>
+        <button onClick={handleSend}>Envoyer</button>
       </div>
     </div>
   );

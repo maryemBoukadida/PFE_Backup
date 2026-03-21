@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import "../styles/GestionStock.css";
 import { getDesignations, addEquipement } from "../components/apiservices/api";
 import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+//import html2canvas from "html2canvas";
+import autoTable from "jspdf-autotable"; 
 
 export default function GestionStock() {
   const [form, setForm] = useState({
@@ -14,6 +15,7 @@ export default function GestionStock() {
     prixTotal: "",
     prixUnitaire: "",
     quantite: "",
+      unite: "", // ✅ AJOUT
     emplacement: "",
     autreEmplacement: ""
   });
@@ -34,32 +36,46 @@ export default function GestionStock() {
   };
 
   // 🔹 changement
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+ const handleChange = (e) => {
+  const { name, value } = e.target;
 
-    let updated = { ...form, [name]: value };
+  let updated = { ...form, [name]: value };
 
-    if (name === "emplacement") {
-      setShowAutre(value === "autre");
-      updated.designation = "";
-      setSuggestions([]);
+  // 🔥 recalcul automatique
+  if (name === "prixUnitaire" || name === "quantite") {
+    const prix = name === "prixUnitaire" ? value : form.prixUnitaire;
+    const qte = name === "quantite" ? value : form.quantite;
 
-      if (value && value !== "autre") {
-        fetchDesignations(value);
-      } else {
-        setDesignations([]);
-      }
+    if (prix && qte) {
+      updated.prixTotal = Number(prix) * Number(qte);
+    } else {
+      updated.prixTotal = "";
     }
+  }
 
-    if (name === "designation") {
-      const filtered = designations.filter((item) =>
-        item.toLowerCase().includes(value.toLowerCase())
-      );
-      setSuggestions(filtered);
+  // 🔹 gestion emplacement
+  if (name === "emplacement") {
+    setShowAutre(value === "autre");
+    updated.designation = "";
+    setSuggestions([]);
+
+    if (value && value !== "autre") {
+      fetchDesignations(value);
+    } else {
+      setDesignations([]);
     }
+  }
 
-    setForm(updated);
-  };
+  // 🔹 recherche désignation
+  if (name === "designation") {
+    const filtered = designations.filter((item) =>
+      item.toLowerCase().includes(value.toLowerCase())
+    );
+    setSuggestions(filtered);
+  }
+
+  setForm(updated);
+};
 
 
 // 🔥 SUBMIT (VERSION SIMPLE JSON)
@@ -122,22 +138,46 @@ const handleSubmit = async (e) => {
   }
 };
 
-  // 📄 EXPORT PDF
-  const exportPDF = async () => {
-    const element = document.getElementById("facture");
+ const exportPDF = () => {
+  const pdf = new jsPDF();
 
-    const canvas = await html2canvas(element);
-    const imgData = canvas.toDataURL("image/png");
+  let y = 20;
 
-    const pdf = new jsPDF("p", "mm", "a4");
+  pdf.setFontSize(18);
+  pdf.text("Fiche Entrée Stock", 20, y);
 
-    const imgProps = pdf.getImageProperties(imgData);
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+  y += 10;
+  pdf.setFontSize(12);
 
-    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-    pdf.save("facture_stock.pdf");
-  };
+  const lignes = [
+    `Désignation : ${form.designation}`,
+    `Quantité : ${form.quantite} ${form.unite}`,
+    `Prix unitaire : ${form.prixUnitaire}`,
+    `Prix total : ${form.prixTotal}`,
+    `Emplacement : ${form.emplacement === "autre" ? form.autreEmplacement : form.emplacement}`,
+    `Numéro série : ${form.numeroSerie}`,
+    `Code Oracle : ${form.codeOracle}`,
+    `N° Réquisition : ${form.numeroRequisition}`,
+    `Date livraison : ${form.dateLivraison}`
+  ];
+
+  lignes.forEach((ligne) => {
+    pdf.text(ligne, 20, y);
+    y += 8;
+  });
+autoTable(pdf, {
+  startY: y,
+  head: [["Champ", "Valeur"]],
+  body: [
+    ["Désignation", form.designation],
+    ["Quantité", `${form.quantite} ${form.unite}`],
+    ["Prix unitaire", form.prixUnitaire],
+    ["Prix total", form.prixTotal],
+    ["Emplacement", form.emplacement === "autre" ? form.autreEmplacement : form.emplacement],
+  ],
+});
+  pdf.save("entree_stock.pdf");
+};
 
   return (
     <div className="invoice-container dark">
@@ -206,11 +246,49 @@ const handleSubmit = async (e) => {
           </div>
 
           {/* PRIX */}
-          <div className="grid">
-            <input type="number" name="prixUnitaire" placeholder="Prix unitaire" onChange={handleChange} value={form.prixUnitaire} />
-            <input type="number" name="quantite" placeholder="Quantité" onChange={handleChange} value={form.quantite} />
-            <input type="number" name="prixTotal" placeholder="Prix total" onChange={handleChange} value={form.prixTotal} />
-          </div>
+       <div className="grid">
+  <input
+    type="number"
+    name="prixUnitaire"
+    placeholder="Prix unitaire"
+    onChange={handleChange}
+    value={form.prixUnitaire}
+  />
+
+  {/* Quantité + unité */}
+  <div style={{ display: "flex", gap: "10px" }}>
+    <input
+      type="number"
+      name="quantite"
+      placeholder="Quantité"
+      onChange={handleChange}
+      value={form.quantite}
+      style={{ flex: 2 }}
+    />
+
+    <select
+      name="unite"
+      value={form.unite}
+      onChange={handleChange}
+      style={{ flex: 1 }}
+    >
+      <option value="">Unité</option>
+      <option value="piece">Pièce</option>
+      <option value="litre">Litre</option>
+      <option value="kg">Kg</option>
+      <option value="metre">Mètre</option>
+      <option value="lot">Lot</option>
+    </select>
+  </div>
+
+  <input
+    type="number"
+    name="prixTotal"
+    placeholder="Prix total"
+    value={form.prixTotal}
+    readOnly
+  />
+</div>
 
           {/* ACTIONS */}
           <div className="actions">
