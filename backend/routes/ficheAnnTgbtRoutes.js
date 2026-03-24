@@ -14,5 +14,6 @@ router.get("/:id", ficheAnnTgbtController.getFicheTgbtById);
 // PUT envoyer
 router.put("/envoyer/:id", ficheAnnTgbtController.envoyerFicheAnnTgbt);
 router.put("/:id", ficheAnnTgbtController.enregistrerFicheAnnTgbt);
+router.post("/valider", ficheAnnTgbtController.validerFicheAnnTgbt);
 
 module.exports = router; // 🔹 Très important

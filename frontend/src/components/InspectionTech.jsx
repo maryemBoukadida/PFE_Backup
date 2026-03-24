@@ -60,7 +60,6 @@ const [showBalisage, setShowBalisage] = useState(false);
 
   const typesFichesAnnuelles = [
     { value: 'TGBT', label: 'TGBT' },
-    { value: 'PANNEAUX DE SIGNALISATION', label: 'Panneaux de signalisation' },
     {
       value: 'PANNEAUX DES INDICTAUERE SUR VOIE',
       label: 'Panneaux indicateur sur voie',
@@ -121,14 +120,12 @@ const [showBalisage, setShowBalisage] = useState(false);
               value={periode}
               onChange={(e) => setPeriode(e.target.value)}
             >
-              <option value="JOURNALIERE">Journalière</option>
-              <option value="HEBDOMADAIRE">Hebdomadaire</option>
-              <option value="MENSUELLE">Mensuelle</option>
+             {/* <option value="MENSUELLE">Mensuelle</option>*/}
               <option value="ANNUELLE">Annuelle</option>
               <option value="SEMESTRIELLE">Semestrielle</option>
               <option value="QUINQUENNALE">Quinquennale</option>
             </select>
-
+ {/*
             {periode === 'MENSUELLE' && (
               <select
                 value={typeFiche}
@@ -143,7 +140,7 @@ const [showBalisage, setShowBalisage] = useState(false);
                 ))}
               </select>
             )}
-
+* */}
             {periode === 'SEMESTRIELLE' && (
               <select
                 value={typeFiche}

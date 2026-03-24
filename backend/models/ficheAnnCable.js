@@ -17,7 +17,7 @@ const PosteSchema = new mongoose.Schema({
 // Schéma principal
 const FicheAnnCableSchema = new mongoose.Schema({
     type: { type: String, default: "inspection_annuelle_postes" },
-    postes: { type: [PosteSchema], default: [] },
+    postesC: { type: [PosteSchema], default: [] },
     date: { type: String, default: "" },
     technicien_operateur: { type: String, default: "" },
     signature: { type: String, default: "" },

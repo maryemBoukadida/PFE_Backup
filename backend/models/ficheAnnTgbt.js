@@ -16,15 +16,15 @@ const elementSchema = new Schema({
 }, { _id: false });
 
 // ================= POSTE =================
-const posteSchema = new Schema({
+const posteqSchema = new Schema({
     nom: { type: String, required: true },
     elements: { type: [elementSchema], default: [] },
 }, { _id: false });
 
 // ================= FICHE =================
 const ficheAnnTgbtSchema = new Schema({
-    postes: {
-        type: [posteSchema],
+    postesq: {
+        type: [posteqSchema],
         required: true,
         default: []
     },

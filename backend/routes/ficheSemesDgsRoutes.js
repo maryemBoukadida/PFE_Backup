@@ -4,16 +4,40 @@ const router = express.Router();
 
 const ficheSemesDgsController = require("../controllers/ficheSemesDgsController");
 
-// 🔹 GET dernière fiche semestrielle DGS
-router.get("/", ficheSemesDgsController.getFicheSemesDgs);
+// =======================
+// CREATE
+// =======================
+router.post("/", ficheSemesDgsController.creerFicheSemesDgs);
 
-// 🔹 GET fiche DGS par ID
+// =======================
+// GET ALL
+// =======================
+router.get("/", ficheSemesDgsController.getFichesSemesDgs);
+
+// =======================
+// GET DERNIÈRE FICHE
+// =======================
+router.get("/last", ficheSemesDgsController.getFicheSemesDgs);
+
+// =======================
+// GET PAR ID
+// =======================
 router.get("/:id", ficheSemesDgsController.getFicheSemesDgsById);
 
-// 🔹 PUT : enregistrer / mettre à jour la fiche
+// =======================
+// UPDATE / ENREGISTRER
+// =======================
 router.put("/:id", ficheSemesDgsController.enregistrerFicheSemesDgs);
 
-// 🔹 PUT : envoyer la fiche
+// =======================
+// ENVOYER
+// ⚠️ à mettre AVANT /:id sinon bug
+// =======================
 router.put("/envoyer/:id", ficheSemesDgsController.envoyerFicheSemesDgs);
+
+// =======================
+// VALIDER
+// =======================
+router.put("/valider", ficheSemesDgsController.validerFicheSemesDgs);
 
 module.exports = router;

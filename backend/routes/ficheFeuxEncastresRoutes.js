@@ -4,6 +4,7 @@ const ficheFeuxEncastresController = require('../controllers/ficheFeuxEncastresC
 
 // GET dernière fiche feux encastrés
 router.get('/', ficheFeuxEncastresController.getFicheFeuxEncastres);
+router.post("/", ficheFeuxEncastresController.creerFicheFeuxEncastres);
 
 // récupérer une fiche par ID
 router.get("/:id", ficheFeuxEncastresController.getFicheFeuxEncastresById);
@@ -12,5 +13,6 @@ router.put('/:id', ficheFeuxEncastresController.enregistrerFicheFeuxEncastres);
 
 //envoie 
 router.put("/envoyer/:id", ficheFeuxEncastresController.envoyerFicheFeuxEncastres);
+router.post("/valider", ficheFeuxEncastresController.validerFicheFeuxEncastres);
 
 module.exports = router;

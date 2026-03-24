@@ -2,43 +2,82 @@ import React, { useEffect, useState, useRef } from 'react';
 import { 
   getFicheSemesPostes, 
   enregistrerFicheSemesPostes, 
-  envoyerFicheSemesPostes 
+  envoyerFicheSemesPostes ,
+  creerFicheSemesPostes
 } from './apiservices/api';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import SignatureCanvas from 'react-signature-canvas';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../styles/FicheSemesPostes.css';
-
+const initialFiche = {
+  type: "fiche_semes_postes",
+  titre: "FICHE SEMESTRIELLE DES POSTES",
+  blocs: [
+    {
+      titre: "POSTE SST1",
+      elements: [
+        { verification: "Etat général", etat: "", interventions: "", observations: "" },
+        { verification: "Cahier de suivi", etat: "", interventions: "", observations: "" },
+        { verification: "Rangement, accessibilité et documentation", etat: "", interventions: "", observations: "" },
+        { verification: "Propreté du sol, des murs et présence de rongeurs ou d'oiseaux", etat: "", interventions: "", observations: "" },
+        { verification: "Etanchéité et climatisation", etat: "", interventions: "", observations: "" },
+        { verification: "Schémas synoptiques et étiquetage", etat: "", interventions: "", observations: "" },
+        { verification: "Contrôle autonomie alimentations N°1 et N°2 de rack", etat: "", interventions: "", observations: "" },
+        { verification: "Contrôle autonomie alimentations spécifiques", etat: "", interventions: "", observations: "" },
+        { verification: "Switch N°1 et N°2", etat: "", interventions: "", observations: "" },
+        { verification: "Parafoudre L1 et L2", etat: "", interventions: "", observations: "" },
+        { verification: "Contrôle caniveaux et présence des plaques de couverture", etat: "", interventions: "", observations: "" }
+      ]
+    },
+    {
+      titre: "POSTE SST2",
+      elements: [
+        { verification: "Etat général", etat: "", interventions: "", observations: "" },
+        { verification: "Cahier de suivi", etat: "", interventions: "", observations: "" },
+        { verification: "Rangement, accessibilité et documentation", etat: "", interventions: "", observations: "" },
+        { verification: "Propreté du sol, des murs et présence de rongeurs ou d'oiseaux", etat: "", interventions: "", observations: "" },
+        { verification: "Etanchéité et climatisation", etat: "", interventions: "", observations: "" },
+        { verification: "Schémas synoptiques et étiquetage", etat: "", interventions: "", observations: "" },
+        { verification: "Contrôle autonomie alimentations N°1 et N°2 de rack", etat: "", interventions: "", observations: "" },
+        { verification: "Contrôle autonomie alimentations spécifiques", etat: "", interventions: "", observations: "" },
+        { verification: "Switch N°1 et N°2", etat: "", interventions: "", observations: "" },
+        { verification: "Parafoudre L1 et L2", etat: "", interventions: "", observations: "" },
+        { verification: "Contrôle caniveaux et présence des plaques de couverture", etat: "", interventions: "", observations: "" }
+      ]
+    },
+    {
+      titre: "POSTE TC",
+      elements: [
+        { verification: "TGBT", etat: "", interventions: "", observations: "" },
+        { verification: "Rangement et accessibilité", etat: "", interventions: "", observations: "" },
+        { verification: "Contrôle autonomie alimentations spécifiques (IHM)", etat: "", interventions: "", observations: "" },
+        { verification: "Composants para surtensions (IHM)", etat: "", interventions: "", observations: "" },
+        { verification: "Test des composants de rechange (IHM)", etat: "", interventions: "", observations: "" },
+        { verification: "Switch", etat: "", interventions: "", observations: "" }
+      ]
+    }
+  ],
+  observations_generales: "",
+  date: "",
+  technicien_operateures: "",
+  signature: ""
+};
 export default function FicheSemesPostes() {
-  const [fiche, setFiche] = useState(null);
-  const [loading, setLoading] = useState(true);
+const [fiche, setFiche] = useState(initialFiche);
+const [ficheId, setFicheId] = useState(null);
   const [date, setDate] = useState(null);
   const signatureRef = useRef();
 
-  useEffect(() => {
-    const fetchFiche = async () => {
-      try {
-        const data = await getFicheSemesPostes();
-        setFiche(data);
-        if (data.date) setDate(new Date(data.date));
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchFiche();
-  }, []);
 
-  if (loading) return <p>Chargement...</p>;
-  if (!fiche) return <p>Aucune fiche trouvée</p>;
 
-  const handleChange = (poste, index, field, value) => {
-    const newFiche = { ...fiche };
-    newFiche[poste].controles[index][field] = value;
-    setFiche(newFiche);
-  };
+ 
+
+  const handleChange = (blocIndex, elementIndex, champ, valeur) => {
+  const newFiche = { ...fiche };
+  newFiche.blocs[blocIndex].elements[elementIndex][champ] = valeur;
+  setFiche(newFiche);
+};
 
   const containerVariants = { hidden: {}, visible: { transition: { staggerChildren: 0.2 } } };
   const cardVariants = {
@@ -46,81 +85,107 @@ export default function FicheSemesPostes() {
     visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
     hover: { scale: 1.03, boxShadow: '0 10px 25px rgba(0,0,0,0.15)' },
   };
+const renderBloc = (bloc, bi) => (
+  <div key={bi} className="bloc">
+    <h3>{bloc.titre}</h3>
 
-  const renderTable = (titre, posteKey) => (
-    <motion.div className="poste-card" variants={cardVariants} initial="hidden" animate="visible" whileHover="hover">
-      <h3>{titre}</h3>
-      <table className="inspection-table">
-        <thead>
-          <tr>
-            <th>Element</th>
-            <th>Etat</th>
-            <th>Interventions</th>
-            <th>Observations</th>
+    <table>
+      <thead>
+        <tr>
+          <th>Element</th>
+          <th>Etat</th>
+          <th>Interventions</th>
+          <th>Observations</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {bloc.elements.map((el, ei) => (
+          <tr key={ei}>
+            <td>{el.verification}</td>
+
+            <td>
+              <select
+                value={el.etat}
+                onChange={(e) =>
+                  handleChange(bi, ei, "etat", e.target.value)
+                }
+              >
+                <option value=""></option>
+                <option value="OK">OK</option>
+                <option value="HS">HS</option>
+                <option value="A_VERIFIER">A vérifier</option>
+              </select>
+            </td>
+
+            <td>
+              <input
+                value={el.interventions}
+                onChange={(e) =>
+                  handleChange(bi, ei, "interventions", e.target.value)
+                }
+              />
+            </td>
+
+            <td>
+              <input
+                value={el.observations}
+                onChange={(e) =>
+                  handleChange(bi, ei, "observations", e.target.value)
+                }
+              />
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          {fiche[posteKey].controles.map((c, index) => (
-            <tr key={index}>
-              <td>{c.element}</td>
-              <td>
-                <select value={c.etat} onChange={(e) => handleChange(posteKey, index, 'etat', e.target.value)}>
-                  <option value=""></option>
-                  <option value="OK">OK</option>
-                  <option value="HS">HS</option>
-                  <option value="A_VERIFIER">A vérifier</option>
-                </select>
-              </td>
-              <td>
-                <input
-                  type="text"
-                  value={c.interventions}
-                  onChange={(e) => handleChange(posteKey, index, 'interventions', e.target.value)}
-                />
-              </td>
-              <td>
-                <input
-                  type="text"
-                  value={c.observations}
-                  onChange={(e) => handleChange(posteKey, index, 'observations', e.target.value)}
-                />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </motion.div>
-  );
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
+
 
   // Enregistrer la fiche
-  const handleSave = async () => {
-    try {
-      const updatedFiche = {
-        ...fiche,
-        date: date ? date.toISOString() : fiche.date,
-        signature: signatureRef.current.isEmpty() ? '' : signatureRef.current.toDataURL(),
-      };
-      await enregistrerFicheSemesPostes(fiche._id, updatedFiche);
-      alert('Fiche enregistrée avec succès !');
-    } catch (error) {
-      console.error(error);
-      alert('Erreur lors de l\'enregistrement');
+const handleSave = async () => {
+  try {
+    const ficheToSend = {
+      ...fiche,
+      date: date || new Date(),
+      signature: signatureRef.current
+        ? signatureRef.current.toDataURL()
+        : ""
+    };
+
+    let res;
+
+    if (ficheId) {
+      res = await enregistrerFicheSemesPostes(ficheId, ficheToSend);
+    } else {
+      res = await creerFicheSemesPostes(ficheToSend);
     }
-  };
+
+    setFicheId(res._id);
+    alert("Fiche enregistrée ✅");
+
+  } catch (err) {
+    console.error("ERREUR BACK :", err.response?.data || err);
+    alert("Erreur enregistrement ❌");
+  }
+};
 
   // Envoyer la fiche
-  const handleSend = async () => {
-    try {
-      if (!fiche.technicien_operateures || fiche.technicien_operateures.trim() === '') {
-        return alert('Veuillez renseigner le nom du technicien avant d\'envoyer la fiche.');
-      }
-      await envoyerFicheSemesPostes(fiche._id);
-      alert('Fiche envoyée avec succès !');
-    } catch (error) {
-      console.error(error);
-      alert('Erreur lors de l\'envoi de la fiche');
-    }
-  };
+ const handleSend = async () => {
+  if (!ficheId) {
+    alert("Veuillez enregistrer d'abord");
+    return;
+  }
+
+  try {
+    await envoyerFicheSemesPostes(ficheId);
+    alert("Fiche envoyée ✅");
+  } catch (err) {
+    console.error(err);
+    alert("Erreur envoi ❌");
+  }
+};
 
   return (
     <motion.div className="fiche-container" variants={containerVariants} initial="hidden" animate="visible">
@@ -130,14 +195,20 @@ export default function FicheSemesPostes() {
           Fiche Inspection Semestrielle des Postes
           {date && <span className="date-affiche"> - {date.toLocaleDateString()}</span>}
         </h2>
-        <DatePicker selected={date} onChange={(date) => setDate(date)} placeholderText="Choisir la date" />
+        <DatePicker
+  selected={date}
+  onChange={(d) => {
+    setDate(d);
+    setFiche({ ...fiche, date: d });
+  }}
+  dateFormat="dd/MM/yyyy"
+  placeholderText="Choisir la date"
+/>
       </div>
 
       {/* POSTES */}
       <AnimatePresence>
-        {renderTable('POSTE SST1', 'posteSST1')}
-        {renderTable('POSTE SST2', 'posteSST2')}
-        {renderTable('POSTE TC', 'posteTC')}
+        {fiche.blocs.map((bloc, index) => renderBloc(bloc, index))}
       </AnimatePresence>
 
       {/* Observations générales */}

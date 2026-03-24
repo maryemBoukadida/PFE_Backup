@@ -102,8 +102,7 @@ export default function EquipementsComponent() {
       console.error('Erreur lors du marquage de la notification:', err);
     }
   };
-
-  // Gérer le clic sur une notification
+/*
   // Gérer le clic sur une notification
   const handleNotificationClick = async (notif) => {
     try {
@@ -122,23 +121,63 @@ export default function EquipementsComponent() {
             body: JSON.stringify({ read: true }),
           }
         );
-
         // Mettre à jour l'état local
         setNotifications((prev) =>
           prev.map((n) => (n._id === notif._id ? { ...n, read: true } : n))
         );
       }
-
       // Fermer le dropdown
       setShowNotifDropdown(false);
-
       // Naviguer vers la page notification
       setActiveMenu('notification');
     } catch (err) {
       console.error('Erreur lors du traitement de la notification:', err);
     }
   };
+*/
+const handleNotificationClick = async (notif) => {
+  try {
+    // ✅ Ouvrir la fiche
+    if (notif.url) {
+      window.open(notif.url, "_blank");
+    }
 
+    // ✅ Marquer comme lue UNE SEULE FOIS
+    if (!notif.read) {
+      let url = "";
+
+      // 🔥 Choisir la bonne API selon le type
+      if (notif.type === "corrective") {
+        url = `${BACKEND_URL}/api/fiche-corrective/notifications/${notif._id}`;
+      } else if (notif.type === "tgbt") {
+        url = `${BACKEND_URL}/api/fiche_ann_tgbt/notifications/${notif._id}`;
+      }
+
+      // 🔥 Appel API seulement si url existe
+      if (url) {
+        await fetch(url, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ read: true }),
+        });
+      }
+
+      // ✅ Mise à jour locale (UNE SEULE FOIS)
+      setNotifications((prev) =>
+        prev.map((n) =>
+          n._id === notif._id ? { ...n, read: true } : n
+        )
+      );
+    }
+
+    // ✅ UI
+    setShowNotifDropdown(false);
+    setActiveMenu("notification");
+
+  } catch (err) {
+    console.error("Erreur lors du traitement :", err);
+  }
+};
   // Marquer toutes les notifications comme lues quand on ouvre la page notifications
   const handleNotifIconClick = () => {
     setActiveMenu('notification');

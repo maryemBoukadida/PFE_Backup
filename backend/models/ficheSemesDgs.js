@@ -1,60 +1,53 @@
 const mongoose = require("mongoose");
 
+/* ================= Etat ================= */
 const EtatSchema = new mongoose.Schema({
-    Normal: { type: Boolean, default: false },
-    Anomalie: { type: Boolean, default: false },
-    Observations: { type: String, default: "" }
+    normal: { type: Boolean, default: false },
+    anomalie: { type: Boolean, default: false },
+    observations: { type: String, default: "" }
 }, { _id: false });
 
+/* ================= Element ================= */
+const ElementSchema = new mongoose.Schema({
+    verification: { type: String },
+    normal: { type: Boolean, default: false },
+    anomalie: { type: Boolean, default: false },
+    observations: { type: String, default: "" }
+}, { _id: false });
+
+/* ================= Bloc ================= */
+const BlocSchema = new mongoose.Schema({
+    titre: { type: String },
+    elements: [ElementSchema]
+}, { _id: false });
+
+/* ================= MAIN ================= */
 const FicheSemesDgsSchema = new mongoose.Schema({
 
-    "Désignation": { type: String, default: "" },
+    type: { type: String, default: "fiche_semestrielle_dgs" },
 
-    "Lieu d’installation": { type: String, default: "" },
+    titre: { type: String, default: "" },
 
-    "Contrôle": {
+    designation: { type: String, default: "" },
 
-        "Propreté": {
-            "La fenêtre frontale de l’afficheur": EtatSchema,
-            "Boîtier de commande opérateur": EtatSchema
-        },
+    lieu_installation: { type: String, default: "" },
 
-        "Porte du bloc laser": {
-            "Examiner le joint de porte du bloc laser": EtatSchema
-        },
+    technicien: { type: String, default: "" },
 
-        "Miroirs du bloc laser": {
-            "L’étalonnage du télémètre à laser": EtatSchema,
-            "Vérifier les miroirs de balayage": EtatSchema,
-            "Nettoyer les miroir du laser": EtatSchema,
-            "Nettoyer les lentilles du laser": EtatSchema
-        },
+    signature: { type: String, default: "" },
 
-        "Boutons d’arrêt d’urgence": {
-            "Le fonctionnement d’arrêt d’urgence": EtatSchema
-        },
+    date: { type: Date, default: Date.now },
 
-        "Capteur de température": {
-            "Capteur de température": EtatSchema
-        },
+    blocs: [BlocSchema],
 
-        "Afficheur et bloc laser": EtatSchema,
+    observations: { type: String, default: "" },
 
-        "Vérifier les ventilateurs": EtatSchema
-    },
-
-    "Observations générales": { type: String, default: "" },
-
-    "Technicien Operateures": { type: String, default: "" },
-
-    "Signature": { type: String, default: "" },
-
-    "Date": { type: String, default: "" }
+    statut: { type: String, default: "brouillon" }
 
 });
 
 module.exports = mongoose.model(
     "FicheSemesDgs",
     FicheSemesDgsSchema,
-    "ficheSemesDgs" // 🔴 force le nom exact de la collection
+    "ficheSemesDgs"
 );

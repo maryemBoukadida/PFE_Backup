@@ -1,37 +1,56 @@
 const mongoose = require("mongoose");
 
-// Sous-schema pour chaque ligne de contrôle
-const ControleSchema = new mongoose.Schema({
-    element: String,
-    etat: String,
-    interventions: String,
-    observations: String
+// 🔹 Sous-schema élément
+const ElementSchema = new mongoose.Schema({
+    verification: { type: String, required: true },
+    etat: { type: String, default: "" },
+    interventions: { type: String, default: "" },
+    observations: { type: String, default: "" }
 }, { _id: false });
 
-// Sous-schema pour chaque poste
-const PosteSchema = new mongoose.Schema({
-    controles: [ControleSchema]
+// 🔹 Sous-schema bloc
+const BlocSchema = new mongoose.Schema({
+    titre: { type: String, required: true },
+    elements: [ElementSchema]
 }, { _id: false });
 
-// Schema principal
+// 🔹 Schema principal
 const FicheSemesPostesSchema = new mongoose.Schema({
+    type: {
+        type: String,
+        default: "fiche_semes_postes"
+    },
 
-    posteSST1: PosteSchema,
+    titre: {
+        type: String,
+        default: "FICHE SEMESTRIELLE DES POSTES"
+    },
 
-    posteSST2: PosteSchema,
+    blocs: [BlocSchema],
 
-    posteTC: PosteSchema,
+    observations_generales: {
+        type: String,
+        default: ""
+    },
 
-    observations_generales: String,
+    date: {
+        type: Date,
+        default: Date.now
+    },
 
-    date: String,
 
-    technicien_operateures: String,
+    technicien_operateures: {
+        type: String,
+        default: ""
+    },
 
-    signature: String
-
+    signature: {
+        type: String,
+        default: ""
+    }
 }, {
-    collection: "ficheSemesPostes" // force mongoose à utiliser ta collection existante
+    collection: "ficheSemesPostes",
+    timestamps: true
 });
 
 module.exports = mongoose.model("FicheSemesPostes", FicheSemesPostesSchema);

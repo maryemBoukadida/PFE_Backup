@@ -420,12 +420,11 @@ onChange={(e) => {
           newDep[i].piecesDeRechange = item.designation;
 
           updateField('depannageReparation', newDep);
-
-          // 🔥 vider uniquement ce champ
           setFiltered(prev => ({ ...prev, [i]: [] }));
         }}
       >
-        {item.designation} (stock: {item.quantite})
+        <span className="designation">{item.designation}</span>
+        <span className="stock">Stock: {item.quantite}</span>
       </div>
     ))}
   </div>

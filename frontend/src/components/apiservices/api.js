@@ -402,6 +402,11 @@ export const envoyerFicheAidesRadios = async(id) => {
 // FICHE feux encastres
 // =======================
 // Récupérer la dernière fiche
+// CREATE
+export const creerFicheFeuxEncastres = async(data) => {
+    const res = await axios.post(FICHE_FEUXEN_API, data);
+    return res.data;
+};
 export const getFicheFeuxEncastres = async() => {
     const response = await fetch(FICHE_FEUXEN_API);
     if (!response.ok) {
@@ -417,6 +422,7 @@ export const envoyerFicheFeuxEncastres = async(id) => {
     const res = await axios.put(`${FICHE_FEUXEN_API}/envoyer/${id}`);
     return res.data;
 };
+
 // =======================
 // FICHE  semseterille regulateures
 // =======================
@@ -438,6 +444,10 @@ export const envoyerFicheSemesRegulateures = async(id) => {
 // =======================
 // FICHE semseterille postes
 // =======================
+export const creerFicheSemesPostes = async(data) => {
+    const res = await axios.post(FICHE_POSTESS_API, data);
+    return res.data;
+};
 export const getFicheSemesPostes = async() => {
     const response = await fetch(FICHE_POSTESS_API);
 
@@ -459,6 +469,7 @@ export const envoyerFicheSemesPostes = async(id) => {
 // FICHE semseterille Dgs
 // =======================
 
+// ================= GET =================
 export const getFicheSemesDgs = async() => {
     const response = await fetch(FICHE_DGSS_API);
     if (!response.ok) {
@@ -466,11 +477,19 @@ export const getFicheSemesDgs = async() => {
     }
     return response.json();
 };
+
+// ================= SAVE =================
 export const enregistrerFicheSemesDgs = async(id, data) => {
+    if (!id) throw new Error("ID manquant");
+
     const res = await axios.put(`${FICHE_DGSS_API}/${id}`, data);
     return res.data;
 };
+
+// ================= SEND =================
 export const envoyerFicheSemesDgs = async(id) => {
+    if (!id) throw new Error("ID manquant");
+
     const res = await axios.put(`${FICHE_DGSS_API}/envoyer/${id}`);
     return res.data;
 };
@@ -539,12 +558,11 @@ export const enregistrerFicheAnnPaMa = async(id, data) => {
     const res = await axios.put(`${FICHE_ANN_PAMA_API}/${id}`, data);
     return res.data;
 };
-/*
+
 export const envoyerFicheAnnPaMa = async(id) => {
     const res = await axios.put(`${FICHE_ANN_PAMA_API}/envoyer/${id}`);
     return res.data;
 };
-*/
 
 // =======================
 // FICHE annuelle infrastrcuture

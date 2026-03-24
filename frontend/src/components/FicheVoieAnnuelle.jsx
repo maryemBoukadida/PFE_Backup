@@ -4,114 +4,170 @@ import {
   enregistrerFicheAnnVoie,
   envoyerFicheAnnVoie
 } from "./apiservices/api";
+import axios from "axios";
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import SignatureCanvas from "react-signature-canvas";
 import '../styles/FicheVoieAnnuelle.css';
 
+
+const createPanneau = () => ({
+  "Signe de stop": { Etat: "", Interventions: "", Observations: "" },
+  "Lumière rouge clignotante": { Etat: "", Interventions: "", Observations: "" },
+  "Panneau solaire": { Etat: "", Interventions: "", Observations: "" },
+  "Les Batteries": { Etat: "", Interventions: "", Observations: "" },
+  "Carte de commande": { Etat: "", Interventions: "", Observations: "" },
+});
+
+const initialFiche = {
+  date: new Date(),
+
+  panneaux: {
+    H25: createPanneau(),
+    I25: createPanneau(),
+    I15: createPanneau(),
+    I5: createPanneau(),
+    I4: createPanneau(),
+    H4: createPanneau(),
+    I24: createPanneau(),
+    H24: createPanneau(),
+  },
+
+  ROTs: {
+    ROT11: {
+      "Etat de panneaux": { Etat: "", Interventions: "", Observations: "" },
+      "Etat d'éclairage": { Etat: "", Interventions: "", Observations: "" },
+    },
+    ROT12: {
+      "Etat de panneaux": { Etat: "", Interventions: "", Observations: "" },
+      "Etat d'éclairage": { Etat: "", Interventions: "", Observations: "" },
+    },
+    ROT13: {
+      "Etat de panneaux": { Etat: "", Interventions: "", Observations: "" },
+      "Etat d'éclairage": { Etat: "", Interventions: "", Observations: "" },
+    },
+    ROT14: {
+      "Etat de panneaux": { Etat: "", Interventions: "", Observations: "" },
+      "Etat d'éclairage": { Etat: "", Interventions: "", Observations: "" },
+    },
+    ROT15: {
+      "Etat de panneaux": { Etat: "", Interventions: "", Observations: "" },
+      "Etat d'éclairage": { Etat: "", Interventions: "", Observations: "" },
+    },
+    ROT16: {
+      "Etat de panneaux": { Etat: "", Interventions: "", Observations: "" },
+      "Etat d'éclairage": { Etat: "", Interventions: "", Observations: "" },
+    },
+    ROT17: {
+      "Etat de panneaux": { Etat: "", Interventions: "", Observations: "" },
+      "Etat d'éclairage": { Etat: "", Interventions: "", Observations: "" },
+    },
+    ROT18: {
+      "Etat de panneaux": { Etat: "", Interventions: "", Observations: "" },
+      "Etat d'éclairage": { Etat: "", Interventions: "", Observations: "" },
+    },
+    ROT19: {
+      "Etat de panneaux": { Etat: "", Interventions: "", Observations: "" },
+      "Etat d'éclairage": { Etat: "", Interventions: "", Observations: "" },
+    },
+  },
+
+  observations_generales: "",
+  techniciens_operateurs: "",
+  signature: "",
+};
+
+
 export default function FicheVoieAnnuelle() {
-
-  const [fiche, setFiche] = useState(null);
+const [ficheId, setFicheId] = useState(null);
   const [date, setDate] = useState(new Date());
-  const [loading, setLoading] = useState(true);
-
+const [fiche, setFiche] = useState(initialFiche);
   const signatureRef = useRef();
 
-  useEffect(() => {
 
-    const fetchFiche = async () => {
-      try {
 
-        const data = await getFicheAnnVoie();
-
-        setFiche(data);
-        setDate(data.date ? new Date(data.date) : new Date());
-
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchFiche();
-
-  }, []);
-
-  if (loading) return <p>Chargement...</p>;
-  if (!fiche) return <p>Aucune fiche trouvée</p>;
+   
 
 
 
-  // ================= MAJ PANNEAUX =================
+   // ================= UPDATE PANNEAU =================
   const updatePanneau = (panneau, element, field, value) => {
-
-    const newFiche = { ...fiche };
-
-    newFiche.panneaux[panneau][element][field] = value;
-
-    setFiche(newFiche);
-
+    setFiche((prev) => ({
+      ...prev,
+      panneaux: {
+        ...prev.panneaux,
+        [panneau]: {
+          ...prev.panneaux[panneau],
+          [element]: {
+            ...prev.panneaux[panneau][element],
+            [field]: value,
+          },
+        },
+      },
+    }));
   };
 
-
-
-  // ================= MAJ ROT =================
+    // ================= UPDATE ROT =================
   const updateRot = (rot, element, field, value) => {
-
-    const newFiche = { ...fiche };
-
-    newFiche.ROTs[rot][element][field] = value;
-
-    setFiche(newFiche);
-
+    setFiche((prev) => ({
+      ...prev,
+      ROTs: {
+        ...prev.ROTs,
+        [rot]: {
+          ...prev.ROTs[rot],
+          [element]: {
+            ...prev.ROTs[rot][element],
+            [field]: value,
+          },
+        },
+      },
+    }));
   };
 
 
-
+    // ================= SAVE =================
   const handleSave = async () => {
-
     try {
-
       const updated = {
         ...fiche,
-        date: date ? date.toISOString() : fiche.date,
+        date: date.toISOString(),
         signature: signatureRef.current.isEmpty()
           ? ""
-          : signatureRef.current.toDataURL()
+          : signatureRef.current.toDataURL(),
       };
 
-      await enregistrerFicheAnnVoie(fiche._id, updated);
+      let res;
 
-      alert("Fiche enregistrée avec succès");
+      if (!fiche._id) {
+        res = await axios.post("http://localhost:5000/api/fiche-ann-voie", updated);
+      } else {
+        res = await enregistrerFicheAnnVoie(fiche._id, updated);
+      }
 
+      setFiche(res.data);
+      setFicheId(res.data._id);
+
+      alert("Fiche enregistrée ✅");
     } catch (err) {
       console.error(err);
-      alert("Erreur enregistrement");
+      alert("Erreur ❌");
     }
-
   };
 
 
 
+  //================= SEND =================
   const handleSend = async () => {
+    if (!ficheId) return alert("Enregistrer d'abord !");
 
     try {
-
-      if (!fiche.techniciens_operateurs || fiche.techniciens_operateurs.length === 0) {
-        return alert("Veuillez saisir les techniciens");
-      }
-
-      await envoyerFicheAnnVoie(fiche._id);
-
-      alert("Fiche envoyée avec succès");
-
+      await envoyerFicheAnnVoie(ficheId);
+      alert("Envoyée ✅");
     } catch (err) {
       console.error(err);
-      alert("Erreur envoi");
+      alert("Erreur ❌");
     }
-
   };
 
 

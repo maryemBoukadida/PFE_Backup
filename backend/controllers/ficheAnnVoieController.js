@@ -1,7 +1,16 @@
 const FicheAnnVoie = require("../models/ficheAnnVoie");
 const Notification = require("../models/Notification");
+const HistoriqueAction = require("../models/HistoriqueAction");
 
-
+exports.createFicheAnnVoie = async(req, res) => {
+    try {
+        const fiche = await FicheAnnVoie.create(req.body);
+        res.status(201).json(fiche);
+    } catch (err) {
+        console.error("Erreur create :", err);
+        res.status(500).json({ message: err.message });
+    }
+};
 // ================= GET dernière fiche =================
 exports.getFicheAnnVoie = async(req, res) => {
     try {
@@ -84,8 +93,7 @@ exports.envoyerFicheAnnVoie = async(req, res) => {
             });
         }
 
-        fiche.statut = "envoyee";
-
+        fiche.statut = "envoyé";
         await fiche.save();
 
         const notification = new Notification({
@@ -103,6 +111,32 @@ exports.envoyerFicheAnnVoie = async(req, res) => {
 
     } catch (err) {
         console.error("Erreur envoyerFicheAnnVoie :", err);
+        res.status(500).json({ message: err.message });
+    }
+};
+exports.validerFicheAnnVoie = async(req, res) => {
+    try {
+        const { ficheId, notifId } = req.body;
+
+        const fiche = await FicheAnnVoie.findById(ficheId);
+        if (!fiche) return res.status(404).json({ message: "Fiche voie non trouvée" });
+
+        fiche.statut = "validée";
+        await fiche.save();
+
+        const historique = new HistoriqueAction({
+            type: "fiche_ann_voie",
+            message: "Fiche annuelle voie validée",
+            dataId: fiche._id,
+            date: new Date()
+        });
+
+        await historique.save();
+
+        if (notifId) await Notification.findByIdAndUpdate(notifId, { read: true });
+
+        res.json({ message: "Fiche validée ✅", fiche });
+    } catch (err) {
         res.status(500).json({ message: err.message });
     }
 };

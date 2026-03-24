@@ -1,30 +1,15 @@
 import React, { useEffect, useState, useRef } from "react";
-import { getFicheAnnPaMa, enregistrerFicheAnnPaMa,creerFicheAnnPaMa  } from "./apiservices/api";
+import { enregistrerFicheAnnPaMa,envoyerFicheAnnPaMa ,creerFicheAnnPaMa } from "./apiservices/api";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import SignatureCanvas from "react-signature-canvas";
 
+
+
+
 export default function FicheAnnPaMa() {
-  const [fiche, setFiche] = useState(null);
-  const [date, setDate] = useState(new Date());
-  const [loading, setLoading] = useState(true);
-  const signatureRef = useRef();
-
- /* useEffect(() => {
-    const fetchFiche = async () => {
-      try {
-        const data = await getFicheAnnPaMa();
-        setFiche(data);
-        setDate(data.date ? new Date(data.date) : new Date());
-      } catch (err) { console.error(err); }
-      finally { setLoading(false); }
-    };
-    fetchFiche();
-  }, []);
-*/
-
 const createEmptyFichePaMa = () => ({
-  tableaux: [
+    tableaux: [
     {
       titre: "09",
       verifications: ["11","12","21","22","31","32","41","42"],
@@ -80,78 +65,75 @@ const createEmptyFichePaMa = () => ({
   signature: "",
   statut: "brouillon"
 });
-useEffect(() => {
-  const fetchFiche = async () => {
-    try {
-      const data = await getFicheAnnPaMa();
-      // si la fiche n'existe pas ou tableaux est vide, créer une fiche vide
-      if (!data || !data.tableaux || data.tableaux.length === 0) {
-        setFiche(createEmptyFichePaMa());
-        setDate(new Date());
-      } else {
-        setFiche(data);
-        setDate(data.date ? new Date(data.date) : new Date());
-      }
-    } catch (err) { 
-      console.error(err);
-      // en cas d'erreur, on initialise une fiche vide pour ne jamais bloquer le formulaire
-      setFiche(createEmptyFichePaMa());
-      setDate(new Date());
-    } finally { setLoading(false); }
-  };
-  fetchFiche();
-}, []);
-  if (loading) return <p>Chargement...</p>;
-  if (!fiche) return <p>Aucune fiche trouvée</p>;
+
+  const [fiche, setFiche] = useState(createEmptyFichePaMa());
+const [ficheId, setFicheId] = useState(null);
+
+  const [date, setDate] = useState(new Date());
+  const signatureRef = useRef();
 
   const updateCell = (tableauIndex, ligne, verif, value) => {
     const newFiche = { ...fiche };
-    newFiche.tableaux[tableauIndex].lignes[ligne][verif] = value;
+   newFiche.tableaux[tableauIndex].lignes = {
+  ...newFiche.tableaux[tableauIndex].lignes,
+  [ligne]: {
+    ...newFiche.tableaux[tableauIndex].lignes[ligne],
+    [verif]: value
+  }
+};
     setFiche(newFiche);
   };
 
- const handleSave = async () => {
+const handleSave = async () => {
   try {
     const updatedFiche = {
       ...fiche,
       date: date.toISOString(),
-      signature: signatureRef.current?.isEmpty() ? "" : signatureRef.current.toDataURL(),
+      signature: signatureRef.current?.isEmpty()
+        ? ""
+        : signatureRef.current.toDataURL(),
     };
 
-    let savedFiche;
-    if (fiche._id) {
-      // Mise à jour d'une fiche existante
-      savedFiche = await enregistrerFicheAnnPaMa(fiche._id, updatedFiche);
+    let res;
+
+    if (!ficheId) {
+      // CREATE
+      res = await creerFicheAnnPaMa(updatedFiche);
+      setFicheId(res._id);
     } else {
-      // Création d'une nouvelle fiche
-      savedFiche = await creerFicheAnnPaMa(updatedFiche);
+      // UPDATE
+      res = await enregistrerFicheAnnPaMa(ficheId, updatedFiche);
     }
 
-    alert("Fiche enregistrée avec succès !");
-
-    // Réinitialiser formulaire
-    setFiche(createEmptyFichePaMa());
-    setDate(new Date());
-    signatureRef.current?.clear();
+    setFiche(res);
+    alert("Fiche enregistrée ✅");
 
   } catch (err) {
-    console.error("Erreur lors de l'enregistrement:", err.response?.data || err.message);
-    alert("Erreur lors de l'enregistrement. Vérifie la connexion au serveur.");
+    console.error(err);
+    alert("Erreur enregistrement ❌");
   }
 };
 
 
-/*
 
-  const handleSend = async () => {
-    try {
-      if (!fiche.techniciens_operateurs || fiche.techniciens_operateurs.length === 0)
-        return alert("Veuillez saisir les techniciens");
-      await envoyerFicheAnnPaMa(fiche._id);
-      alert("Fiche envoyée");
-    } catch (err) { console.error(err); alert("Erreur"); }
-  };
-  */
+
+ const handleSend = async () => {
+  if (!ficheId) {
+    return alert("Enregistrer d'abord !");
+  }
+
+  if (!fiche.techniciens_operateurs || fiche.techniciens_operateurs.length === 0) {
+    return alert("Veuillez saisir les techniciens");
+  }
+
+  try {
+    await envoyerFicheAnnPaMa(ficheId);
+    alert("Fiche envoyée ✅");
+  } catch (err) {
+    console.error(err);
+    alert("Erreur envoi ❌");
+  }
+};
 
 
   return (
@@ -201,7 +183,11 @@ useEffect(() => {
   <label>Techniciens :</label>
   <input
     type="text"
-    value={fiche.techniciens_operateurs.join(", ")}
+    value={
+  Array.isArray(fiche.techniciens_operateurs)
+    ? fiche.techniciens_operateurs.join(", ")
+    : ""
+}
     onChange={e => setFiche({
       ...fiche,
       techniciens_operateurs: e.target.value.split(",").map(s => s.trim())
@@ -218,7 +204,8 @@ useEffect(() => {
 
       <div>
         <button onClick={handleSave}>Enregistrer</button>
-      </div>
+<button onClick={handleSend} disabled={!ficheId}></button>
+     </div>
     </div>
   );
 }

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "../styles/Layout.css";
 import logo from "../tav5.png";
 import TechNotifications from "../components/TechNotifications";
-
+import { FaBell } from "react-icons/fa";
 export default function Layout({ children, technicien }) {
   // --------------------------
   // États principaux
@@ -110,8 +110,20 @@ export default function Layout({ children, technicien }) {
       -------------------------- */}
       <div className="main-content">
         <div className="topbar">
-          <h1>Gestion interventions</h1>
-        </div>
+  <h1>Gestion interventions</h1>
+
+  {/* 🔔 Notification icon */}
+  <div
+    className="notification-icon"
+    onClick={() => setActiveMenu("notifications")}
+    style={{ cursor: "pointer", position: "relative" }}
+  >
+    <FaBell size={22} />
+
+    {/* 🔴 badge (optionnel) */}
+    <span className="notif-badge">3</span>
+  </div>
+</div>
 
         <div className="content">
           {/* Afficher le composant Notifications si le menu actif est "notifications" */}

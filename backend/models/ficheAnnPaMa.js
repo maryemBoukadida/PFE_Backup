@@ -7,7 +7,7 @@ const LigneSchema = new mongoose.Schema({}, { strict: false });
 const TableauSchema = new mongoose.Schema({
     titre: { type: String, required: true },
     verifications: [{ type: String }],
-    lignes: { type: Map, of: LigneSchema }
+    lignes: { type: Object, default: {} }
 });
 
 // ===================== Schéma principal =====================

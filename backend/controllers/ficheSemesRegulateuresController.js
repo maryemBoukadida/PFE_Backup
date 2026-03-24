@@ -1,6 +1,17 @@
 const FicheSemesRegulateures = require("../models/ficheSemesRegulateures");
 const Notification = require("../models/Notification");
+const HistoriqueAction = require("../models/HistoriqueAction");
 
+// CREER UNE FICHE
+exports.creerFicheSemesRegulateures = async(req, res) => {
+    try {
+        const fiche = new FicheSemesRegulateures(req.body);
+        const nouvelleFiche = await fiche.save();
+        res.status(201).json(nouvelleFiche);
+    } catch (error) {
+        res.status(500).json({ message: "Erreur création fiche feux séquentiels", error: error.message });
+    }
+};
 // GET dernière fiche semestrielle régulateurs
 exports.getFicheSemesRegulateures = async(req, res) => {
     try {
@@ -83,6 +94,32 @@ exports.getFicheSemesRegulateuresById = async(req, res) => {
         res.json(fiche);
     } catch (err) {
         console.error("Erreur getFicheSemesRegulateuresById :", err);
+        res.status(500).json({ message: err.message });
+    }
+};
+exports.validerSemesRegulateures = async(req, res) => {
+    try {
+        const { ficheId, notifId } = req.body;
+        if (!ficheId) return res.status(400).json({ message: "ID de la fiche requis" });
+
+        const fiche = await FicheSemesRegulateures.findById(ficheId);
+        if (!fiche) return res.status(404).json({ message: "Fiche non trouvée" });
+
+        fiche.statut = "validée";
+        await fiche.save();
+
+        const historique = new HistoriqueAction({
+            type: "fiche_regulateurs",
+            message: "Fiche semesterille regulateures validée",
+            dataId: fiche._id,
+            date: new Date()
+        });
+        await historique.save();
+
+        if (notifId) await Notification.findByIdAndUpdate(notifId, { read: true });
+
+        res.json({ message: "Fiche validée et ajoutée à l'historique ✅", fiche });
+    } catch (err) {
         res.status(500).json({ message: err.message });
     }
 };

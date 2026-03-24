@@ -50,6 +50,7 @@ const FICHE_NOBREAK_API = "http://localhost:5000/api/fiche-nobreak";
 const FICHE_2250KVA_API = "http://localhost:5000/api/fiche-2250kva";
 const FICHE_OLAPION_API = "http://localhost:5000/api/fiche-olapion";
 const FICHE_BALISAGE_API = "http://localhost:5000/api/fiche-balisage";
+const FICHE_ANN_PAMA_API = "http://localhost:5000/api/fiche-ann-pa-ma";
 
 
   // ===================== CHARGER NOTIFICATIONS =====================
@@ -130,6 +131,9 @@ const FICHE_BALISAGE_API = "http://localhost:5000/api/fiche-balisage";
       const res25 = await fetch(
         'http://localhost:5000/api/fiche-balisage/notifications'
       );
+       const res26 = await fetch(
+        'http://localhost:5000/api/fiche-ann-pa-ma/notifications'
+      );
 
       const data1 = res1.ok ? await res1.json() : [];
       const data2 = res2.ok ? await res2.json() : [];
@@ -156,6 +160,7 @@ const FICHE_BALISAGE_API = "http://localhost:5000/api/fiche-balisage";
       const data23 = res23.ok ? await res23.json() : [];
       const data24 = res24.ok ? await res24.json() : [];
       const data25 = res25.ok ? await res25.json() : [];
+      const data26 = res26.ok ? await res26.json() : [];
       setNotifications([
         ...(Array.isArray(data1) ? data1 : []),
         ...(Array.isArray(data2) ? data2 : []),
@@ -182,6 +187,7 @@ const FICHE_BALISAGE_API = "http://localhost:5000/api/fiche-balisage";
         ...(Array.isArray(data23) ? data23: []),
         ...(Array.isArray(data24) ? data24: []),
         ...(Array.isArray(data25) ? data25: []),
+        ...(Array.isArray(data26) ? data26: []),
       ]);
     } catch (err) {
       console.error('Erreur notifications :', err);
@@ -645,6 +651,28 @@ const voirFicheBalisage = async (ficheId, notifId) => {
     console.error("Erreur voir fiche balisage :", err);
   }
 };
+const voirFichePaMa = async (ficheId, notifId) => {
+  try {
+    // 🔹 appel API fiche PaMa
+    const res = await fetch(`${FICHE_ANN_PAMA_API}/${ficheId}`);
+
+    if (!res.ok) {
+      console.error("Erreur récupération fiche PaMa");
+      return;
+    }
+
+    const data = await res.json();
+
+    // 🔹 stocker fiche + notifId
+    setSelectedFiche({ ...data, notifId });
+
+  } catch (err) {
+    console.error("Erreur voir fiche PaMa :", err);
+  }
+};
+
+
+
   //marquer fiche comme lu
   const marquerNotifCommeLue = async (notifId) => {
     if (!notifId) return;
@@ -696,7 +724,7 @@ const voirFicheBalisage = async (ficheId, notifId) => {
         url = 'http://localhost:5000/api/fiche-aides-radios/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_aides_radios';
-      } else if (selectedFiche?.feuxEncastres) {
+      } else if (selectedFiche?.emplacements) {
         url = 'http://localhost:5000/api/fiche_feux_encastres/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_feux_encastres';
@@ -712,7 +740,7 @@ const voirFicheBalisage = async (ficheId, notifId) => {
         url = 'http://localhost:5000/api/fiche_semes_dgs/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_semes_dgs';
-      } else if (selectedFiche?.postesY) {  
+      } else if (selectedFiche?.postesq) {  
         url = 'http://localhost:5000/api/fiche-ann-tgbt/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_ann_tgbt';
@@ -720,7 +748,7 @@ const voirFicheBalisage = async (ficheId, notifId) => {
         url = 'http://localhost:5000/api/fiche-ann-voie/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_ann_voie';
-      } else if (selectedFiche?.piste) {  
+      } else if (selectedFiche?.PISTE) {  
         url = 'http://localhost:5000/api/fiche-ann-infrastructure/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_ann_infrastructure';
@@ -736,11 +764,10 @@ const voirFicheBalisage = async (ficheId, notifId) => {
         url = 'http://localhost:5000/api/fiche-ann-obs/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_ann_obs';  
-        } else if (selectedFiche?.postesa) {
+        } else if (selectedFiche?.postesC) {
         url = 'http://localhost:5000/api/fiche-ann-cable/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_ann_cable';  
-
         } else if (selectedFiche?.blocs) {
         url = 'http://localhost:5000/api/fiche-ann-feux-sequentiels/valider';
         body = { ficheId: id };
@@ -765,6 +792,14 @@ const voirFicheBalisage = async (ficheId, notifId) => {
         url = 'http://localhost:5000/api/fiche-olapion/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_olapion';      
+        } else if (selectedFiche?.groupes) { 
+        url = 'http://localhost:5000/api/fiche-balisage/valider';
+        body = { ficheId: id };
+        selectedFicheType = 'fiche_balisage';       
+       } else if (selectedFiche?.tableaux) { 
+        url = 'http://localhost:5000/api/fiche-ann-pa-ma/valider';
+        body = { ficheId: id };
+        selectedFicheType = 'fiche_ann_pa_ma';        
       } else {
         url = 'http://localhost:5000/api/inspections/valider';
         body = { inspectionId: id };
@@ -1873,7 +1908,9 @@ const voirFicheBalisage = async (ficheId, notifId) => {
                      } else if (n.type?.toLowerCase() === 'fiche_olapion') {
                     voirFicheOlapion(ficheId, n._id); 
                      } else if (n.type?.toLowerCase() === 'fiche_balisage') {
-                    voirFicheBalisage(ficheId, n._id);  
+                    voirFicheBalisage(ficheId, n._id);
+                    } else if (n.type?.toLowerCase() === 'fiche_ann_pa_ma') {
+                    voirFichePaMa (ficheId, n._id);  
                   } else {
                     voirFiche(ficheId);
                   }
@@ -2314,75 +2351,81 @@ const voirFicheBalisage = async (ficheId, notifId) => {
                   <button onClick={exportPDF}>📄 Exporter PDF</button>
                 </div>
               </>
-            ) : // ================= FEUX ENCASTRES =================
-            selectedFiche.feuxEncastres ? (
-              <>
-                <h3>Fiche Feux Encastrés Semestrielle</h3>
+              // ================= FEUX ENCASTRES =================
+            
+          ):selectedFiche?.emplacements ? (
+  <>
+    <h3>Fiche Feux Encastrés Semestrielle</h3>
 
-                <p>
-                  📅 Date :{' '}
-                  {selectedFiche.date
-                    ? new Date(selectedFiche.date).toLocaleDateString()
-                    : ''}
-                </p>
-                <p>
-                  👨‍🔧 Technicien : {selectedFiche.technicienOperateurs || ''}
-                </p>
-                <p>
-                  📝 Observations générales :{' '}
-                  {selectedFiche.observationsGenerales || ''}
-                </p>
+    <p>
+      📅 Date :{' '}
+      {selectedFiche.date
+        ? new Date(selectedFiche.date).toLocaleDateString()
+        : ''}
+    </p>
 
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Emplacement</th>
-                      <th>Élément</th>
-                      <th>État</th>
-                      <th>Interventions</th>
-                      <th>Observations</th>
-                    </tr>
-                  </thead>
+    <p>
+      👨‍🔧 Technicien : {selectedFiche.technicien_operateur || ''}
+    </p>
 
-                  <tbody>
-                    {Object.keys(selectedFiche.feuxEncastres).map((emp, i) => {
-                      const fields = selectedFiche.feuxEncastres[emp];
-                      return Object.keys(fields).map((field, j) => {
-                        const row = fields[field];
-                        return (
-                          <tr key={`${i}-${j}`}>
-                            {j === 0 && (
-                              <td rowSpan={Object.keys(fields).length}>
-                                {emp}
-                              </td>
-                            )}
-                            <td>{field}</td>
-                            <td>{row.etat}</td>
-                            <td>{row.intervention}</td>
-                            <td>{row.observations}</td>
-                          </tr>
-                        );
-                      });
-                    })}
-                  </tbody>
-                </table>
+    <p>
+      📝 Observations générales :{' '}
+      {selectedFiche.observations_generales || ''}
+    </p>
 
-                <div className="modal-actions">
-                  <button
-                    onClick={() =>
-                      validerFiche(selectedFiche._id, selectedFiche.notifId)
-                    }
-                  >
-                    ✅ Valider
-                  </button>
+    <table>
+      <thead>
+        <tr>
+          <th>Emplacement</th>
+          <th>Élément</th>
+          <th>État</th>
+          <th>Interventions</th>
+          <th>Observations</th>
+        </tr>
+      </thead>
 
-                  <button onClick={() => setSelectedFiche(null)}>
-                    ❌ Fermer
-                  </button>
+      <tbody>
+        {selectedFiche.emplacements.map((emp, empIndex) => (
+          <React.Fragment key={empIndex}>
+            {emp.elements.map((el, elIndex) => (
+              <tr key={`${empIndex}-${elIndex}`}>
+                
+                {elIndex === 0 && (
+                  <td rowSpan={emp.elements.length}>
+                    {emp.nom}
+                  </td>
+                )}
 
-                  <button onClick={exportPDF}>📄 Exporter PDF</button>
-                </div>
-              </>
+                <td>{el.nom}</td>
+                <td>{el.etat}</td>
+                <td>{el.interventions}</td>
+                <td>{el.observations}</td>
+              </tr>
+            ))}
+          </React.Fragment>
+        ))}
+      </tbody>
+    </table>
+
+    <div className="modal-actions">
+      <button
+        onClick={() =>
+          validerFiche(selectedFiche._id, selectedFiche.notifId)
+        }
+      >
+        ✅ Valider
+      </button>
+
+      <button onClick={() => setSelectedFiche(null)}>
+        ❌ Fermer
+      </button>
+
+      <button onClick={exportPDF}>
+        📄 Exporter PDF
+      </button>
+    </div>
+  </>
+
             ) : // ================= REGULATEURS =================
             selectedFiche?.boucles ? (
               <>
@@ -2742,9 +2785,9 @@ const voirFicheBalisage = async (ficheId, notifId) => {
                   <button onClick={exportPDF}>📄 Exporter PDF</button>
                 </div>
               </>
-            ) : // ================= Anuelle tgbt =================
-/*
-            selectedFiche?.postes ? (
+              // ================= Anuelle tgbt =================
+
+            ) : selectedFiche?.postesq ? (
               <>
                 <h3>Fiche Annuelle TGBT</h3>
                 <p>
@@ -2785,7 +2828,7 @@ const voirFicheBalisage = async (ficheId, notifId) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {selectedFiche.postes.map((poste) => (
+                    {selectedFiche.postesq.map((poste) => (
                       <React.Fragment key={poste.nom}>
                         <tr>
                           <td
@@ -2870,9 +2913,9 @@ const voirFicheBalisage = async (ficheId, notifId) => {
                   <button onClick={exportPDF}>📄 Exporter PDF</button>
                 </div>
               </>
-              */
+              
             // ================= Anuelle voie =================
-             selectedFiche?.panneaux ? (
+                      ):    selectedFiche?.panneaux ? (
               <>
                 <h3>Fiche Annuelle Voie</h3>
 
@@ -2885,8 +2928,7 @@ const voirFicheBalisage = async (ficheId, notifId) => {
                 </p>
                 <p>
                   👨‍🔧 Technicien / Opérateurs :{' '}
-                  {selectedFiche.techniciens_operateurs?.join(', ') || ''}
-                </p>
+{selectedFiche.techniciens_operateurs || ''}                </p>
                 <p>
                   📝 Observations générales :{' '}
                   {selectedFiche.observations_generales || ''}
@@ -3125,6 +3167,7 @@ const voirFicheBalisage = async (ficheId, notifId) => {
                   </button>
                 </div>
               </>
+              // infarstructure
             ) : selectedFiche?.PISTE ? (
               <>
                 <h3>Fiche Annuelle Infrastructure</h3>
@@ -3138,8 +3181,7 @@ const voirFicheBalisage = async (ficheId, notifId) => {
                 </p>
                 <p>
                   👨‍🔧 Technicien / Opérateurs :{' '}
-                  {selectedFiche.techniciens_operateurs?.join(', ') || ''}
-                </p>
+{selectedFiche.techniciens_operateurs || ''}                </p>
                 <p>
                   📝 Observations générales :{' '}
                   {selectedFiche.observationsGenerales || ''}
@@ -3263,6 +3305,7 @@ const voirFicheBalisage = async (ficheId, notifId) => {
                   </button>
                 </div>
               </>
+              //Fiche Feux Hors Sql
             ) : selectedFiche?.feuxHorsSol ? (
               <>
                 <h3>Fiche Feux Hors Sql</h3>
@@ -3399,6 +3442,7 @@ const voirFicheBalisage = async (ficheId, notifId) => {
                   </button>
                 </div>
               </>
+             // Fiche Effaroucheur
             ) : selectedFiche?.fiches ? (
               <>
                 <h3>Fiche Effaroucheur</h3>
@@ -3580,46 +3624,58 @@ const voirFicheBalisage = async (ficheId, notifId) => {
       <button onClick={() => exportPDF(selectedFiche)}>📄 Exporter PDF</button>
     </div>
   </>
-/*
-) : selectedFiche?.postes ? (
+  // ficeh anuelele cable 
+  ):selectedFiche?.postesC ? (
   <>
-    <h3>Fiche Annuelle Câbles</h3>
+    <h3>📡 Fiche Annuelle Câbles</h3>
 
+    {/* ================= INFOS ================= */}
     <p>
-      📅 Date :{' '}
+      📅 Date :{" "}
       {selectedFiche.date
         ? new Date(selectedFiche.date).toLocaleDateString()
-        : 'Non renseignée'}
+        : "Non renseignée"}
     </p>
-    <p>👨‍🔧 Technicien / Opérateur : {selectedFiche.technicien_operateur || 'Non renseigné'}</p>
-    <p>📝 Observations générales : {selectedFiche.observations_generales || 'Aucune'}</p>
 
-    {selectedFiche.postes.map((poste, pi) => (
-      <div key={pi} style={{ marginTop: '20px' }}>
+    <p>
+      👨‍🔧 Technicien / Opérateur :{" "}
+      {selectedFiche.technicien_operateur || "Non renseigné"}
+    </p>
+
+    <p>
+      📝 Observations générales :{" "}
+      {selectedFiche.observations_generales || "Aucune"}
+    </p>
+
+    {/* ================= POSTES ================= */}
+    {selectedFiche.postesC.map((poste, pi) => (
+      <div key={pi} style={{ marginTop: "20px" }}>
         <h4>{poste.titre}</h4>
+
         {poste.equipements && poste.equipements.length > 0 ? (
           <table
             style={{
-              borderCollapse: 'collapse',
-              width: '100%',
-              marginTop: '10px',
+              borderCollapse: "collapse",
+              width: "100%",
+              marginTop: "10px"
             }}
           >
             <thead>
-              <tr style={{ backgroundColor: '#eee' }}>
-                <th style={{ border: '1px solid #000', padding: '5px' }}>Équipement</th>
-                <th style={{ border: '1px solid #000', padding: '5px' }}>État</th>
-                <th style={{ border: '1px solid #000', padding: '5px' }}>Interventions</th>
-                <th style={{ border: '1px solid #000', padding: '5px' }}>Observations</th>
+              <tr style={{ backgroundColor: "#eee" }}>
+                <th style={th}>Équipement</th>
+                <th style={th}>État</th>
+                <th style={th}>Interventions</th>
+                <th style={th}>Observations</th>
               </tr>
             </thead>
+
             <tbody>
               {poste.equipements.map((equip, ei) => (
                 <tr key={ei}>
-                  <td style={{ border: '1px solid #000', padding: '5px' }}>{equip.nom}</td>
-                  <td style={{ border: '1px solid #000', padding: '5px' }}>{equip.etat || '-'}</td>
-                  <td style={{ border: '1px solid #000', padding: '5px' }}>{equip.interventions || '-'}</td>
-                  <td style={{ border: '1px solid #000', padding: '5px' }}>{equip.observations || '-'}</td>
+                  <td style={td}>{equip.nom}</td>
+                  <td style={td}>{equip.etat || "-"}</td>
+                  <td style={td}>{equip.interventions || "-"}</td>
+                  <td style={td}>{equip.observations || "-"}</td>
                 </tr>
               ))}
             </tbody>
@@ -3629,16 +3685,28 @@ const voirFicheBalisage = async (ficheId, notifId) => {
         )}
       </div>
     ))}
-    <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-      <button onClick={() => validerFiche(selectedFiche._id, selectedFiche.notifId)}>
+
+    {/* ================= ACTIONS ================= */}
+    <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
+      <button
+        onClick={() =>
+          validerFiche(selectedFiche._id, selectedFiche.notifId)
+        }
+      >
         ✅ Valider
       </button>
-      <button onClick={() => setSelectedFiche(null)}>❌ Fermer</button>
-      <button onClick={() => exportPDF(selectedFiche)}>📄 Exporter PDF</button>
+
+      <button onClick={() => setSelectedFiche(null)}>
+        ❌ Fermer
+      </button>
+
+      <button onClick={() => exportPDF(selectedFiche)}>
+        📄 Exporter PDF
+      </button>
     </div>
   </>
-  //fiche annuel eseqeunetielle
-*/
+
+
 ) : selectedFiche?.postes ? (
   <>
     <h3>Fiche Annuelle Câbles</h3>
@@ -4429,6 +4497,188 @@ const voirFicheBalisage = async (ficheId, notifId) => {
       </button>
     </div>
   </>
+
+  //fiche pamaa 
+      ): selectedFiche?.groupes ? (
+  <>
+    <h3>📡 Fiche Balisage</h3>
+
+    {/* ================= INFOS GENERALES ================= */}
+    <p>
+      📅 Date :{" "}
+      {selectedFiche.date
+        ? new Date(selectedFiche.date).toLocaleDateString()
+        : ""}
+    </p>
+
+    <p>👨‍🔧 Technicien : {selectedFiche.technicien}</p>
+
+    <p>📌 Statut : {selectedFiche.statut}</p>
+
+    {/* ================= TABLEAU ================= */}
+    <h4>Inspection Balisage</h4>
+
+    <table style={{ borderCollapse: "collapse", width: "100%" }}>
+      <thead>
+        <tr style={{ backgroundColor: "#eee" }}>
+          <th style={th}>Fonction</th>
+          <th style={th}>Désignation</th>
+
+          <th colSpan="4" style={th}>Matin</th>
+          <th colSpan="4" style={th}>Nuit</th>
+        </tr>
+
+        <tr style={{ backgroundColor: "#eee" }}>
+          <th></th>
+          <th></th>
+
+          <th style={th}>NF</th>
+          <th style={th}>Fonctionnement</th>
+          <th style={th}>Interventions</th>
+          <th style={th}>Obs</th>
+
+          <th style={th}>NF</th>
+          <th style={th}>Fonctionnement</th>
+          <th style={th}>Interventions</th>
+          <th style={th}>Obs</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {selectedFiche.groupes.map((g, gi) => (
+          <React.Fragment key={gi}>
+            {g.lignes.map((l, li) => (
+              <tr key={li}>
+                {/* Groupe */}
+                {li === 0 && (
+                  <td rowSpan={g.lignes.length}>
+                    <b>{g.titre}</b>
+                  </td>
+                )}
+
+                {/* Désignation */}
+                <td>{l.designation}</td>
+
+                {/* ================= MATIN ================= */}
+                <td>{l.matin?.nf}</td>
+                <td>{l.matin?.fonctionnement}</td>
+                <td>{l.matin?.interventions}</td>
+                <td>{l.matin?.observations}</td>
+
+                {/* ================= NUIT ================= */}
+                <td>{l.nuit?.nf}</td>
+                <td>{l.nuit?.fonctionnement}</td>
+                <td>{l.nuit?.interventions}</td>
+                <td>{l.nuit?.observations}</td>
+              </tr>
+            ))}
+          </React.Fragment>
+        ))}
+      </tbody>
+    </table>
+
+    {/* ================= ACTIONS ================= */}
+    <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
+      <button
+        onClick={() =>
+          validerFiche(selectedFiche._id, selectedFiche.notifId)
+        }
+      >
+        ✅ Valider
+      </button>
+
+      <button onClick={() => setSelectedFiche(null)}>
+        ❌ Fermer
+      </button>
+
+      <button onClick={() => exportPDF(selectedFiche)}>
+        📄 Exporter PDF
+      </button>
+    </div>
+  </>
+):selectedFiche?.tableaux ? (
+  <>
+    <h3>📡 Fiche Annuelle PaMa</h3>
+
+    {/* ================= INFOS ================= */}
+    <p>
+      📅 Date :{" "}
+      {selectedFiche.date
+        ? new Date(selectedFiche.date).toLocaleDateString()
+        : ""}
+    </p>
+
+    <p>
+      👨‍🔧 Techniciens :{" "}
+      {Array.isArray(selectedFiche.techniciens_operateurs)
+        ? selectedFiche.techniciens_operateurs.join(", ")
+        : ""}
+    </p>
+
+    <p>📌 Statut : {selectedFiche.statut}</p>
+
+    {/* ================= TABLEAUX ================= */}
+    {selectedFiche.tableaux.map((tableau, tIdx) => (
+      <div key={tIdx} style={{ marginBottom: "30px" }}>
+        <h4>Tableau {tableau.titre}</h4>
+
+        <table style={{ borderCollapse: "collapse", width: "100%" }}>
+          <thead>
+            <tr style={{ backgroundColor: "#eee" }}>
+              <th style={th}>Ligne</th>
+
+              {tableau.verifications.map((v) => (
+                <th key={v} style={th}>
+                  {v}
+                </th>
+              ))}
+            </tr>
+          </thead>
+
+          <tbody>
+            {Object.entries(tableau.lignes).map(([ligne, verifs], i) => (
+              <tr key={i}>
+                <td style={td}>
+                  <b>{ligne}</b>
+                </td>
+
+                {tableau.verifications.map((v) => (
+                  <td key={v} style={td}>
+                    {verifs[v]}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    ))}
+
+    {/* ================= ACTIONS ================= */}
+    <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
+      <button
+        onClick={() =>
+          validerFiche(selectedFiche._id, selectedFiche.notifId)
+        }
+      >
+        ✅ Valider
+      </button>
+
+      <button onClick={() => setSelectedFiche(null)}>
+        ❌ Fermer
+      </button>
+
+      <button onClick={() => exportPDF(selectedFiche)}>
+        📄 Exporter PDF
+      </button>
+    </div>
+  </>
+
+
+
+
+
+
 
             ) : selectedFiche.installations?.length > 0 ? (
               <>

@@ -3,15 +3,22 @@ const router = express.Router();
 
 const ficheSemesPostesController = require("../controllers/ficheSemesPostesController");
 
-// GET dernière fiche semestrielle des postes
-router.get("/", ficheSemesPostesController.getFicheSemesPostes);
+// ✅ CREER UNE FICHE
+router.post("/", ficheSemesPostesController.creerFicheSemesPostes);
 
-// GET fiche par ID
+// ✅ RECUPERER TOUTES LES FICHES
+router.get("/", ficheSemesPostesController.getFichesSemesPostes);
+
+// ✅ RECUPERER UNE FICHE PAR ID
 router.get("/:id", ficheSemesPostesController.getFicheSemesPostesById);
-// PUT : enregistrer / mettre à jour une fiche semestrielle par ID
+
+// ✅ METTRE À JOUR UNE FICHE
 router.put("/:id", ficheSemesPostesController.enregistrerFicheSemesPostes);
 
-// PUT : envoyer la fiche
-router.put('/envoyer/:id', ficheSemesPostesController.envoyerFicheSemesPostes);
+// ✅ ENVOYER LA FICHE
+router.put("/envoyer/:id", ficheSemesPostesController.envoyerFicheSemesPostes);
+
+// ✅ VALIDER LA FICHE
+router.post("/valider", ficheSemesPostesController.validerFicheSemesPostes);
 
 module.exports = router;

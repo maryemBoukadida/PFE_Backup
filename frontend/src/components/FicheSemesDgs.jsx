@@ -9,207 +9,189 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import SignatureCanvas from "react-signature-canvas";
 
-import '../styles/FicheSemesDgs.css';
+import "../styles/FicheSemesDgs.css";
+
+/* ================= INITIAL DATA ================= */
+const initialFicheDGS = {
+  type: "fiche_semestrielle_dgs",
+  titre: "Fiche Inspection Semestrielle DGS",
+
+  date: "",
+  designation: "",
+  lieu_installation: "",
+  technicien: "",
+  signature: "",
+
+  blocs: [
+    {
+      titre: "Propreté",
+      elements: [
+        { verification: "La fenêtre frontale de l’afficheur", normal: false, anomalie: false, observations: "" },
+        { verification: "Boîtier de commande opérateur", normal: false, anomalie: false, observations: "" }
+      ]
+    },
+    {
+      titre: "Porte du bloc laser",
+      elements: [
+        { verification: "Examiner le joint de porte du bloc laser", normal: false, anomalie: false, observations: "" }
+      ]
+    },
+    {
+      titre: "Miroirs du bloc laser",
+      elements: [
+        { verification: "L’étalonnage du télémètre à laser", normal: false, anomalie: false, observations: "" },
+        { verification: "Vérifier les miroirs de balayage", normal: false, anomalie: false, observations: "" },
+        { verification: "Nettoyer les miroirs du laser", normal: false, anomalie: false, observations: "" },
+        { verification: "Nettoyer les lentilles du laser", normal: false, anomalie: false, observations: "" }
+      ]
+    },
+    {
+      titre: "Boutons d’arrêt d’urgence",
+      elements: [
+        { verification: "Le fonctionnement d’arrêt d’urgence", normal: false, anomalie: false, observations: "" }
+      ]
+    },
+    {
+      titre: "Capteur de température",
+      elements: [
+        { verification: "Capteur de température", normal: false, anomalie: false, observations: "" }
+      ]
+    },
+    {
+      titre: "Autres vérifications",
+      elements: [
+        { verification: "Afficheur et bloc laser", normal: false, anomalie: false, observations: "" },
+        { verification: "Vérifier les ventilateurs", normal: false, anomalie: false, observations: "" }
+      ]
+    }
+  ]
+};
 
 export default function FicheSemesDgs() {
-  const [fiche, setFiche] = useState(null);
+  const [fiche, setFiche] = useState(initialFicheDGS);
   const [date, setDate] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const signatureRef = useRef();
 
-  useEffect(() => {
-    const fetchFiche = async () => {
-      try {
-        const data = await getFicheSemesDgs();
+  /* ================= FETCH ================= */
+ useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const data = await getFicheSemesDgs();
+
+      if (data && data.blocs) {
         setFiche(data);
-
-        if (data["Date"]) setDate(new Date(data["Date"]));
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
+        if (data.date) setDate(new Date(data.date));
+      } else {
+        // fallback si backend renvoie rien ou structure incorrecte
+        setFiche(initialFicheDGS);
       }
+
+    } catch (err) {
+      console.error(err);
+      setFiche(initialFicheDGS);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+}, []);
+
+  /* ================= UPDATE ================= */
+  const handleChange = (blocIndex, elementIndex, field, value) => {
+    const updated = { ...fiche };
+
+    const elem = updated.blocs[blocIndex].elements[elementIndex];
+
+    if (field === "normal" && value) {
+      elem.normal = true;
+      elem.anomalie = false;
+      elem.observations = "RAS";
+    } else if (field === "anomalie" && value) {
+      elem.normal = false;
+      elem.anomalie = true;
+      elem.observations = "";
+    } else {
+      elem[field] = value;
+    }
+
+    setFiche(updated);
+  };
+
+  /* ================= SAVE ================= */
+ const handleSave = async () => {
+  try {
+    if (!fiche._id) {
+      return alert("Erreur : ID fiche manquant");
+    }
+
+    const updated = {
+      ...fiche,
+      date: date ? date.toISOString() : fiche.date,
+      signature: signatureRef.current?.isEmpty()
+        ? ""
+        : signatureRef.current.toDataURL()
     };
-    fetchFiche();
-  }, []);
 
-  if (loading) return <p>Chargement...</p>;
-  if (!fiche) return <p>Aucune fiche trouvée</p>;
+    await enregistrerFicheSemesDgs(fiche._id, updated);
 
-  const updateEtat = (section, element, field, value) => {
-    const newFiche = { ...fiche };
-    const data = newFiche["Contrôle"][section][element];
+    alert("Fiche enregistrée avec succès");
+  } catch (err) {
+    console.error(err);
+    alert("Erreur enregistrement");
+  }
+};
 
-    if (field === "Normal" && value) {
-      data.Normal = true;
-      data.Anomalie = false;
-      data.Observations = "RAS";
-    } else if (field === "Anomalie" && value) {
-      data.Normal = false;
-      data.Anomalie = true;
-      data.Observations = "";
-    } else {
-      data[field] = value;
-    }
-    setFiche(newFiche);
-  };
-
-  const updateEtatSimple = (element, field, value) => {
-    const newFiche = { ...fiche };
-    const data = newFiche["Contrôle"][element];
-
-    if (field === "Normal" && value) {
-      data.Normal = true;
-      data.Anomalie = false;
-      data.Observations = "RAS";
-    } else if (field === "Anomalie" && value) {
-      data.Normal = false;
-      data.Anomalie = true;
-      data.Observations = "";
-    } else {
-      data[field] = value;
-    }
-    setFiche(newFiche);
-  };
-
-  const renderEtat = (section, element) => {
-    const data = fiche["Contrôle"][section][element];
-
-    return (
-      <tr key={element}>
-        <td>{element}</td>
-        <td>
-          <label className="checkbox-container">
-            <input
-              type="checkbox"
-              checked={data.Normal}
-              onChange={(e) => updateEtat(section, element, "Normal", e.target.checked)}
-            />
-            <span className="checkmark"></span>
-          </label>
-        </td>
-        <td>
-          <label className="checkbox-container">
-            <input
-              type="checkbox"
-              checked={data.Anomalie}
-              onChange={(e) => updateEtat(section, element, "Anomalie", e.target.checked)}
-            />
-            <span className="checkmark"></span>
-          </label>
-        </td>
-        <td>
-          <input
-            type="text"
-            className="input-observation"
-            value={data.Observations}
-            onChange={(e) => updateEtat(section, element, "Observations", e.target.value)}
-          />
-        </td>
-      </tr>
-    );
-  };
-
-  const renderEtatSimple = (element) => {
-    const data = fiche["Contrôle"][element];
-
-    return (
-      <tr key={element}>
-        <td>{element}</td>
-        <td>
-          <label className="checkbox-container">
-            <input
-              type="checkbox"
-              checked={data.Normal}
-              onChange={(e) => updateEtatSimple(element, "Normal", e.target.checked)}
-            />
-            <span className="checkmark"></span>
-          </label>
-        </td>
-        <td>
-          <label className="checkbox-container">
-            <input
-              type="checkbox"
-              checked={data.Anomalie}
-              onChange={(e) => updateEtatSimple(element, "Anomalie", e.target.checked)}
-            />
-            <span className="checkmark"></span>
-          </label>
-        </td>
-        <td>
-          <input
-            type="text"
-            className="input-observation"
-            value={data.Observations}
-            onChange={(e) => updateEtatSimple(element, "Observations", e.target.value)}
-          />
-        </td>
-      </tr>
-    );
-  };
-
-  const renderSectionTitle = (title) => {
-    return (
-      <tr key={title}>
-        <td colSpan="4" className="section-title">
-          {title}
-        </td>
-      </tr>
-    );
-  };
-
-  const handleSave = async () => {
-    try {
-      const updated = {
-        ...fiche,
-        "Date": date ? date.toISOString() : fiche["Date"],
-        "Signature": signatureRef.current.isEmpty() ? "" : signatureRef.current.toDataURL()
-      };
-      await enregistrerFicheSemesDgs(fiche._id, updated);
-      alert("Fiche enregistrée avec succès");
-    } catch (err) {
-      console.error(err);
-      alert("Erreur enregistrement");
-    }
-  };
-
+  /* ================= SEND ================= */
   const handleSend = async () => {
-    try {
-      if (!fiche["Technicien Operateures"] || fiche["Technicien Operateures"].trim() === "") {
-        return alert("Veuillez saisir le technicien");
-      }
-      await envoyerFicheSemesDgs(fiche._id);
-      alert("Fiche envoyée avec succès");
-    } catch (err) {
-      console.error(err);
-      alert("Erreur envoi");
+  try {
+    if (!fiche._id) {
+      return alert("Erreur : ID fiche manquant");
     }
-  };
 
+    if (!fiche.technicien || fiche.technicien.trim() === "") {
+      return alert("Veuillez saisir le technicien");
+    }
+
+    await envoyerFicheSemesDgs(fiche._id);
+
+    alert("Fiche envoyée avec succès");
+  } catch (err) {
+    console.error(err);
+    alert("Erreur envoi");
+  }
+};
+
+  /* ================= UI ================= */
   return (
     <div className="fiche-container">
-      <div className="fiche-header-top">
-        <h2>Fiche Inspection Semestrielle DGS</h2>
-        {date && <h3>Le : {date.toLocaleDateString()}</h3>}
-      </div>
+      <h2>{fiche.titre}</h2>
 
       <div className="fiche-header">
         <input
-          type="text"
           placeholder="Désignation"
-          value={fiche["Désignation"]}
-          onChange={(e) => setFiche({ ...fiche, "Désignation": e.target.value })}
+          value={fiche.designation}
+          onChange={(e) =>
+            setFiche({ ...fiche, designation: e.target.value })
+          }
         />
+
         <input
-          type="text"
           placeholder="Lieu d’installation"
-          value={fiche["Lieu d’installation"]}
-          onChange={(e) => setFiche({ ...fiche, "Lieu d’installation": e.target.value })}
+          value={fiche.lieu_installation}
+          onChange={(e) =>
+            setFiche({ ...fiche, lieu_installation: e.target.value })
+          }
         />
+
         <DatePicker
           selected={date}
-          onChange={(d) => setDate(d)}
+          onChange={(d) => {
+            setDate(d);
+            setFiche({ ...fiche, date: d });
+          }}
           placeholderText="Choisir date"
           dateFormat="dd/MM/yyyy"
         />
@@ -225,29 +207,58 @@ export default function FicheSemesDgs() {
               <th>Observations</th>
             </tr>
           </thead>
+
           <tbody>
-            {renderSectionTitle("Propreté")}
-            {renderEtat("Propreté", "La fenêtre frontale de l’afficheur")}
-            {renderEtat("Propreté", "Boîtier de commande opérateur")}
+{fiche?.blocs?.map((bloc, bi) => (
+                <React.Fragment key={bi}>
+                <tr>
+                  <td colSpan="4" className="section-title">
+                    {bloc.titre}
+                  </td>
+                </tr>
 
-            {renderSectionTitle("Porte du bloc laser")}
-            {renderEtat("Porte du bloc laser", "Examiner le joint de porte du bloc laser")}
+                {bloc.elements.map((elem, ei) => (
+                  <tr key={ei}>
+                    <td>{elem.verification}</td>
 
-            {renderSectionTitle("Miroirs du bloc laser")}
-            {renderEtat("Miroirs du bloc laser", "L’étalonnage du télémètre à laser")}
-            {renderEtat("Miroirs du bloc laser", "Vérifier les miroirs de balayage")}
-            {renderEtat("Miroirs du bloc laser", "Nettoyer les miroir du laser")}
-            {renderEtat("Miroirs du bloc laser", "Nettoyer les lentilles du laser")}
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={elem.normal}
+                        onChange={(e) =>
+                          handleChange(bi, ei, "normal", e.target.checked)
+                        }
+                      />
+                    </td>
 
-            {renderSectionTitle("Boutons d’arrêt d’urgence")}
-            {renderEtat("Boutons d’arrêt d’urgence", "Le fonctionnement d’arrêt d’urgence")}
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={elem.anomalie}
+                        onChange={(e) =>
+                          handleChange(bi, ei, "anomalie", e.target.checked)
+                        }
+                      />
+                    </td>
 
-            {renderSectionTitle("Capteur de température")}
-            {renderEtat("Capteur de température", "Capteur de température")}
-
-            {renderSectionTitle("Autres vérifications")}
-            {renderEtatSimple("Afficheur et bloc laser")}
-            {renderEtatSimple("Vérifier les ventilateurs")}
+                    <td>
+                      <input
+                        type="text"
+                        value={elem.observations}
+                        onChange={(e) =>
+                          handleChange(
+                            bi,
+                            ei,
+                            "observations",
+                            e.target.value
+                          )
+                        }
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </React.Fragment>
+            ))}
           </tbody>
         </table>
       </div>
@@ -255,17 +266,20 @@ export default function FicheSemesDgs() {
       <div className="obs-section">
         <h3>Observations générales</h3>
         <textarea
-          value={fiche["Observations générales"]}
-          onChange={(e) => setFiche({ ...fiche, "Observations générales": e.target.value })}
+          value={fiche.observations}
+          onChange={(e) =>
+            setFiche({ ...fiche, observations: e.target.value })
+          }
         />
       </div>
 
       <div className="technicien-section">
-        <h3>Technicien Operateures</h3>
+        <h3>Technicien</h3>
         <input
-          type="text"
-          value={fiche["Technicien Operateures"]}
-          onChange={(e) => setFiche({ ...fiche, "Technicien Operateures": e.target.value })}
+          value={fiche.technicien}
+          onChange={(e) =>
+            setFiche({ ...fiche, technicien: e.target.value })
+          }
         />
       </div>
 
@@ -274,14 +288,16 @@ export default function FicheSemesDgs() {
         <SignatureCanvas
           ref={signatureRef}
           penColor="black"
-          canvasProps={{ width: 400, height: 150, className: "signature-canvas" }}
+          canvasProps={{ width: 400, height: 150 }}
         />
-        <button className="btn-clear" onClick={() => signatureRef.current.clear()}>Effacer</button>
+        <button onClick={() => signatureRef.current.clear()}>
+          Effacer
+        </button>
       </div>
 
       <div className="button-section">
-        <button className="btn-save" onClick={handleSave}>Enregistrer</button>
-        <button className="btn-send" onClick={handleSend}>Envoyer</button>
+        <button onClick={handleSave}>Enregistrer</button>
+        <button onClick={handleSend}>Envoyer</button>
       </div>
     </div>
   );

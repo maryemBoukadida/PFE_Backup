@@ -7,12 +7,13 @@ router.get("/", ficheAnnPaMaController.getFicheAnnPaMa);
 // POST créer nouvelle fiche
 router.post("/", ficheAnnPaMaController.creerFicheAnnPaMa);
 // GET fiche par ID
-//router.get("/:id", ficheAnnPaMaController.getFicheAnnPaMaById);
-/*// PUT envoyer
+router.get("/:id", ficheAnnPaMaController.getFicheAnnPaMaById);
+// PUT envoyer
 router.put("/envoyer/:id", ficheAnnPaMaController.envoyerFicheAnnPaMa);
-*/
+
 // PUT enregistrer
 router.put("/:id", ficheAnnPaMaController.enregistrerFicheAnnPaMa);
+router.post("/valider", ficheAnnPaMaController.validerFicheAnnPaMa);
 
 
 

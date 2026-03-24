@@ -1,11 +1,26 @@
 const FicheAnnPaMa = require("../models/ficheAnnPaMa");
-//const Notification = require("../models/Notification");
+const Notification = require("../models/Notification");
+const HistoriqueAction = require("../models/HistoriqueAction");
 
 // ================= GET dernière fiche =================
 exports.getFicheAnnPaMa = async(req, res) => {
     try {
         const fiche = await FicheAnnPaMa.findOne().sort({ date: -1 });
         if (!fiche) return res.status(404).json({ message: "Aucune fiche trouvée" });
+        res.json(fiche);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: err.message });
+    }
+};
+exports.getFicheAnnPaMaById = async(req, res) => {
+    try {
+        const fiche = await FicheAnnPaMa.findById(req.params.id);
+
+        if (!fiche) {
+            return res.status(404).json({ message: "Fiche non trouvée" });
+        }
+
         res.json(fiche);
     } catch (err) {
         console.error(err);
@@ -23,19 +38,7 @@ exports.creerFicheAnnPaMa = async(req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
-/*
-// ================= GET fiche par ID =================
-exports.getFicheAnnPaMaById = async(req, res) => {
-    try {
-        const fiche = await FicheAnnPaMa.findById(req.params.id);
-        if (!fiche) return res.status(404).json({ message: "Fiche non trouvée" });
-        res.json(fiche);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: err.message });
-    }
-};
-*/
+
 // ================= PUT enregistrer =================
 exports.enregistrerFicheAnnPaMa = async(req, res) => {
     try {
@@ -49,7 +52,7 @@ exports.enregistrerFicheAnnPaMa = async(req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
-/*
+
 // ================= PUT envoyer =================
 exports.envoyerFicheAnnPaMa = async(req, res) => {
     try {
@@ -75,4 +78,28 @@ exports.envoyerFicheAnnPaMa = async(req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
-*/
+exports.validerFicheAnnPaMa = async(req, res) => {
+    try {
+        const { ficheId, notifId } = req.body;
+
+        const fiche = await FicheAnnPaMa.findById(ficheId);
+        if (!fiche) return res.status(404).json({ message: "Fiche non trouvée" });
+
+        fiche.statut = "validée";
+        await fiche.save();
+
+        const historique = new HistoriqueAction({
+            type: "fiche_ann_pa_ma",
+            message: "Fiche Anuelle papi et manche avant validée",
+            dataId: fiche._id,
+            date: new Date()
+        });
+        await historique.save();
+
+        if (notifId) await Notification.findByIdAndUpdate(notifId, { read: true });
+
+        res.json({ message: "Fiche validée ✅" });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};

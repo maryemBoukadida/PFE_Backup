@@ -14,7 +14,7 @@ const FICHE_TGBT_API = "http://localhost:5000/api/fiche-ann-tgbt";
 
 const initialFiche = {
   date: new Date(),
-  postes: [
+  postesq: [
     {
       nom: "POSTE SST1",
       elements: [
@@ -55,20 +55,20 @@ export default function FicheTGBTAnnuelle() {
     setFiche((prev) => {
       const updated = { ...prev };
 
-      const postes = [...updated.postes];
-      const elements = [...postes[posteIndex].elements];
+      const postesq = [...updated.postesq];
+      const elements = [...postesq[posteIndex].elements];
 
       elements[elementIndex] = {
         ...elements[elementIndex],
         [field]: value,
       };
 
-      postes[posteIndex] = {
-        ...postes[posteIndex],
+      postesq[posteIndex] = {
+        ...postesq[posteIndex],
         elements,
       };
 
-      return { ...updated, postes };
+      return { ...updated, postesq };
     });
   };
 
@@ -138,7 +138,7 @@ const handleSave = async () => {
         </thead>
 
         <tbody>
-          {fiche.postes.map((poste, posteIndex) => (
+          {fiche.postesq.map((poste, posteIndex) => (
             <React.Fragment key={poste.nom}>
               <tr>
                 <td colSpan="4" className="poste">

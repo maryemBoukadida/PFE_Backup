@@ -1,23 +1,24 @@
 const mongoose = require("mongoose");
 
+// ================= RESULTATS =================
 const ResultatsSchema = new mongoose.Schema({
     Isolement_Ohm: { type: String, default: "" },
     Tension_test_Vcc: { type: String, default: "" },
     Courant_test_Ac: { type: String, default: "" }
 }, { _id: false });
 
+// ================= TEST =================
 const TestSchema = new mongoose.Schema({
     Duree: { type: String, default: "" }
 }, { _id: false });
 
+// ================= BOUCLE =================
 const BoucleSchema = new mongoose.Schema({
     Type_Puissance: { type: String, default: "" },
     Longueur_M: { type: String, default: "" },
     Continuite_Theorique_Ohm: { type: String, default: "" },
     Continuite_Mesuree_Ohm: { type: String, default: "" },
     Nombre_de_feux: { type: String, default: "" },
-    Fuite_Admissible: { type: String, default: "" },
-    Isolement_Mini_sous_Calibre_Ohm: { type: String, default: "" },
 
     Resultats: { type: ResultatsSchema, default: () => ({}) },
     Test: { type: TestSchema, default: () => ({}) },
@@ -27,10 +28,16 @@ const BoucleSchema = new mongoose.Schema({
 
 }, { _id: false });
 
+// ================= FICHE =================
 const FicheSemesRegulateuresSchema = new mongoose.Schema({
 
+    // 🔥 STRUCTURE DYNAMIQUE PAR GROUPE
     boucles: {
-        type: mongoose.Schema.Types.Mixed,
+        type: Map,
+        of: {
+            type: Map,
+            of: BoucleSchema
+        },
         default: {}
     },
 
@@ -53,5 +60,5 @@ const FicheSemesRegulateuresSchema = new mongoose.Schema({
 module.exports = mongoose.model(
     "FicheSemesRegulateures",
     FicheSemesRegulateuresSchema,
-    "ficheSemesRegulateures" // ⚠️ force l'utilisation de ta collection existante
+    "ficheSemesRegulateures"
 );

@@ -1,5 +1,6 @@
 const FicheAnnTgbt = require("../models/ficheAnnTgbt");
 const Notification = require("../models/Notification");
+const HistoriqueAction = require("../models/HistoriqueAction");
 
 exports.createFicheAnnTgbt = async(req, res) => {
     try {
@@ -103,6 +104,33 @@ exports.envoyerFicheAnnTgbt = async(req, res) => {
         res.json({ message: "Fiche TGBT envoyée avec succès" });
     } catch (err) {
         console.error("Erreur envoyerFicheTgbt :", err);
+        res.status(500).json({ message: err.message });
+    }
+};
+
+// VALIDER
+exports.validerFicheAnnTgbt = async(req, res) => {
+    try {
+        const { ficheId, notifId } = req.body;
+
+        const fiche = await FicheAnnTgbt.findById(ficheId);
+        if (!fiche) return res.status(404).json({ message: "Fiche non trouvée" });
+
+        fiche.statut = "validée";
+        await fiche.save();
+
+        const historique = new HistoriqueAction({
+            type: "fiche_ann_tgbt",
+            message: "Fiche Anuelle Tgbt validée",
+            dataId: fiche._id,
+            date: new Date()
+        });
+        await historique.save();
+
+        if (notifId) await Notification.findByIdAndUpdate(notifId, { read: true });
+
+        res.json({ message: "Fiche validée ✅" });
+    } catch (err) {
         res.status(500).json({ message: err.message });
     }
 };

@@ -3,7 +3,7 @@ import { enregistrerFicheAnnCable, envoyerFicheAnnCable } from "./apiservices/ap
 
 const initialFiche = {
   type: "inspection_annuelle_postes",
-  postes: [
+  postesC: [
     {
       titre: "POSTE SST1",
       equipements: [
@@ -126,7 +126,7 @@ export default function FicheAnnCable() {
 
   const handleChange = (posteIndex, equipIndex, champ, valeur) => {
     const newFiche = { ...fiche };
-    newFiche.postes[posteIndex].equipements[equipIndex][champ] = valeur;
+    newFiche.postesC[posteIndex].equipements[equipIndex][champ] = valeur;
     setFiche(newFiche);
   };
 
@@ -169,7 +169,7 @@ export default function FicheAnnCable() {
         />
         <br /><br />
 
-        {fiche.postes.map((poste, pi) => (
+        {fiche.postesC.map((poste, pi) => (
           <div key={pi} style={{ marginBottom: "30px" }}>
             <h3>{poste.titre}</h3>
             <table border="1" cellPadding="5" cellSpacing="0">

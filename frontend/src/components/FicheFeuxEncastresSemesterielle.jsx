@@ -3,6 +3,7 @@ import {
   getFicheFeuxEncastres,
   enregistrerFicheFeuxEncastres,
   envoyerFicheFeuxEncastres,
+  creerFicheFeuxEncastres 
 } from './apiservices/api';
 
 import DatePicker from 'react-datepicker';
@@ -11,159 +12,234 @@ import SignatureCanvas from 'react-signature-canvas';
 
 import '../styles/FicheFeuxEncastres.css';
 
+const initialFiche = {
+  type: "feux_encastres_sem",
+  emplacements: [
+    {
+      nom: "Fin de la Piste 27",
+      elements: [
+        { nom: "Etat général", etat: "", interventions: "", observations: "" },
+        { nom: "Etanchéité de balise", etat: "", interventions: "", observations: "" },
+        { nom: "Etat général des saignées", etat: "", interventions: "", observations: "" },
+        { nom: "Scellement et calage", etat: "", interventions: "", observations: "" },
+        { nom: "Propreté intérieure de l'embase", etat: "", interventions: "", observations: "" },
+        { nom: "Connectique, étanchéité, propreté", etat: "", interventions: "", observations: "" },
+        { nom: "Nettoyage des feux", etat: "", interventions: "", observations: "" },
+        { nom: "Examen visuel d’état des prismes et d’intégrité", etat: "", interventions: "", observations: "" },
+        { nom: "Etat de surface", etat: "", interventions: "", observations: "" },
+        { nom: "Etat de fixation : présence des écrous et serrage", etat: "", interventions: "", observations: "" }
+      ]
+    },
+
+    {
+      nom: "Fin de la Piste 09",
+      elements: [
+        { nom: "Etat général", etat: "", interventions: "", observations: "" },
+        { nom: "Etanchéité de balise", etat: "", interventions: "", observations: "" },
+        { nom: "Etat général des saignées", etat: "", interventions: "", observations: "" },
+        { nom: "Scellement et calage", etat: "", interventions: "", observations: "" },
+        { nom: "Propreté intérieure de l'embase", etat: "", interventions: "", observations: "" },
+        { nom: "Connectique, étanchéité, propreté", etat: "", interventions: "", observations: "" },
+        { nom: "Nettoyage des feux", etat: "", interventions: "", observations: "" },
+        { nom: "Examen visuel d’état des prismes et d’intégrité", etat: "", interventions: "", observations: "" },
+        { nom: "Etat de surface", etat: "", interventions: "", observations: "" },
+        { nom: "Etat de fixation : présence des écrous et serrage", etat: "", interventions: "", observations: "" }
+      ]
+    },
+
+    {
+      nom: "Seuil de la Piste 27",
+      elements: [
+        { nom: "Etat général", etat: "", interventions: "", observations: "" },
+        { nom: "Etanchéité de balise", etat: "", interventions: "", observations: "" },
+        { nom: "Etat général des saignées", etat: "", interventions: "", observations: "" },
+        { nom: "Scellement et calage", etat: "", interventions: "", observations: "" },
+        { nom: "Propreté intérieure de l'embase", etat: "", interventions: "", observations: "" },
+        { nom: "Connectique, étanchéité, propreté", etat: "", interventions: "", observations: "" },
+        { nom: "Nettoyage des feux", etat: "", interventions: "", observations: "" },
+        { nom: "Examen visuel d’état des prismes et d’intégrité", etat: "", interventions: "", observations: "" },
+        { nom: "Etat de surface", etat: "", interventions: "", observations: "" },
+        { nom: "Etat de fixation : présence des écrous et serrage", etat: "", interventions: "", observations: "" }
+      ]
+    },
+
+    {
+      nom: "Seuil de la Piste 09",
+      elements: [ { nom: "Etat général", etat: "", interventions: "", observations: "" },
+        { nom: "Etanchéité de balise", etat: "", interventions: "", observations: "" },
+        { nom: "Etat général des saignées", etat: "", interventions: "", observations: "" },
+        { nom: "Scellement et calage", etat: "", interventions: "", observations: "" },
+        { nom: "Propreté intérieure de l'embase", etat: "", interventions: "", observations: "" },
+        { nom: "Connectique, étanchéité, propreté", etat: "", interventions: "", observations: "" },
+        { nom: "Nettoyage des feux", etat: "", interventions: "", observations: "" },
+        { nom: "Examen visuel d’état des prismes et d’intégrité", etat: "", interventions: "", observations: "" },
+        { nom: "Etat de surface", etat: "", interventions: "", observations: "" },
+        { nom: "Etat de fixation : présence des écrous et serrage", etat: "", interventions: "", observations: "" } ]
+    },
+
+    {
+      nom: "Zone de touchée des roues",
+      elements: [  { nom: "Etat général", etat: "", interventions: "", observations: "" },
+        { nom: "Etanchéité de balise", etat: "", interventions: "", observations: "" },
+        { nom: "Etat général des saignées", etat: "", interventions: "", observations: "" },
+        { nom: "Scellement et calage", etat: "", interventions: "", observations: "" },
+        { nom: "Propreté intérieure de l'embase", etat: "", interventions: "", observations: "" },
+        { nom: "Connectique, étanchéité, propreté", etat: "", interventions: "", observations: "" },
+        { nom: "Nettoyage des feux", etat: "", interventions: "", observations: "" },
+        { nom: "Examen visuel d’état des prismes et d’intégrité", etat: "", interventions: "", observations: "" },
+        { nom: "Etat de surface", etat: "", interventions: "", observations: "" },
+        { nom: "Etat de fixation : présence des écrous et serrage", etat: "", interventions: "", observations: "" }]
+    },
+
+    {
+      nom: "Axe de la Piste",
+      elements: [ { nom: "Etat général", etat: "", interventions: "", observations: "" },
+        { nom: "Etanchéité de balise", etat: "", interventions: "", observations: "" },
+        { nom: "Etat général des saignées", etat: "", interventions: "", observations: "" },
+        { nom: "Scellement et calage", etat: "", interventions: "", observations: "" },
+        { nom: "Propreté intérieure de l'embase", etat: "", interventions: "", observations: "" },
+        { nom: "Connectique, étanchéité, propreté", etat: "", interventions: "", observations: "" },
+        { nom: "Nettoyage des feux", etat: "", interventions: "", observations: "" },
+        { nom: "Examen visuel d’état des prismes et d’intégrité", etat: "", interventions: "", observations: "" },
+        { nom: "Etat de surface", etat: "", interventions: "", observations: "" },
+        { nom: "Etat de fixation : présence des écrous et serrage", etat: "", interventions: "", observations: "" } ]
+    },
+
+    {
+      nom: "Retil",
+      elements: [  { nom: "Etat général", etat: "", interventions: "", observations: "" },
+        { nom: "Etanchéité de balise", etat: "", interventions: "", observations: "" },
+        { nom: "Etat général des saignées", etat: "", interventions: "", observations: "" },
+        { nom: "Scellement et calage", etat: "", interventions: "", observations: "" },
+        { nom: "Propreté intérieure de l'embase", etat: "", interventions: "", observations: "" },
+        { nom: "Connectique, étanchéité, propreté", etat: "", interventions: "", observations: "" },
+        { nom: "Nettoyage des feux", etat: "", interventions: "", observations: "" },
+        { nom: "Examen visuel d’état des prismes et d’intégrité", etat: "", interventions: "", observations: "" },
+        { nom: "Etat de surface", etat: "", interventions: "", observations: "" },
+        { nom: "Etat de fixation : présence des écrous et serrage", etat: "", interventions: "", observations: "" } ]
+    },
+
+    {
+      nom: "CL EAST TAXI WAY",
+      elements: [  { nom: "Etat général", etat: "", interventions: "", observations: "" },
+        { nom: "Etanchéité de balise", etat: "", interventions: "", observations: "" },
+        { nom: "Etat général des saignées", etat: "", interventions: "", observations: "" },
+        { nom: "Scellement et calage", etat: "", interventions: "", observations: "" },
+        { nom: "Propreté intérieure de l'embase", etat: "", interventions: "", observations: "" },
+        { nom: "Connectique, étanchéité, propreté", etat: "", interventions: "", observations: "" },
+        { nom: "Nettoyage des feux", etat: "", interventions: "", observations: "" },
+        { nom: "Examen visuel d’état des prismes et d’intégrité", etat: "", interventions: "", observations: "" },
+        { nom: "Etat de surface", etat: "", interventions: "", observations: "" },
+        { nom: "Etat de fixation : présence des écrous et serrage", etat: "", interventions: "", observations: "" } ]
+    },
+
+    {
+      nom: "CL WEST TAXI WAY",
+      elements: [  { nom: "Etat général", etat: "", interventions: "", observations: "" },
+        { nom: "Etanchéité de balise", etat: "", interventions: "", observations: "" },
+        { nom: "Etat général des saignées", etat: "", interventions: "", observations: "" },
+        { nom: "Scellement et calage", etat: "", interventions: "", observations: "" },
+        { nom: "Propreté intérieure de l'embase", etat: "", interventions: "", observations: "" },
+        { nom: "Connectique, étanchéité, propreté", etat: "", interventions: "", observations: "" },
+        { nom: "Nettoyage des feux", etat: "", interventions: "", observations: "" },
+        { nom: "Examen visuel d’état des prismes et d’intégrité", etat: "", interventions: "", observations: "" },
+        { nom: "Etat de surface", etat: "", interventions: "", observations: "" },
+        { nom: "Etat de fixation : présence des écrous et serrage", etat: "", interventions: "", observations: "" } ]
+    }
+  ],
+
+  date: "",
+  technicien_operateur: "",
+  observations_generales: "",
+  signature: ""
+};
 export default function FicheFeuxEncastresSemesterielle() {
 
-  const [fiche, setFiche] = useState(null);
-  const sigCanvas = useRef(null);
+const [fiche, setFiche] = useState(initialFiche);
+const [ficheId, setFicheId] = useState(null);
+ const sigCanvas = useRef(null);
 
-  const emplacements = [
-    'Fin de la Piste 27',
-    'Fin de la Piste 09',
-    'Seuil de la Piste 27',
-    'Seuil de la Piste 09',
-    'Zone de touchée des roues',
-    'Axe de la Piste',
-    'Retil',
-    'CL EAST TAXI WAY',
-    'CL WEST TAXI WAY',
-  ];
+ 
 
-  useEffect(() => {
-    const fetchFiche = async () => {
-      const data = await getFicheFeuxEncastres();
-      setFiche(data);
-    };
+useEffect(() => {
+  const fetchFiche = async () => {
+    const data = await getFicheFeuxEncastres();
 
-    fetchFiche();
-  }, []);
+    if (!data) return;
+
+    const emplacements = data.emplacements?.length
+      ? data.emplacements
+      : initialFiche.emplacements;
+
+    setFiche({
+      ...initialFiche,
+      ...data,
+      emplacements
+    });
+  };
+
+  fetchFiche();
+}, []);
 
   if (!fiche) return <p>Chargement...</p>;
 
-  const handleChange = (emp, field, key, value) => {
+ const handleChange = (empIndex, elIndex, field, value) => {
+  const newFiche = { ...fiche };
 
-    const updated = { ...fiche };
+  newFiche.emplacements[empIndex].elements[elIndex][field] = value;
 
-    updated.feuxEncastres[emp][field][key] = value;
+  setFiche(newFiche);
+};
 
-    setFiche(updated);
+const handleSave = async () => {
+  try {
+    const signature =
+      sigCanvas.current && !sigCanvas.current.isEmpty()
+        ? sigCanvas.current.getTrimmedCanvas().toDataURL("image/png")
+        : "";
 
-  };
+    let updatedFiche = {
+      ...fiche,
+      signature
+    };
 
-  const handleSave = async () => {
+    let result;
 
-    try {
+    if (!ficheId) {
+      // ✅ SUPPRIMER L’ID POUR EVITER DUPLICATE KEY
+      delete updatedFiche._id;
 
-      let signatureData = fiche.signature;
+      result = await creerFicheFeuxEncastres(updatedFiche);
+      setFicheId(result._id);
 
-      if (sigCanvas.current && !sigCanvas.current.isEmpty()) {
-
-        signatureData = sigCanvas.current
-          .getTrimmedCanvas()
-          .toDataURL("image/png");
-
-      }
-
-      const ficheToSave = {
-        ...fiche,
-        signature: signatureData
-      };
-
-      await enregistrerFicheFeuxEncastres(fiche._id, ficheToSave);
-
-      alert("Fiche enregistrée avec succès");
-
-    } catch (error) {
-
-      console.error(error);
-      alert("Erreur lors de l'enregistrement");
-
+    } else {
+      result = await enregistrerFicheFeuxEncastres(ficheId, updatedFiche);
     }
 
-  };
+    setFiche(updatedFiche);
 
-  const handleSend = async () => {
+    alert("Fiche enregistrée ✅");
 
-    try {
+  } catch (err) {
+    console.error("🔥 ERREUR FRONT :", err.response?.data || err);
+    alert("Erreur enregistrement ❌");
+  }
+};
 
-      await envoyerFicheFeuxEncastres(fiche._id);
+const handleSend = async () => {
+  if (!ficheId) {
+    return alert("Enregistrer d'abord !");
+  }
 
-      alert("Fiche envoyée à l'administrateur");
-
-    } catch (error) {
-
-      console.error(error);
-      alert("Erreur lors de l'envoi");
-
-    }
-
-  };
-
-  const renderRows = (emplacement) => {
-
-    return Object.keys(fiche.feuxEncastres[emplacement]).map((field, index) => {
-
-      const row = fiche.feuxEncastres[emplacement][field];
-
-      return (
-
-        <tr key={index}>
-
-          {index === 0 && (
-            <td rowSpan={Object.keys(fiche.feuxEncastres[emplacement]).length}>
-              {emplacement}
-            </td>
-          )}
-
-          <td>{field}</td>
-
-          <td>
-
-            <select
-              value={row.etat}
-              onChange={(e) =>
-                handleChange(emplacement, field, 'etat', e.target.value)
-              }
-            >
-
-              <option value="">--</option>
-              <option value="OK">OK</option>
-              <option value="HS">HS</option>
-
-            </select>
-
-          </td>
-
-          <td>
-
-            <input
-              type="text"
-              value={row.intervention}
-              onChange={(e) =>
-                handleChange(emplacement, field, 'intervention', e.target.value)
-              }
-            />
-
-          </td>
-
-          <td>
-
-            <input
-              type="text"
-              value={row.observations}
-              onChange={(e) =>
-                handleChange(emplacement, field, 'observations', e.target.value)
-              }
-            />
-
-          </td>
-
-        </tr>
-
-      );
-
-    });
-
-  };
+  try {
+    await envoyerFicheFeuxEncastres(ficheId);
+    alert("Fiche envoyée ✅");
+  } catch (err) {
+    console.error("🔥 ERREUR SEND :", err.response?.data || err);
+    alert("Erreur envoi ❌");
+  }
+};
+ 
 
   return (
 
@@ -196,53 +272,87 @@ export default function FicheFeuxEncastresSemesterielle() {
         </thead>
 
         <tbody>
+  {fiche.emplacements?.map((emp, empIndex) => (
+    <React.Fragment key={empIndex}>
+      {emp.elements.map((el, elIndex) => (
+        <tr key={elIndex}>
+          
+          {elIndex === 0 && (
+            <td rowSpan={emp.elements.length}>
+              {emp.nom}
+            </td>
+          )}
 
-          {emplacements.map((emp) => renderRows(emp))}
+          <td>{el.nom}</td>
 
-        </tbody>
+          <td>
+            <select
+              value={el.etat}
+              onChange={(e) =>
+                handleChange(empIndex, elIndex, "etat", e.target.value)
+              }
+            >
+              <option value="">--</option>
+              <option value="OK">OK</option>
+              <option value="HS">HS</option>
+            </select>
+          </td>
+
+          <td>
+            <input
+              type="text"
+              value={el.interventions}
+              onChange={(e) =>
+                handleChange(empIndex, elIndex, "interventions", e.target.value)
+              }
+            />
+          </td>
+
+          <td>
+            <input
+              type="text"
+              value={el.observations}
+              onChange={(e) =>
+                handleChange(empIndex, elIndex, "observations", e.target.value)
+              }
+            />
+          </td>
+
+        </tr>
+      ))}
+    </React.Fragment>
+  ))}
+</tbody>
 
       </table>
 
       <div className="infos">
 
-        <div>
+     <div>
+  <label>Date :</label>
+  <DatePicker
+    selected={fiche.date ? new Date(fiche.date) : null}
+    onChange={(date) => setFiche({ ...fiche, date: date.toISOString() })}
+  />
+</div>
 
-          <label>Date :</label>
+      <div>
+  <label>Observations :</label>
+  <textarea
+    value={fiche.observations_generales}
+    onChange={(e) =>
+      setFiche({ ...fiche, observations_generales: e.target.value })
+    }
+  />
+</div>
 
-          <DatePicker
-            selected={fiche.date ? new Date(fiche.date) : null}
-            onChange={(date) => setFiche({ ...fiche, date })}
-            dateFormat="dd/MM/yyyy"
-          />
-
-        </div>
-
-        <div>
-
-          <label>Observations générales :</label>
-
-          <textarea
-            value={fiche.observationsGenerales}
-            onChange={(e) =>
-              setFiche({ ...fiche, observationsGenerales: e.target.value })
-            }
-          />
-
-        </div>
-
-        <div>
-
-          <label>Technicien :</label>
-
-          <input
-            type="text"
-            value={fiche.technicienOperateurs}
-            onChange={(e) =>
-              setFiche({ ...fiche, technicienOperateurs: e.target.value })
-            }
-          />
-
-        </div>
+     <input
+  type="text"
+  value={fiche.technicien_operateur}
+  onChange={(e) =>
+    setFiche({ ...fiche, technicien_operateur: e.target.value })
+  }
+/>
 
         <div>
 
