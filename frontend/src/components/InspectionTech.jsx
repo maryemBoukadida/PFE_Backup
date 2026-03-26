@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getInspections, envoyerInspectionTech } from './apiservices/api';
+import { getInspections} from './apiservices/api';
 import '../styles/InspectionTech.css';
 import { FaBatteryFull, FaTrafficLight, FaTools, FaBolt } from 'react-icons/fa';
 
@@ -30,14 +30,17 @@ import FicheNoBreakForm from './FicheNoBreakForm';
 import FicheBalisageForm from './FicheBalisageForm';
 import Fiche2250KVAForm from './Fiche2250KVAForm';
 import FicheOlapionForm from './FicheOlapionForm';
+import { FaClipboardList } from 'react-icons/fa';
+import Brigade from './Brigade';
 export default function InspectionTech({ activeMenu, activeSubMenu }) {
   const [periode, setPeriode] = useState('JOURNALIERE');
   const [typeFiche, setTypeFiche] = useState('');
   const [inspectionsData, setInspectionsData] = useState([]); // tableau de fiches complètes
-const [showNoBreak, setShowNoBreak] = useState(false);
-const [show2250KVA, setShow2250KVA] = useState(false);
-const [showOlapion, setShowOlapion] = useState(false);
-const [showBalisage, setShowBalisage] = useState(false);
+  const [showNoBreak, setShowNoBreak] = useState(false);
+  const [show2250KVA, setShow2250KVA] = useState(false);
+  const [showOlapion, setShowOlapion] = useState(false);
+  const [showBalisage, setShowBalisage] = useState(false);
+  const [showBrigade, setShowBrigade] = useState(false);
   const typesFiches = [
     { value: 'PAPI', label: 'Papi' },
     { value: 'PISTE', label: 'Piste' },
@@ -120,12 +123,12 @@ const [showBalisage, setShowBalisage] = useState(false);
               value={periode}
               onChange={(e) => setPeriode(e.target.value)}
             >
-             {/* <option value="MENSUELLE">Mensuelle</option>*/}
+              {/* <option value="MENSUELLE">Mensuelle</option>*/}
               <option value="ANNUELLE">Annuelle</option>
               <option value="SEMESTRIELLE">Semestrielle</option>
               <option value="QUINQUENNALE">Quinquennale</option>
             </select>
- {/*
+            {/*
             {periode === 'MENSUELLE' && (
               <select
                 value={typeFiche}
@@ -234,80 +237,98 @@ const [showBalisage, setShowBalisage] = useState(false);
       )}
       {/* MAINTENANCE CORRECTIVE */}
 
-     {activeMenu === 'intervention' && activeSubMenu === 'correctif' && (
-  <>
-    <h3>Maintenance Corrective</h3>
-    <FicheCorrective />
-  </>
-)}
+      {activeMenu === 'intervention' && activeSubMenu === 'correctif' && (
+        <>
+          <h3>Maintenance Corrective</h3>
+          <FicheCorrective />
+        </>
+      )}
       {/* INSPECTIONS */}
 
-     {activeMenu === 'inspection' && (
-  <>
-    <h3>Gestion des inspections</h3>
-    {showNoBreak ? (
-      <FicheNoBreakForm />
-    ) : show2250KVA ? (
-  <Fiche2250KVAForm />  
-  ) : showOlapion ? (
-  <FicheOlapionForm />
-  ) : showBalisage ? (
-  <FicheBalisageForm />
-    ):(
-<div className="cards-container">
-  <div className="card"
-    onClick={() => setShowNoBreak(true)}
-    style={{ cursor: "pointer" }}
-    >
-    <FaBatteryFull size={40} color="#f39c12" />
-    <h4>Inspection des groupes NOBREAK</h4>
-  </div>
+      {activeMenu === 'inspection' && (
+        <>
+          <h3>Gestion des inspections</h3>
+          {showNoBreak ? (
+            <FicheNoBreakForm />
+          ) : show2250KVA ? (
+            <Fiche2250KVAForm />
+          ) : showOlapion ? (
+            <FicheOlapionForm />
+          ) : showBalisage ? (
+            <FicheBalisageForm />
+          ) : showBrigade ? (
+            <Brigade />
+          ) : (
+            <div className="cards-container">
+              <div
+                className="card"
+                onClick={() => setShowNoBreak(true)}
+                style={{ cursor: 'pointer' }}
+              >
+                <FaBatteryFull size={40} color="#f39c12" />
+                <h4>Inspection des groupes NOBREAK</h4>
+              </div>
 
-  <div 
-  className="card"
-  onClick={() => {
-    setShowBalisage(true);
-    setShowNoBreak(false);
-    setShow2250KVA(false);
-    setShowOlapion(false);
-  }}
-  style={{ cursor: "pointer" }}
->
-  <FaTrafficLight size={40} color="#27ae60" />
-  <h4>Inspection de balisage</h4>
-</div>
+              <div
+                className="card"
+                onClick={() => {
+                  setShowBalisage(true);
+                  setShowNoBreak(false);
+                  setShow2250KVA(false);
+                  setShowOlapion(false);
+                }}
+                style={{ cursor: 'pointer' }}
+              >
+                <FaTrafficLight size={40} color="#27ae60" />
+                <h4>Inspection de balisage</h4>
+              </div>
 
-  <div 
-  className="card"
-  onClick={() => {
-    setShowOlapion(true);
-    setShowNoBreak(false);
-    setShow2250KVA(false);
-  }}
-  style={{ cursor: "pointer" }}
->
-  <FaTools size={40} color="#3498db" />
-  <h4>Inspection Olapion</h4>
-</div>
+              <div
+                className="card"
+                onClick={() => {
+                  setShowOlapion(true);
+                  setShowNoBreak(false);
+                  setShow2250KVA(false);
+                }}
+                style={{ cursor: 'pointer' }}
+              >
+                <FaTools size={40} color="#3498db" />
+                <h4>Inspection Olapion</h4>
+              </div>
 
-<div 
-  className="card"
-  onClick={() => {
-    setShow2250KVA(true);
-    setShowNoBreak(false);
-    setShowOlapion(false);
-    setShowBalisage(false);
-  }}
-  style={{ cursor: "pointer" }}
->
-  <FaBolt size={40} color="#e74c3c" />
-  <h4>Inspection 2250 KVA</h4>
-</div>
-</div>
-    )}
-  </>
-)}
-     
+              <div
+                className="card"
+                onClick={() => {
+                  setShow2250KVA(true);
+                  setShowNoBreak(false);
+                  setShowOlapion(false);
+                  setShowBalisage(false);
+                }}
+                style={{ cursor: 'pointer' }}
+              >
+                <FaBolt size={40} color="#e74c3c" />
+                <h4>Inspection 2250 KVA</h4>
+              </div>
+              <div
+                className="card brigade-card"
+                onClick={() => {
+                  setShowBrigade(true);
+                  setShowNoBreak(false);
+                  setShow2250KVA(false);
+                  setShowOlapion(false);
+                  setShowBalisage(false);
+                }}
+                style={{ cursor: 'pointer', color: 'black' }}
+              >
+                <FaClipboardList size={40} color="#b961e1" />
+                <h4>
+                  Journal des Consignes particulières et de suivi : BRIGADE
+                </h4>
+              </div>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

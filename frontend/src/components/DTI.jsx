@@ -21,7 +21,7 @@ export default function DTI() {
       console.error('Erreur chargement DTI :', err);
     }
   };
- 
+
   useEffect(() => {
     loadDTI();
 
@@ -69,8 +69,7 @@ export default function DTI() {
           <button onClick={() => setShowForm(true)}>➕</button>
         </div>
 
-        
-<div className="card">
+        <div className="card">
           <h3>🟠 En cours</h3>
           <p>({formatTotal(enCours.length)})</p>
           <button
@@ -94,8 +93,6 @@ export default function DTI() {
             VOIR
           </button>
         </div>
-        
-
       </div>
 
       {/* LISTE DTI */}
