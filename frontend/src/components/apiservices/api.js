@@ -33,6 +33,7 @@ const FICHE_NOBREAK_API = "http://localhost:5000/api/fiche-nobreak";
 const FICHE_2250KVA_API = "http://localhost:5000/api/fiche-2250kva";
 const FICHE_OLAPION_API = "http://localhost:5000/api/fiche-olapion";
 const FICHE_BALISAGE_API = "http://localhost:5000/api/fiche-balisage";
+const BRIGADE_API = 'http://localhost:5000/api/fiche-brigade';
 const BASE_URL = "http://localhost:5000";
 
 // 🔹 Récupérer tous les équipements
@@ -959,7 +960,7 @@ export const envoyerFicheBalisage = async(id) => {
     const res = await axios.put(`${FICHE_BALISAGE_API}/envoyer/${id}`);
     return res.data;
 };
-
+//inventaure 
 // 🔹 GET BALISAGE
 export const getBalisage = async() => {
     const response = await fetch(`${BASE_URL}/api/gestionequipements/balisage`);
@@ -1062,4 +1063,28 @@ export const addEquipement = async(data) => {
         console.error("Erreur addEquipement :", error);
         throw error;
     }
+};
+// brigade fiche
+// ================= GET =================
+export const getFichesBrigade = async() => {
+    const res = await fetch(BRIGADE_API);
+    if (!res.ok) throw new Error("Erreur récupération fiches Brigade");
+    return res.json();
+};
+
+// ================= CREATE =================
+export const enregistrerFicheBrigade = async(fiche) => {
+    const res = await fetch(BRIGADE_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fiche),
+    });
+    if (!res.ok) throw new Error("Erreur enregistrement fiche Brigade");
+    return res.json();
+};
+
+// ================= ENVOYER =================
+export const envoyerFicheBrigade = async(id) => {
+    const res = await axios.put(`${BRIGADE_API}/envoyer/${id}`);
+    return res.data;
 };

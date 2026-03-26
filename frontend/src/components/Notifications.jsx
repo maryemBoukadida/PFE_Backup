@@ -10,16 +10,16 @@ import {
   ajouterHistoriqueAction,
 } from './apiservices/api';
 export default function Notifications() {
-const th = {
-  border: '1px solid #ccc',
-  padding: '8px',
-  textAlign: 'left'
-};
+  const th = {
+    border: '1px solid #ccc',
+    padding: '8px',
+    textAlign: 'left',
+  };
 
-const td = {
-  border: '1px solid #ccc',
-  padding: '8px'
-};
+  const td = {
+    border: '1px solid #ccc',
+    padding: '8px',
+  };
   const [notifications, setNotifications] = useState([]);
   const [selectedFiche, setSelectedFiche] = useState(null);
   const navigate = useNavigate();
@@ -41,17 +41,18 @@ const td = {
     'http://localhost:5000/api/fiche-ann-infrastructure';
   const FICHE_HORS_SQL_API = 'http://localhost:5000/api/fiche-hors-sql';
   const FICHE_EFFAR_API = 'http://localhost:5000/api/fiche-effar';
-const FICHE_ANN_OBS_API = "http://localhost:5000/api/fiche-ann-obs";
-const FICHE_ANN_CABLE_API = "http://localhost:5000/api/fiche-ann-cable";
-const FICHE_ANN_FEUX_SEQ_API = "http://localhost:5000/api/fiche-ann-feux-sequentiels";
-const FICHE_QUI_PAPI_API = "http://localhost:5000/api/fiche-qui-papi";
-const FICHE_CORRECTIVE_API = "http://localhost:5000/api/fiche-corrective";
-const FICHE_NOBREAK_API = "http://localhost:5000/api/fiche-nobreak";
-const FICHE_2250KVA_API = "http://localhost:5000/api/fiche-2250kva";
-const FICHE_OLAPION_API = "http://localhost:5000/api/fiche-olapion";
-const FICHE_BALISAGE_API = "http://localhost:5000/api/fiche-balisage";
-const FICHE_ANN_PAMA_API = "http://localhost:5000/api/fiche-ann-pa-ma";
-
+  const FICHE_ANN_OBS_API = 'http://localhost:5000/api/fiche-ann-obs';
+  const FICHE_ANN_CABLE_API = 'http://localhost:5000/api/fiche-ann-cable';
+  const FICHE_ANN_FEUX_SEQ_API =
+    'http://localhost:5000/api/fiche-ann-feux-sequentiels';
+  const FICHE_QUI_PAPI_API = 'http://localhost:5000/api/fiche-qui-papi';
+  const FICHE_CORRECTIVE_API = 'http://localhost:5000/api/fiche-corrective';
+  const FICHE_NOBREAK_API = 'http://localhost:5000/api/fiche-nobreak';
+  const FICHE_2250KVA_API = 'http://localhost:5000/api/fiche-2250kva';
+  const FICHE_OLAPION_API = 'http://localhost:5000/api/fiche-olapion';
+  const FICHE_BALISAGE_API = 'http://localhost:5000/api/fiche-balisage';
+  const FICHE_ANN_PAMA_API = 'http://localhost:5000/api/fiche-ann-pa-ma';
+  const BRIGADE_API = 'http://localhost:5000/api/fiche-brigade';
 
   // ===================== CHARGER NOTIFICATIONS =====================
   const fetchNotifications = async () => {
@@ -116,10 +117,10 @@ const FICHE_ANN_PAMA_API = "http://localhost:5000/api/fiche-ann-pa-ma";
       const res20 = await fetch(
         'http://localhost:5000/api/fiche-qui-papi/notifications'
       );
-       const res21 = await fetch(
+      const res21 = await fetch(
         'http://localhost:5000/api/fiche-corrective/notifications'
       );
-       const res22 = await fetch(
+      const res22 = await fetch(
         'http://localhost:5000/api/fiche-nobreak/notifications'
       );
       const res23 = await fetch(
@@ -131,8 +132,11 @@ const FICHE_ANN_PAMA_API = "http://localhost:5000/api/fiche-ann-pa-ma";
       const res25 = await fetch(
         'http://localhost:5000/api/fiche-balisage/notifications'
       );
-       const res26 = await fetch(
+      const res26 = await fetch(
         'http://localhost:5000/api/fiche-ann-pa-ma/notifications'
+      );
+      const res27 = await fetch(
+        'http://localhost:5000/api/fiche-brigade/notifications'
       );
 
       const data1 = res1.ok ? await res1.json() : [];
@@ -161,6 +165,7 @@ const FICHE_ANN_PAMA_API = "http://localhost:5000/api/fiche-ann-pa-ma";
       const data24 = res24.ok ? await res24.json() : [];
       const data25 = res25.ok ? await res25.json() : [];
       const data26 = res26.ok ? await res26.json() : [];
+      const data27 = res27.ok ? await res27.json() : [];
       setNotifications([
         ...(Array.isArray(data1) ? data1 : []),
         ...(Array.isArray(data2) ? data2 : []),
@@ -184,10 +189,11 @@ const FICHE_ANN_PAMA_API = "http://localhost:5000/api/fiche-ann-pa-ma";
         ...(Array.isArray(data20) ? data20 : []),
         ...(Array.isArray(data21) ? data21 : []),
         ...(Array.isArray(data22) ? data22 : []),
-        ...(Array.isArray(data23) ? data23: []),
-        ...(Array.isArray(data24) ? data24: []),
-        ...(Array.isArray(data25) ? data25: []),
-        ...(Array.isArray(data26) ? data26: []),
+        ...(Array.isArray(data23) ? data23 : []),
+        ...(Array.isArray(data24) ? data24 : []),
+        ...(Array.isArray(data25) ? data25 : []),
+        ...(Array.isArray(data26) ? data26 : []),
+        ...(Array.isArray(data27) ? data27 : []),
       ]);
     } catch (err) {
       console.error('Erreur notifications :', err);
@@ -469,209 +475,220 @@ const FICHE_ANN_PAMA_API = "http://localhost:5000/api/fiche-ann-pa-ma";
       console.error('Erreur voir fiche Effaroucheur :', err);
     }
   };
-const voirFicheAnnObs = async (ficheId, notifId) => {
-  try {
-    // Récupérer la fiche FEUX OBSTACLES annuelles par ID
-    const res = await fetch(`${FICHE_ANN_OBS_API}/${ficheId}`);
+  const voirFicheAnnObs = async (ficheId, notifId) => {
+    try {
+      // Récupérer la fiche FEUX OBSTACLES annuelles par ID
+      const res = await fetch(`${FICHE_ANN_OBS_API}/${ficheId}`);
 
-    if (!res.ok) {
-      console.error('Erreur récupération fiche AnnObs');
-      return;
+      if (!res.ok) {
+        console.error('Erreur récupération fiche AnnObs');
+        return;
+      }
+
+      const data = await res.json();
+
+      // Stocker la fiche + l'ID de notification pour marquer comme lu
+      setSelectedFiche({ ...data, notifId });
+    } catch (err) {
+      console.error('Erreur voir fiche AnnObs :', err);
     }
+  };
 
-    const data = await res.json();
+  const voirFicheAnnCable = async (ficheId, notifId) => {
+    try {
+      const res = await fetch(`${FICHE_ANN_CABLE_API}/${ficheId}`);
+      if (!res.ok) {
+        console.error('Erreur récupération fiche CABLE');
+        return;
+      }
 
-    // Stocker la fiche + l'ID de notification pour marquer comme lu
-    setSelectedFiche({ ...data, notifId });
-  } catch (err) {
-    console.error('Erreur voir fiche AnnObs :', err);
-  }
-};
+      const data = await res.json();
 
-const voirFicheAnnCable = async (ficheId, notifId) => {
-  try {
-    const res = await fetch(`${FICHE_ANN_CABLE_API}/${ficheId}`);
-    if (!res.ok) {
-      console.error('Erreur récupération fiche CABLE');
-      return;
+      // ✅ Securiser les tableaux pour éviter le crash
+      const safeData = {
+        ...data,
+        postes: Array.isArray(data.postes)
+          ? data.postes.map((p) => ({
+              ...p,
+              equipements: Array.isArray(p.equipements) ? p.equipements : [],
+            }))
+          : [],
+      };
+
+      setSelectedFiche({ ...safeData, notifId });
+    } catch (err) {
+      console.error('Erreur voir fiche CABLE :', err);
     }
+  };
 
-    const data = await res.json();
+  const voirFicheAnnFeuxSeq = async (ficheId, notifId) => {
+    try {
+      // Récupérer la fiche FEUX SEQUENTIELS annuelle par ID
+      const res = await fetch(`${FICHE_ANN_FEUX_SEQ_API}/${ficheId}`);
 
-    // ✅ Securiser les tableaux pour éviter le crash
-    const safeData = {
-      ...data,
-      postes: Array.isArray(data.postes)
-        ? data.postes.map((p) => ({
-            ...p,
-            equipements: Array.isArray(p.equipements) ? p.equipements : [],
-          }))
-        : [],
-    };
+      if (!res.ok) {
+        console.error('Erreur récupération fiche AnnFeuxSeq');
+        return;
+      }
 
-    setSelectedFiche({ ...safeData, notifId });
-  } catch (err) {
-    console.error('Erreur voir fiche CABLE :', err);
-  }
-};
+      const data = await res.json();
 
-const voirFicheAnnFeuxSeq = async (ficheId, notifId) => {
-  try {
-    // Récupérer la fiche FEUX SEQUENTIELS annuelle par ID
-    const res = await fetch(`${FICHE_ANN_FEUX_SEQ_API}/${ficheId}`);
-
-    if (!res.ok) {
-      console.error("Erreur récupération fiche AnnFeuxSeq");
-      return;
+      // Stocker la fiche + l'ID de notification pour marquer comme lu
+      setSelectedFiche({ ...data, notifId });
+    } catch (err) {
+      console.error('Erreur voir fiche AnnFeuxSeq :', err);
     }
+  };
 
-    const data = await res.json();
+  const voirFicheQuiPapi = async (ficheId, notifId) => {
+    try {
+      // Récupérer la fiche quinquennale PAPI par ID
+      const res = await fetch(`${FICHE_QUI_PAPI_API}/${ficheId}`);
 
-    // Stocker la fiche + l'ID de notification pour marquer comme lu
-    setSelectedFiche({ ...data, notifId });
+      if (!res.ok) {
+        console.error('Erreur récupération fiche quinquennale PAPI');
+        return;
+      }
 
-  } catch (err) {
-    console.error("Erreur voir fiche AnnFeuxSeq :", err);
-  }
-};
+      const data = await res.json();
 
-const voirFicheQuiPapi = async (ficheId, notifId) => {
-  try {
-    // Récupérer la fiche quinquennale PAPI par ID
-    const res = await fetch(`${FICHE_QUI_PAPI_API}/${ficheId}`);
-
-    if (!res.ok) {
-      console.error("Erreur récupération fiche quinquennale PAPI");
-      return;
+      // Stocker la fiche + l'ID de notification pour marquer comme lu
+      setSelectedFiche({ ...data, notifId });
+    } catch (err) {
+      console.error('Erreur voir fiche quinquennale PAPI :', err);
     }
+  };
+  const voirFicheCorrective = async (ficheId, notifId) => {
+    try {
+      // Récupérer la fiche corrective par ID
+      const res = await fetch(`${FICHE_CORRECTIVE_API}/${ficheId}`);
 
-    const data = await res.json();
+      if (!res.ok) {
+        console.error('Erreur récupération fiche corrective');
+        return;
+      }
 
-    // Stocker la fiche + l'ID de notification pour marquer comme lu
-    setSelectedFiche({ ...data, notifId });
+      const data = await res.json();
 
-  } catch (err) {
-    console.error("Erreur voir fiche quinquennale PAPI :", err);
-  }
-};
-const voirFicheCorrective = async (ficheId, notifId) => {
-  try {
-    // Récupérer la fiche corrective par ID
-    const res = await fetch(`${FICHE_CORRECTIVE_API}/${ficheId}`);
-
-    if (!res.ok) {
-      console.error("Erreur récupération fiche corrective");
-      return;
+      // Stocker la fiche + l'ID de notification pour marquer comme lu
+      setSelectedFiche({ ...data, notifId });
+    } catch (err) {
+      console.error('Erreur voir fiche corrective :', err);
     }
+  };
+  const voirFicheNoBreak = async (ficheId, notifId) => {
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/fiche-nobreak/${ficheId}`
+      );
 
-    const data = await res.json();
+      if (!res.ok) {
+        console.error('Erreur récupération fiche NoBreak');
+        return;
+      }
 
-    // Stocker la fiche + l'ID de notification pour marquer comme lu
-    setSelectedFiche({ ...data, notifId });
+      const data = await res.json();
 
-  } catch (err) {
-    console.error("Erreur voir fiche corrective :", err);
-  }
-};
-const voirFicheNoBreak = async (ficheId, notifId) => {
-  try {
-    const res = await fetch(`http://localhost:5000/api/fiche-nobreak/${ficheId}`);
-
-    if (!res.ok) {
-      console.error("Erreur récupération fiche NoBreak");
-      return;
+      // 🔥 stocker fiche + notifId
+      setSelectedFiche({ ...data, notifId });
+    } catch (err) {
+      console.error('Erreur voir fiche NoBreak :', err);
     }
+  };
+  // fiche 2250 kva :
+  const voirFiche2250KVA = async (ficheId, notifId) => {
+    try {
+      // 🔹 appel API fiche 2250KVA
+      const res = await fetch(`${FICHE_2250KVA_API}/${ficheId}`);
 
-    const data = await res.json();
+      if (!res.ok) {
+        console.error('Erreur récupération fiche 2250KVA');
+        return;
+      }
 
-    // 🔥 stocker fiche + notifId
-    setSelectedFiche({ ...data, notifId });
+      const data = await res.json();
 
-  } catch (err) {
-    console.error("Erreur voir fiche NoBreak :", err);
-  }
-};
-// fiche 2250 kva :
-const voirFiche2250KVA = async (ficheId, notifId) => {
-  try {
-    // 🔹 appel API fiche 2250KVA
-    const res = await fetch(`${FICHE_2250KVA_API}/${ficheId}`);
-
-    if (!res.ok) {
-      console.error("Erreur récupération fiche 2250KVA");
-      return;
+      // 🔹 stocker fiche + notifId (comme PAPI)
+      setSelectedFiche({ ...data, notifId });
+    } catch (err) {
+      console.error('Erreur voir fiche 2250KVA :', err);
     }
+  };
+  // fiche olapion
 
-    const data = await res.json();
+  const voirFicheOlapion = async (ficheId, notifId) => {
+    try {
+      // 🔹 appel API fiche Olapion
+      const res = await fetch(`${FICHE_OLAPION_API}/${ficheId}`);
 
-    // 🔹 stocker fiche + notifId (comme PAPI)
-    setSelectedFiche({ ...data, notifId });
+      if (!res.ok) {
+        console.error('Erreur récupération fiche Olapion');
+        return;
+      }
 
-  } catch (err) {
-    console.error("Erreur voir fiche 2250KVA :", err);
-  }
-};
-// fiche olapion 
+      const data = await res.json();
 
-const voirFicheOlapion = async (ficheId, notifId) => {
-  try {
-    // 🔹 appel API fiche Olapion
-    const res = await fetch(`${FICHE_OLAPION_API}/${ficheId}`);
-
-    if (!res.ok) {
-      console.error("Erreur récupération fiche Olapion");
-      return;
+      // 🔹 stocker fiche + notifId
+      setSelectedFiche({ ...data, notifId });
+    } catch (err) {
+      console.error('Erreur voir fiche Olapion :', err);
     }
+  };
+  const voirFicheBalisage = async (ficheId, notifId) => {
+    try {
+      // 🔹 Récupérer la fiche balisage
+      const res = await fetch(`${FICHE_BALISAGE_API}/${ficheId}`);
 
-    const data = await res.json();
+      if (!res.ok) {
+        console.error('Erreur récupération fiche balisage');
+        return;
+      }
 
-    // 🔹 stocker fiche + notifId
-    setSelectedFiche({ ...data, notifId });
+      const data = await res.json();
 
-  } catch (err) {
-    console.error("Erreur voir fiche Olapion :", err);
-  }
-};
-const voirFicheBalisage = async (ficheId, notifId) => {
-  try {
-    // 🔹 Récupérer la fiche balisage
-    const res = await fetch(`${FICHE_BALISAGE_API}/${ficheId}`);
-
-    if (!res.ok) {
-      console.error("Erreur récupération fiche balisage");
-      return;
+      // 🔹 Stocker la fiche + notifId
+      setSelectedFiche({ ...data, notifId });
+    } catch (err) {
+      console.error('Erreur voir fiche balisage :', err);
     }
+  };
+  const voirFichePaMa = async (ficheId, notifId) => {
+    try {
+      // 🔹 appel API fiche PaMa
+      const res = await fetch(`${FICHE_ANN_PAMA_API}/${ficheId}`);
 
-    const data = await res.json();
+      if (!res.ok) {
+        console.error('Erreur récupération fiche PaMa');
+        return;
+      }
 
-    // 🔹 Stocker la fiche + notifId
-    setSelectedFiche({ ...data, notifId });
+      const data = await res.json();
 
-  } catch (err) {
-    console.error("Erreur voir fiche balisage :", err);
-  }
-};
-const voirFichePaMa = async (ficheId, notifId) => {
-  try {
-    // 🔹 appel API fiche PaMa
-    const res = await fetch(`${FICHE_ANN_PAMA_API}/${ficheId}`);
-
-    if (!res.ok) {
-      console.error("Erreur récupération fiche PaMa");
-      return;
+      // 🔹 stocker fiche + notifId
+      setSelectedFiche({ ...data, notifId });
+    } catch (err) {
+      console.error('Erreur voir fiche PaMa :', err);
     }
+  };
+  // fifhce brigade
+  const voirFicheBrigade = async (ficheId, notifId) => {
+    try {
+      // 🔹 Récupérer la fiche brigade
+      const res = await fetch(`${BRIGADE_API}/${ficheId}`);
 
-    const data = await res.json();
+      if (!res.ok) {
+        console.error('Erreur récupération fiche Brigade');
+        return;
+      }
 
-    // 🔹 stocker fiche + notifId
-    setSelectedFiche({ ...data, notifId });
+      const data = await res.json();
 
-  } catch (err) {
-    console.error("Erreur voir fiche PaMa :", err);
-  }
-};
-
-
+      // 🔹 Stocker la fiche + notifId
+      setSelectedFiche({ ...data, notifId });
+    } catch (err) {
+      console.error('Erreur voir fiche Brigade :', err);
+    }
+  };
 
   //marquer fiche comme lu
   const marquerNotifCommeLue = async (notifId) => {
@@ -708,19 +725,19 @@ const voirFichePaMa = async (ficheId, notifId) => {
         url = 'http://localhost:5000/api/feux-obstacles/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_feux_obstacles';
-      } else if (selectedFiche?.lvp) {  
+      } else if (selectedFiche?.lvp) {
         url = 'http://localhost:5000/api/fiche-lvp/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_lvp';
-      } else if (selectedFiche?.boucles) { 
+      } else if (selectedFiche?.boucles) {
         url = 'http://localhost:5000/api/fiche-regulateures/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_regulateures';
-      } else if (selectedFiche?.postes) { 
+      } else if (selectedFiche?.postes) {
         url = 'http://localhost:5000/api/fiche-postes/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_postes';
-      } else if (selectedFiche?.aidesRadios) { 
+      } else if (selectedFiche?.aidesRadios) {
         url = 'http://localhost:5000/api/fiche-aides-radios/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_aides_radios';
@@ -728,7 +745,7 @@ const voirFichePaMa = async (ficheId, notifId) => {
         url = 'http://localhost:5000/api/fiche_feux_encastres/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_feux_encastres';
-      } else if (selectedFiche?.boucles) { 
+      } else if (selectedFiche?.boucles) {
         url = 'http://localhost:5000/api/fiche-semes-regulateures/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_semes_regulateures';
@@ -736,70 +753,74 @@ const voirFichePaMa = async (ficheId, notifId) => {
         url = 'http://localhost:5000/api/fiche-semes-postes/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_semes_postes';
-      } else if (selectedFiche?.dgs) { 
+      } else if (selectedFiche?.dgs) {
         url = 'http://localhost:5000/api/fiche_semes_dgs/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_semes_dgs';
-      } else if (selectedFiche?.postesq) {  
+      } else if (selectedFiche?.postesq) {
         url = 'http://localhost:5000/api/fiche-ann-tgbt/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_ann_tgbt';
-      } else if (selectedFiche?.panneaux) { 
+      } else if (selectedFiche?.panneaux) {
         url = 'http://localhost:5000/api/fiche-ann-voie/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_ann_voie';
-      } else if (selectedFiche?.PISTE) {  
+      } else if (selectedFiche?.PISTE) {
         url = 'http://localhost:5000/api/fiche-ann-infrastructure/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_ann_infrastructure';
-      } else if (selectedFiche?.feuxHorsSol) { 
+      } else if (selectedFiche?.feuxHorsSol) {
         url = 'http://localhost:5000/api/fiche-hors-sql/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_hors_sql';
-      } else if (selectedFiche?.fiches) { 
+      } else if (selectedFiche?.fiches) {
         url = 'http://localhost:5000/api/fiche-effar/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_effar';
-      } else if (selectedFiche?.sections) { 
+      } else if (selectedFiche?.sections) {
         url = 'http://localhost:5000/api/fiche-ann-obs/valider';
         body = { ficheId: id };
-        selectedFicheType = 'fiche_ann_obs';  
-        } else if (selectedFiche?.postesC) {
+        selectedFicheType = 'fiche_ann_obs';
+      } else if (selectedFiche?.postesC) {
         url = 'http://localhost:5000/api/fiche-ann-cable/valider';
         body = { ficheId: id };
-        selectedFicheType = 'fiche_ann_cable';  
-        } else if (selectedFiche?.blocs) {
+        selectedFicheType = 'fiche_ann_cable';
+      } else if (selectedFiche?.blocs) {
         url = 'http://localhost:5000/api/fiche-ann-feux-sequentiels/valider';
         body = { ficheId: id };
-        selectedFicheType = 'fiche_ann_feux_sequentiels'; 
-      } else if (selectedFiche?.papi) { 
+        selectedFicheType = 'fiche_ann_feux_sequentiels';
+      } else if (selectedFiche?.papi) {
         url = 'http://localhost:5000/api/fiche-qui-papi/valider';
         body = { ficheId: id };
         selectedFicheType = 'fiche_quinquennale_papi';
-       } else if (selectedFiche?.ficheCorrective) { 
+      } else if (selectedFiche?.ficheCorrective) {
         url = 'http://localhost:5000/api/fiche-corrective/valider';
         body = { ficheId: id };
-        selectedFicheType = 'fiche_corrective';  
-        } else if (selectedFiche?.controles) { 
+        selectedFicheType = 'fiche_corrective';
+      } else if (selectedFiche?.controles) {
         url = 'http://localhost:5000/api/fiche-nobreak/valider';
         body = { ficheId: id };
-        selectedFicheType = 'fiche_nobreak';  
-        } else if (selectedFiche?.pointsControle) { 
+        selectedFicheType = 'fiche_nobreak';
+      } else if (selectedFiche?.pointsControle) {
         url = 'http://localhost:5000/api/fiche-2250kva/valider';
         body = { ficheId: id };
-        selectedFicheType = 'fiche_2250kva';  
-         } else if (selectedFiche?.operations) { 
+        selectedFicheType = 'fiche_2250kva';
+      } else if (selectedFiche?.operations) {
         url = 'http://localhost:5000/api/fiche-olapion/valider';
         body = { ficheId: id };
-        selectedFicheType = 'fiche_olapion';      
-        } else if (selectedFiche?.groupes) { 
+        selectedFicheType = 'fiche_olapion';
+      } else if (selectedFiche?.groupes) {
         url = 'http://localhost:5000/api/fiche-balisage/valider';
         body = { ficheId: id };
-        selectedFicheType = 'fiche_balisage';       
-       } else if (selectedFiche?.tableaux) { 
+        selectedFicheType = 'fiche_balisage';
+      } else if (selectedFiche?.tableaux) {
         url = 'http://localhost:5000/api/fiche-ann-pa-ma/valider';
         body = { ficheId: id };
-        selectedFicheType = 'fiche_ann_pa_ma';        
+        selectedFicheType = 'fiche_ann_pa_ma';
+      } else if (selectedFiche?.blocsBrigade) {
+        url = 'http://localhost:5000/api/fiche-brigade/valider';
+        body = { ficheId: id };
+        selectedFicheType = 'fiche_brigade';
       } else {
         url = 'http://localhost:5000/api/inspections/valider';
         body = { inspectionId: id };
@@ -1892,25 +1913,31 @@ const voirFichePaMa = async (ficheId, notifId) => {
                   } else if (n.type?.toLowerCase() === 'fiche_effar') {
                     voirFicheEffar(ficheId, n._id);
                   } else if (n.type?.toLowerCase() === 'fiche_ann_obs') {
-                    voirFicheAnnObs(ficheId, n._id);  
-                    } else if (n.type?.toLowerCase() === 'fiche_ann_cable') {
-                    voirFicheAnnCable(ficheId, n._id);  
-                     } else if (n.type?.toLowerCase() === 'fiche_ann_feux_sequentiels') {
-                    voirFicheAnnFeuxSeq(ficheId, n._id); 
-                     } else if (n.type?.toLowerCase() === 'fiche_quinquennale_papi') {
-                    voirFicheQuiPapi(ficheId, n._id); 
-                      } else if (n.type?.toLowerCase() === 'fiche_corrective') {
+                    voirFicheAnnObs(ficheId, n._id);
+                  } else if (n.type?.toLowerCase() === 'fiche_ann_cable') {
+                    voirFicheAnnCable(ficheId, n._id);
+                  } else if (
+                    n.type?.toLowerCase() === 'fiche_ann_feux_sequentiels'
+                  ) {
+                    voirFicheAnnFeuxSeq(ficheId, n._id);
+                  } else if (
+                    n.type?.toLowerCase() === 'fiche_quinquennale_papi'
+                  ) {
+                    voirFicheQuiPapi(ficheId, n._id);
+                  } else if (n.type?.toLowerCase() === 'fiche_corrective') {
                     voirFicheCorrective(ficheId, n._id);
-                     } else if (n.type?.toLowerCase() === 'fiche_nobreak') {
+                  } else if (n.type?.toLowerCase() === 'fiche_nobreak') {
                     voirFicheNoBreak(ficheId, n._id);
-                    } else if (n.type?.toLowerCase() === 'fiche_2250kva') {
-                    voirFiche2250KVA(ficheId, n._id); 
-                     } else if (n.type?.toLowerCase() === 'fiche_olapion') {
-                    voirFicheOlapion(ficheId, n._id); 
-                     } else if (n.type?.toLowerCase() === 'fiche_balisage') {
+                  } else if (n.type?.toLowerCase() === 'fiche_2250kva') {
+                    voirFiche2250KVA(ficheId, n._id);
+                  } else if (n.type?.toLowerCase() === 'fiche_olapion') {
+                    voirFicheOlapion(ficheId, n._id);
+                  } else if (n.type?.toLowerCase() === 'fiche_balisage') {
                     voirFicheBalisage(ficheId, n._id);
-                    } else if (n.type?.toLowerCase() === 'fiche_ann_pa_ma') {
-                    voirFichePaMa (ficheId, n._id);  
+                  } else if (n.type?.toLowerCase() === 'fiche_ann_pa_ma') {
+                    voirFichePaMa(ficheId, n._id);
+                  } else if (n.type?.toLowerCase() === 'fiche_brigade') {
+                    voirFicheBrigade(ficheId, n._id);
                   } else {
                     voirFiche(ficheId);
                   }
@@ -2351,81 +2378,75 @@ const voirFichePaMa = async (ficheId, notifId) => {
                   <button onClick={exportPDF}>📄 Exporter PDF</button>
                 </div>
               </>
-              // ================= FEUX ENCASTRES =================
-            
-          ):selectedFiche?.emplacements ? (
-  <>
-    <h3>Fiche Feux Encastrés Semestrielle</h3>
+            ) : // ================= FEUX ENCASTRES =================
 
-    <p>
-      📅 Date :{' '}
-      {selectedFiche.date
-        ? new Date(selectedFiche.date).toLocaleDateString()
-        : ''}
-    </p>
+            selectedFiche?.emplacements ? (
+              <>
+                <h3>Fiche Feux Encastrés Semestrielle</h3>
 
-    <p>
-      👨‍🔧 Technicien : {selectedFiche.technicien_operateur || ''}
-    </p>
+                <p>
+                  📅 Date :{' '}
+                  {selectedFiche.date
+                    ? new Date(selectedFiche.date).toLocaleDateString()
+                    : ''}
+                </p>
 
-    <p>
-      📝 Observations générales :{' '}
-      {selectedFiche.observations_generales || ''}
-    </p>
+                <p>
+                  👨‍🔧 Technicien : {selectedFiche.technicien_operateur || ''}
+                </p>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Emplacement</th>
-          <th>Élément</th>
-          <th>État</th>
-          <th>Interventions</th>
-          <th>Observations</th>
-        </tr>
-      </thead>
+                <p>
+                  📝 Observations générales :{' '}
+                  {selectedFiche.observations_generales || ''}
+                </p>
 
-      <tbody>
-        {selectedFiche.emplacements.map((emp, empIndex) => (
-          <React.Fragment key={empIndex}>
-            {emp.elements.map((el, elIndex) => (
-              <tr key={`${empIndex}-${elIndex}`}>
-                
-                {elIndex === 0 && (
-                  <td rowSpan={emp.elements.length}>
-                    {emp.nom}
-                  </td>
-                )}
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Emplacement</th>
+                      <th>Élément</th>
+                      <th>État</th>
+                      <th>Interventions</th>
+                      <th>Observations</th>
+                    </tr>
+                  </thead>
 
-                <td>{el.nom}</td>
-                <td>{el.etat}</td>
-                <td>{el.interventions}</td>
-                <td>{el.observations}</td>
-              </tr>
-            ))}
-          </React.Fragment>
-        ))}
-      </tbody>
-    </table>
+                  <tbody>
+                    {selectedFiche.emplacements.map((emp, empIndex) => (
+                      <React.Fragment key={empIndex}>
+                        {emp.elements.map((el, elIndex) => (
+                          <tr key={`${empIndex}-${elIndex}`}>
+                            {elIndex === 0 && (
+                              <td rowSpan={emp.elements.length}>{emp.nom}</td>
+                            )}
 
-    <div className="modal-actions">
-      <button
-        onClick={() =>
-          validerFiche(selectedFiche._id, selectedFiche.notifId)
-        }
-      >
-        ✅ Valider
-      </button>
+                            <td>{el.nom}</td>
+                            <td>{el.etat}</td>
+                            <td>{el.interventions}</td>
+                            <td>{el.observations}</td>
+                          </tr>
+                        ))}
+                      </React.Fragment>
+                    ))}
+                  </tbody>
+                </table>
 
-      <button onClick={() => setSelectedFiche(null)}>
-        ❌ Fermer
-      </button>
+                <div className="modal-actions">
+                  <button
+                    onClick={() =>
+                      validerFiche(selectedFiche._id, selectedFiche.notifId)
+                    }
+                  >
+                    ✅ Valider
+                  </button>
 
-      <button onClick={exportPDF}>
-        📄 Exporter PDF
-      </button>
-    </div>
-  </>
+                  <button onClick={() => setSelectedFiche(null)}>
+                    ❌ Fermer
+                  </button>
 
+                  <button onClick={exportPDF}>📄 Exporter PDF</button>
+                </div>
+              </>
             ) : // ================= REGULATEURS =================
             selectedFiche?.boucles ? (
               <>
@@ -2785,9 +2806,9 @@ const voirFichePaMa = async (ficheId, notifId) => {
                   <button onClick={exportPDF}>📄 Exporter PDF</button>
                 </div>
               </>
-              // ================= Anuelle tgbt =================
+            ) : // ================= Anuelle tgbt =================
 
-            ) : selectedFiche?.postesq ? (
+            selectedFiche?.postesq ? (
               <>
                 <h3>Fiche Annuelle TGBT</h3>
                 <p>
@@ -2913,9 +2934,8 @@ const voirFichePaMa = async (ficheId, notifId) => {
                   <button onClick={exportPDF}>📄 Exporter PDF</button>
                 </div>
               </>
-              
-            // ================= Anuelle voie =================
-                      ):    selectedFiche?.panneaux ? (
+            ) : // ================= Anuelle voie =================
+            selectedFiche?.panneaux ? (
               <>
                 <h3>Fiche Annuelle Voie</h3>
 
@@ -2928,7 +2948,8 @@ const voirFichePaMa = async (ficheId, notifId) => {
                 </p>
                 <p>
                   👨‍🔧 Technicien / Opérateurs :{' '}
-{selectedFiche.techniciens_operateurs || ''}                </p>
+                  {selectedFiche.techniciens_operateurs || ''}{' '}
+                </p>
                 <p>
                   📝 Observations générales :{' '}
                   {selectedFiche.observations_generales || ''}
@@ -3167,8 +3188,8 @@ const voirFichePaMa = async (ficheId, notifId) => {
                   </button>
                 </div>
               </>
-              // infarstructure
-            ) : selectedFiche?.PISTE ? (
+            ) : // infarstructure
+            selectedFiche?.PISTE ? (
               <>
                 <h3>Fiche Annuelle Infrastructure</h3>
 
@@ -3181,7 +3202,8 @@ const voirFichePaMa = async (ficheId, notifId) => {
                 </p>
                 <p>
                   👨‍🔧 Technicien / Opérateurs :{' '}
-{selectedFiche.techniciens_operateurs || ''}                </p>
+                  {selectedFiche.techniciens_operateurs || ''}{' '}
+                </p>
                 <p>
                   📝 Observations générales :{' '}
                   {selectedFiche.observationsGenerales || ''}
@@ -3305,8 +3327,8 @@ const voirFichePaMa = async (ficheId, notifId) => {
                   </button>
                 </div>
               </>
-              //Fiche Feux Hors Sql
-            ) : selectedFiche?.feuxHorsSol ? (
+            ) : //Fiche Feux Hors Sql
+            selectedFiche?.feuxHorsSol ? (
               <>
                 <h3>Fiche Feux Hors Sql</h3>
 
@@ -3442,8 +3464,8 @@ const voirFichePaMa = async (ficheId, notifId) => {
                   </button>
                 </div>
               </>
-             // Fiche Effaroucheur
-            ) : selectedFiche?.fiches ? (
+            ) : // Fiche Effaroucheur
+            selectedFiche?.fiches ? (
               <>
                 <h3>Fiche Effaroucheur</h3>
 
@@ -3557,1129 +3579,1569 @@ const voirFichePaMa = async (ficheId, notifId) => {
                   </button>
                 </div>
               </>
+            ) : selectedFiche?.sections ? (
+              <>
+                <h3>Fiche Annuelle Feux Obstacles</h3>
 
-) : selectedFiche?.sections ? (
-  <>
-    <h3>Fiche Annuelle Feux Obstacles</h3>
+                {/* Informations générales */}
+                <p>
+                  📅 Date :{' '}
+                  {selectedFiche.date
+                    ? new Date(selectedFiche.date).toLocaleDateString()
+                    : ''}
+                </p>
+                <p>
+                  👨‍🔧 Technicien / Opérateur :{' '}
+                  {selectedFiche.technicien_operateur || ''}
+                </p>
+                <p>
+                  📝 Observations générales :{' '}
+                  {selectedFiche.observations_generales || ''}
+                </p>
 
-    {/* Informations générales */}
-    <p>
-      📅 Date :{' '}
-      {selectedFiche.date
-        ? new Date(selectedFiche.date).toLocaleDateString()
-        : ''}
-    </p>
-    <p>👨‍🔧 Technicien / Opérateur : {selectedFiche.technicien_operateur || ''}</p>
-    <p>📝 Observations générales : {selectedFiche.observations_generales || ''}</p>
+                {/* Tableau pour chaque section */}
+                {selectedFiche.sections.map((section, si) => (
+                  <div key={si} style={{ marginTop: '20px' }}>
+                    <h4>{section.titre}</h4>
+                    <table
+                      style={{
+                        borderCollapse: 'collapse',
+                        width: '100%',
+                        marginTop: '10px',
+                      }}
+                    >
+                      <thead>
+                        <tr style={{ backgroundColor: '#eee' }}>
+                          <th
+                            style={{ border: '1px solid #000', padding: '5px' }}
+                          >
+                            Lieu
+                          </th>
+                          <th
+                            style={{ border: '1px solid #000', padding: '5px' }}
+                          >
+                            Nettoyage
+                          </th>
+                          <th
+                            style={{ border: '1px solid #000', padding: '5px' }}
+                          >
+                            Serrage Bornes
+                          </th>
+                          <th
+                            style={{ border: '1px solid #000', padding: '5px' }}
+                          >
+                            Prise Terre
+                          </th>
+                          <th
+                            style={{ border: '1px solid #000', padding: '5px' }}
+                          >
+                            Isolement Conducteurs
+                          </th>
+                          <th
+                            style={{ border: '1px solid #000', padding: '5px' }}
+                          >
+                            Continuité Protection
+                          </th>
+                          <th
+                            style={{ border: '1px solid #000', padding: '5px' }}
+                          >
+                            Vérification Schémas
+                          </th>
+                          <th
+                            style={{ border: '1px solid #000', padding: '5px' }}
+                          >
+                            Intervention
+                          </th>
+                          <th
+                            style={{ border: '1px solid #000', padding: '5px' }}
+                          >
+                            Observations
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {section.elements.map((el, ei) => (
+                          <tr key={ei}>
+                            <td
+                              style={{
+                                border: '1px solid #000',
+                                padding: '5px',
+                              }}
+                            >
+                              {el.lieu}
+                            </td>
+                            <td
+                              style={{
+                                border: '1px solid #000',
+                                padding: '5px',
+                              }}
+                            >
+                              {el.nettoyage}
+                            </td>
+                            <td
+                              style={{
+                                border: '1px solid #000',
+                                padding: '5px',
+                              }}
+                            >
+                              {el.serrageBornes}
+                            </td>
+                            <td
+                              style={{
+                                border: '1px solid #000',
+                                padding: '5px',
+                              }}
+                            >
+                              {el.priseDeTerre}
+                            </td>
+                            <td
+                              style={{
+                                border: '1px solid #000',
+                                padding: '5px',
+                              }}
+                            >
+                              {el.isolementConducteurs}
+                            </td>
+                            <td
+                              style={{
+                                border: '1px solid #000',
+                                padding: '5px',
+                              }}
+                            >
+                              {el.continuiteProtection}
+                            </td>
+                            <td
+                              style={{
+                                border: '1px solid #000',
+                                padding: '5px',
+                              }}
+                            >
+                              {el.verificationSchemas}
+                            </td>
+                            <td
+                              style={{
+                                border: '1px solid #000',
+                                padding: '5px',
+                              }}
+                            >
+                              {el.intervention}
+                            </td>
+                            <td
+                              style={{
+                                border: '1px solid #000',
+                                padding: '5px',
+                              }}
+                            >
+                              {el.observations}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ))}
 
-    {/* Tableau pour chaque section */}
-    {selectedFiche.sections.map((section, si) => (
-      <div key={si} style={{ marginTop: '20px' }}>
-        <h4>{section.titre}</h4>
-        <table
-          style={{
-            borderCollapse: 'collapse',
-            width: '100%',
-            marginTop: '10px',
-          }}
-        >
-          <thead>
-            <tr style={{ backgroundColor: '#eee' }}>
-              <th style={{ border: '1px solid #000', padding: '5px' }}>Lieu</th>
-              <th style={{ border: '1px solid #000', padding: '5px' }}>Nettoyage</th>
-              <th style={{ border: '1px solid #000', padding: '5px' }}>Serrage Bornes</th>
-              <th style={{ border: '1px solid #000', padding: '5px' }}>Prise Terre</th>
-              <th style={{ border: '1px solid #000', padding: '5px' }}>Isolement Conducteurs</th>
-              <th style={{ border: '1px solid #000', padding: '5px' }}>Continuité Protection</th>
-              <th style={{ border: '1px solid #000', padding: '5px' }}>Vérification Schémas</th>
-              <th style={{ border: '1px solid #000', padding: '5px' }}>Intervention</th>
-              <th style={{ border: '1px solid #000', padding: '5px' }}>Observations</th>
-            </tr>
-          </thead>
-          <tbody>
-            {section.elements.map((el, ei) => (
-              <tr key={ei}>
-                <td style={{ border: '1px solid #000', padding: '5px' }}>{el.lieu}</td>
-                <td style={{ border: '1px solid #000', padding: '5px' }}>{el.nettoyage}</td>
-                <td style={{ border: '1px solid #000', padding: '5px' }}>{el.serrageBornes}</td>
-                <td style={{ border: '1px solid #000', padding: '5px' }}>{el.priseDeTerre}</td>
-                <td style={{ border: '1px solid #000', padding: '5px' }}>{el.isolementConducteurs}</td>
-                <td style={{ border: '1px solid #000', padding: '5px' }}>{el.continuiteProtection}</td>
-                <td style={{ border: '1px solid #000', padding: '5px' }}>{el.verificationSchemas}</td>
-                <td style={{ border: '1px solid #000', padding: '5px' }}>{el.intervention}</td>
-                <td style={{ border: '1px solid #000', padding: '5px' }}>{el.observations}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    ))}
+                {/* Actions */}
+                <div
+                  style={{ marginTop: '20px', display: 'flex', gap: '10px' }}
+                >
+                  <button
+                    onClick={() =>
+                      validerFiche(selectedFiche._id, selectedFiche.notifId)
+                    }
+                  >
+                    ✅ Valider
+                  </button>
+                  <button onClick={() => setSelectedFiche(null)}>
+                    ❌ Fermer
+                  </button>
+                  <button onClick={() => exportPDF(selectedFiche)}>
+                    📄 Exporter PDF
+                  </button>
+                </div>
+              </>
+            ) : // ficeh anuelele cable
+            selectedFiche?.postesC ? (
+              <>
+                <h3>📡 Fiche Annuelle Câbles</h3>
 
-    {/* Actions */}
-    <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-      <button onClick={() => validerFiche(selectedFiche._id, selectedFiche.notifId)}>
-        ✅ Valider
-      </button>
-      <button onClick={() => setSelectedFiche(null)}>❌ Fermer</button>
-      <button onClick={() => exportPDF(selectedFiche)}>📄 Exporter PDF</button>
-    </div>
-  </>
-  // ficeh anuelele cable 
-  ):selectedFiche?.postesC ? (
-  <>
-    <h3>📡 Fiche Annuelle Câbles</h3>
+                {/* ================= INFOS ================= */}
+                <p>
+                  📅 Date :{' '}
+                  {selectedFiche.date
+                    ? new Date(selectedFiche.date).toLocaleDateString()
+                    : 'Non renseignée'}
+                </p>
 
-    {/* ================= INFOS ================= */}
-    <p>
-      📅 Date :{" "}
-      {selectedFiche.date
-        ? new Date(selectedFiche.date).toLocaleDateString()
-        : "Non renseignée"}
-    </p>
+                <p>
+                  👨‍🔧 Technicien / Opérateur :{' '}
+                  {selectedFiche.technicien_operateur || 'Non renseigné'}
+                </p>
 
-    <p>
-      👨‍🔧 Technicien / Opérateur :{" "}
-      {selectedFiche.technicien_operateur || "Non renseigné"}
-    </p>
+                <p>
+                  📝 Observations générales :{' '}
+                  {selectedFiche.observations_generales || 'Aucune'}
+                </p>
 
-    <p>
-      📝 Observations générales :{" "}
-      {selectedFiche.observations_generales || "Aucune"}
-    </p>
+                {/* ================= POSTES ================= */}
+                {selectedFiche.postesC.map((poste, pi) => (
+                  <div key={pi} style={{ marginTop: '20px' }}>
+                    <h4>{poste.titre}</h4>
 
-    {/* ================= POSTES ================= */}
-    {selectedFiche.postesC.map((poste, pi) => (
-      <div key={pi} style={{ marginTop: "20px" }}>
-        <h4>{poste.titre}</h4>
+                    {poste.equipements && poste.equipements.length > 0 ? (
+                      <table
+                        style={{
+                          borderCollapse: 'collapse',
+                          width: '100%',
+                          marginTop: '10px',
+                        }}
+                      >
+                        <thead>
+                          <tr style={{ backgroundColor: '#eee' }}>
+                            <th style={th}>Équipement</th>
+                            <th style={th}>État</th>
+                            <th style={th}>Interventions</th>
+                            <th style={th}>Observations</th>
+                          </tr>
+                        </thead>
 
-        {poste.equipements && poste.equipements.length > 0 ? (
-          <table
-            style={{
-              borderCollapse: "collapse",
-              width: "100%",
-              marginTop: "10px"
-            }}
-          >
-            <thead>
-              <tr style={{ backgroundColor: "#eee" }}>
-                <th style={th}>Équipement</th>
-                <th style={th}>État</th>
-                <th style={th}>Interventions</th>
-                <th style={th}>Observations</th>
-              </tr>
-            </thead>
+                        <tbody>
+                          {poste.equipements.map((equip, ei) => (
+                            <tr key={ei}>
+                              <td style={td}>{equip.nom}</td>
+                              <td style={td}>{equip.etat || '-'}</td>
+                              <td style={td}>{equip.interventions || '-'}</td>
+                              <td style={td}>{equip.observations || '-'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <p>Aucun équipement disponible</p>
+                    )}
+                  </div>
+                ))}
 
-            <tbody>
-              {poste.equipements.map((equip, ei) => (
-                <tr key={ei}>
-                  <td style={td}>{equip.nom}</td>
-                  <td style={td}>{equip.etat || "-"}</td>
-                  <td style={td}>{equip.interventions || "-"}</td>
-                  <td style={td}>{equip.observations || "-"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p>Aucun équipement disponible</p>
-        )}
-      </div>
-    ))}
-
-    {/* ================= ACTIONS ================= */}
-    <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
-      <button
-        onClick={() =>
-          validerFiche(selectedFiche._id, selectedFiche.notifId)
-        }
-      >
-        ✅ Valider
-      </button>
-
-      <button onClick={() => setSelectedFiche(null)}>
-        ❌ Fermer
-      </button>
-
-      <button onClick={() => exportPDF(selectedFiche)}>
-        📄 Exporter PDF
-      </button>
-    </div>
-  </>
-
-
-) : selectedFiche?.postes ? (
-  <>
-    <h3>Fiche Annuelle Câbles</h3>
-
-    {/* Informations générales */}
-    <p>
-      📅 Date :{' '}
-      {selectedFiche.date
-        ? new Date(selectedFiche.date).toLocaleDateString()
-        : 'Non renseignée'}
-    </p>
-    <p>👨‍🔧 Technicien / Opérateur : {selectedFiche.technicien_operateur || 'Non renseigné'}</p>
-    <p>📝 Observations générales : {selectedFiche.observations_generales || 'Aucune'}</p>
-
-    {/* Tableau pour chaque poste */}
-    {selectedFiche.postes.map((poste, pi) => (
-      <div key={pi} style={{ marginTop: '20px' }}>
-        <h4>{poste.titre}</h4>
-        {poste.equipements && poste.equipements.length > 0 ? (
-          <table
-            style={{
-              borderCollapse: 'collapse',
-              width: '100%',
-              marginTop: '10px',
-            }}
-          >
-            <thead>
-              <tr style={{ backgroundColor: '#eee' }}>
-                <th style={{ border: '1px solid #000', padding: '5px' }}>Équipement</th>
-                <th style={{ border: '1px solid #000', padding: '5px' }}>État</th>
-                <th style={{ border: '1px solid #000', padding: '5px' }}>Interventions</th>
-                <th style={{ border: '1px solid #000', padding: '5px' }}>Observations</th>
-              </tr>
-            </thead>
-            <tbody>
-              {poste.equipements.map((equip, ei) => (
-                <tr key={ei}>
-                  <td style={{ border: '1px solid #000', padding: '5px' }}>{equip.nom}</td>
-                  <td style={{ border: '1px solid #000', padding: '5px' }}>{equip.etat || '-'}</td>
-                  <td style={{ border: '1px solid #000', padding: '5px' }}>{equip.interventions || '-'}</td>
-                  <td style={{ border: '1px solid #000', padding: '5px' }}>{equip.observations || '-'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p>Aucun équipement disponible</p>
-        )}
-      </div>
-    ))}
-
-    {/* Actions */}
-    <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-      <button onClick={() => validerFiche(selectedFiche._id, selectedFiche.notifId)}>
-        ✅ Valider
-      </button>
-      <button onClick={() => setSelectedFiche(null)}>❌ Fermer</button>
-      <button onClick={() => exportPDF(selectedFiche)}>📄 Exporter PDF</button>
-    </div>
-  </>
-
-
-) : selectedFiche?.blocs ? (
-  <>
-    <h3>Fiche Annuelle Feux Séquentiels</h3>
-
-    {/* Informations générales */}
-    <p>
-      📅 Date :{' '}
-      {selectedFiche.date
-        ? new Date(selectedFiche.date).toLocaleDateString()
-        : 'Non renseignée'}
-    </p>
-
-    <p>
-      👨‍🔧 Technicien / Opérateur :{' '}
-      {selectedFiche.techniciens_operateurs || 'Non renseigné'}
-    </p>
-
-    <p>
-      📝 Observations générales :{' '}
-      {selectedFiche.observations_generales || 'Aucune'}
-    </p>
-
-    {/* Tableau pour chaque bloc */}
-    {selectedFiche.blocs.map((bloc, bi) => (
-      <div key={bi} style={{ marginTop: '20px' }}>
-        <h4>Bloc {bloc.titre}</h4>
-
-        {bloc.elements && bloc.elements.length > 0 ? (
-          <table
-            style={{
-              borderCollapse: 'collapse',
-              width: '100%',
-              marginTop: '10px'
-            }}
-          >
-            <thead>
-              <tr style={{ backgroundColor: '#eee' }}>
-                <th style={{ border: '1px solid #000', padding: '5px' }}>
-                  Vérification
-                </th>
-                <th style={{ border: '1px solid #000', padding: '5px' }}>
-                  État
-                </th>
-                <th style={{ border: '1px solid #000', padding: '5px' }}>
-                  Interventions
-                </th>
-                <th style={{ border: '1px solid #000', padding: '5px' }}>
-                  Observations
-                </th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {bloc.elements.map((elem, ei) => (
-                <tr key={ei}>
-                  <td style={{ border: '1px solid #000', padding: '5px' }}>
-                    {elem.verification}
-                  </td>
-
-                  <td style={{ border: '1px solid #000', padding: '5px' }}>
-                    {elem.etat || '-'}
-                  </td>
-
-                  <td style={{ border: '1px solid #000', padding: '5px' }}>
-                    {elem.interventions || '-'}
-                  </td>
-
-                  <td style={{ border: '1px solid #000', padding: '5px' }}>
-                    {elem.observations || '-'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p>Aucun élément disponible</p>
-        )}
-      </div>
-    ))}
-
-    {/* Actions */}
-    <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-      <button onClick={() => validerFiche(selectedFiche._id)}>
+                {/* ================= ACTIONS ================= */}
+                <div
+                  style={{ marginTop: '20px', display: 'flex', gap: '10px' }}
+                >
+                  <button
+                    onClick={() =>
+                      validerFiche(selectedFiche._id, selectedFiche.notifId)
+                    }
+                  >
                     ✅ Valider
                   </button>
 
-      <button onClick={() => setSelectedFiche(null)}>
-        ❌ Fermer
-      </button>
+                  <button onClick={() => setSelectedFiche(null)}>
+                    ❌ Fermer
+                  </button>
 
-      <button onClick={() => exportPDF(selectedFiche)}>
-        📄 Exporter PDF
-      </button>
-    </div>
-  </>
-  // fiche 5 snin papi
+                  <button onClick={() => exportPDF(selectedFiche)}>
+                    📄 Exporter PDF
+                  </button>
+                </div>
+              </>
+            ) : selectedFiche?.postes ? (
+              <>
+                <h3>Fiche Annuelle Câbles</h3>
 
-  ) : selectedFiche?.papi ? (
-  <>
-    <h3>Fiche d’Inspection Quinquennale PAPI</h3>
+                {/* Informations générales */}
+                <p>
+                  📅 Date :{' '}
+                  {selectedFiche.date
+                    ? new Date(selectedFiche.date).toLocaleDateString()
+                    : 'Non renseignée'}
+                </p>
+                <p>
+                  👨‍🔧 Technicien / Opérateur :{' '}
+                  {selectedFiche.technicien_operateur || 'Non renseigné'}
+                </p>
+                <p>
+                  📝 Observations générales :{' '}
+                  {selectedFiche.observations_generales || 'Aucune'}
+                </p>
 
-    {/* Informations générales */}
-    <p>
-      📅 Date :{' '}
-      {selectedFiche.date
-        ? new Date(selectedFiche.date).toLocaleDateString()
-        : 'Non renseignée'}
-    </p>
-
-    <p>
-      👨‍🔧 Technicien / Opérateur :{' '}
-      {selectedFiche.techniciens_operateurs || 'Non renseigné'}
-    </p>
-
-    <p>
-      📝 Observations générales :{' '}
-      {selectedFiche.observations_generales || 'Aucune'}
-    </p>
-
-    {/* Tableau pour chaque poste PAPI */}
-    {selectedFiche.papi.map((p, pi) => (
-      <div key={pi} style={{ marginTop: '20px' }}>
-        <h4>Numéro {p.numero}</h4>
-
-        {p.elements && p.elements.length > 0 ? (
-          <table
-            style={{
-              borderCollapse: 'collapse',
-              width: '100%',
-              marginTop: '10px'
-            }}
-          >
-            <thead>
-              <tr style={{ backgroundColor: '#eee' }}>
-                <th style={{ border: '1px solid #000', padding: '5px' }}>
-                  Vérification
-                </th>
-                {["11","12","21","22","31","32","41","42"].map((champ) => (
-                  <th key={champ} style={{ border: '1px solid #000', padding: '5px' }}>
-                    {champ}
-                  </th>
+                {/* Tableau pour chaque poste */}
+                {selectedFiche.postes.map((poste, pi) => (
+                  <div key={pi} style={{ marginTop: '20px' }}>
+                    <h4>{poste.titre}</h4>
+                    {poste.equipements && poste.equipements.length > 0 ? (
+                      <table
+                        style={{
+                          borderCollapse: 'collapse',
+                          width: '100%',
+                          marginTop: '10px',
+                        }}
+                      >
+                        <thead>
+                          <tr style={{ backgroundColor: '#eee' }}>
+                            <th
+                              style={{
+                                border: '1px solid #000',
+                                padding: '5px',
+                              }}
+                            >
+                              Équipement
+                            </th>
+                            <th
+                              style={{
+                                border: '1px solid #000',
+                                padding: '5px',
+                              }}
+                            >
+                              État
+                            </th>
+                            <th
+                              style={{
+                                border: '1px solid #000',
+                                padding: '5px',
+                              }}
+                            >
+                              Interventions
+                            </th>
+                            <th
+                              style={{
+                                border: '1px solid #000',
+                                padding: '5px',
+                              }}
+                            >
+                              Observations
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {poste.equipements.map((equip, ei) => (
+                            <tr key={ei}>
+                              <td
+                                style={{
+                                  border: '1px solid #000',
+                                  padding: '5px',
+                                }}
+                              >
+                                {equip.nom}
+                              </td>
+                              <td
+                                style={{
+                                  border: '1px solid #000',
+                                  padding: '5px',
+                                }}
+                              >
+                                {equip.etat || '-'}
+                              </td>
+                              <td
+                                style={{
+                                  border: '1px solid #000',
+                                  padding: '5px',
+                                }}
+                              >
+                                {equip.interventions || '-'}
+                              </td>
+                              <td
+                                style={{
+                                  border: '1px solid #000',
+                                  padding: '5px',
+                                }}
+                              >
+                                {equip.observations || '-'}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <p>Aucun équipement disponible</p>
+                    )}
+                  </div>
                 ))}
-              </tr>
-            </thead>
 
-            <tbody>
-              {p.elements.map((elem, ei) => (
-                <tr key={ei}>
-                  <td style={{ border: '1px solid #000', padding: '5px' }}>
-                    {elem.verification}
-                  </td>
-
-                  {["11","12","21","22","31","32","41","42"].map((champ) => (
-                    <td key={champ} style={{ border: '1px solid #000', padding: '5px' }}>
-                      {elem[champ] || '-'}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p>Aucun élément disponible</p>
-        )}
-      </div>
-    ))}
-
-    {/* Actions */}
-    <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-      <button onClick={() => validerFiche(selectedFiche._id)}>✅ Valider</button>
-      <button onClick={() => setSelectedFiche(null)}>❌ Fermer</button>
-      <button onClick={() => exportPDF(selectedFiche)}>📄 Exporter PDF</button>
-    </div>
-  </>
-  
-
-) : selectedFiche?.ficheCorrective?.length > 0 ? (
-  <>
-    <h3>Fiche Corrective</h3>
-
-    {selectedFiche.ficheCorrective.map((fiche, fi) => (
-      <div key={fi} style={{ marginBottom: '30px' }}>
-        {/* ================= INFOS GÉNÉRALES ================= */}
-        <p>
-          📅 Date :{' '}
-          {fiche.date ? new Date(fiche.date).toLocaleDateString() : 'Non renseignée'}
-        </p>
-
-        <p>🛠️ Désignation : {fiche.designation || 'Non renseignée'}</p>
-        <p>📍 Lieu : {fiche.lieuInstallation || 'Non renseigné'}</p>
-        <p>
-          📅 Date détection :{' '}
-          {fiche.dateDetection
-            ? new Date(fiche.dateDetection).toLocaleDateString()
-            : 'Non renseignée'}
-        </p>
-
-        <p>📢 Réclamation par : {fiche.reclamationPar || 'Non renseigné'}</p>
-        <p>👤 Personne contactée : {fiche.personneContactee || 'Non renseignée'}</p>
-
-        <p>⏱️ Début : {fiche.debutIntervention || '-'}</p>
-        <p>⏱️ Remise en service : {fiche.remiseEnService || '-'}</p>
-        <p>⌛ Temps alloué : {fiche.tempsAlloue || '-'}</p>
-        <p>📝 Observations : {fiche.observationsGenerales || 'Aucune'}</p>
-
-        <p>
-          👨‍🔧 Technicien :{' '}
-          {fiche.techniciensOperateurs?.[0]?.nom || 'Non renseigné'}
-        </p>
-
-        {/* ================= DIAGNOSTIC ================= */}
-        <h4 style={{ marginTop: '20px' }}>Diagnostic</h4>
-        {fiche.diagnostic?.length > 0 ? (
-          <table style={{ borderCollapse: 'collapse', width: '100%', marginTop: '10px' }}>
-            <thead>
-              <tr style={{ backgroundColor: '#eee' }}>
-                <th style={th}>Panne</th>
-                <th style={th}>Effet</th>
-                <th style={th}>Gravité</th>
-              </tr>
-            </thead>
-            <tbody>
-              {fiche.diagnostic.map((d, i) => (
-                <tr key={i}>
-                  <td style={td}>{d.panneCause || '-'}</td>
-                  <td style={td}>{d.effet || '-'}</td>
-                  <td style={td}>{d.gravite || '-'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p>Aucun diagnostic disponible</p>
-        )}
-
-        {/* ================= DEPANNAGE ================= */}
-        <h4 style={{ marginTop: '20px' }}>Dépannage / Réparation</h4>
-        {fiche.depannageReparation?.length > 0 ? (
-          <table style={{ borderCollapse: 'collapse', width: '100%', marginTop: '10px' }}>
-            <thead>
-              <tr style={{ backgroundColor: '#eee' }}>
-                <th style={th}>Pièces de rechange</th>
-              </tr>
-            </thead>
-            <tbody>
-              {fiche.depannageReparation.map((d, i) => (
-                <tr key={i}>
-                  <td style={td}>{d.piecesDeRechange || '-'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p>Aucun dépannage / réparation disponible</p>
-        )}
-
-        {/* ================= SIGNATURE ================= */}
-        {fiche.signature && (
-          <div style={{ marginTop: '20px' }}>
-            <h4>Signature</h4>
-            <img
-              src={fiche.signature}
-              alt="signature"
-              style={{ border: '1px solid #000', width: '200px' }}
-            />
-          </div>
-        )}
-
-        {/* ================= ACTIONS ================= */}
-        <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-          <button onClick={() => validerFiche(selectedFiche._id, selectedFiche.notifId)}>
-            ✅ Valider
-          </button>
-          <button onClick={() => setSelectedFiche(null)}>❌ Fermer</button>
-          <button onClick={() => exportPDF(selectedFiche)}>📄 Exporter PDF</button>
-        </div>
-      </div>
-    ))}
-  </>
-// fiche nobreak 
-
-  ):selectedFiche?.controles ? (
-    <>
-    <h3>Fiche No-Break</h3>
-
-    {/* ================= INFOS GENERALES ================= */}
-    <p>
-      📅 Date :{" "}
-      {selectedFiche.date
-        ? new Date(selectedFiche.date).toLocaleDateString()
-        : ""}
-    </p>
-    <p>📌 Désignation : {selectedFiche.designation}</p>
-    <p>📍 Lieu : {selectedFiche.lieuInstallation}</p>
-
-    {/* ================= TABLEAU CONTROLES ================= */}
-    <h4>Contrôles</h4>
-
-    <table
-      style={{
-        borderCollapse: "collapse",
-        width: "100%",
-        marginTop: "10px",
-      }}
-    >
-      <thead>
-        <tr style={{ backgroundColor: "#eee" }}>
-          <th style={th}>Spécification</th>
-          <th style={th}>Désignation</th>
-
-          <th colSpan="2" style={th}>Matin</th>
-          <th colSpan="2" style={th}>Après-midi</th>
-          <th colSpan="2" style={th}>Nuit</th>
-        </tr>
-
-        <tr style={{ backgroundColor: "#eee" }}>
-          <th style={th}></th>
-          <th style={th}></th>
-
-          <th style={th}>Normal</th>
-          <th style={th}>Anomalie</th>
-
-          <th style={th}>Normal</th>
-          <th style={th}>Anomalie</th>
-
-          <th style={th}>Normal</th>
-          <th style={th}>Anomalie</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        {selectedFiche.controles.map((c, i) => (
-          <tr key={i}>
-            <td style={td}>{c.specification}</td>
-            <td style={td}>{c.designation}</td>
-
-            {/* MATIN */}
-            <td style={td}>{c.matin?.normal ? "✔" : ""}</td>
-            <td style={td}>{c.matin?.anomalie ? "❌" : ""}</td>
-
-            {/* APRES MIDI */}
-            <td style={td}>{c.apresMidi?.normal ? "✔" : ""}</td>
-            <td style={td}>{c.apresMidi?.anomalie ? "❌" : ""}</td>
-
-            {/* NUIT */}
-            <td style={td}>{c.nuit?.normal ? "✔" : ""}</td>
-            <td style={td}>{c.nuit?.anomalie ? "❌" : ""}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-
-    {/* ================= TEMPS ================= */}
-    <h4 style={{ marginTop: "20px" }}>Temps Inspection</h4>
-
-    {["matin", "apresMidi", "nuit"].map((p) => (
-      <p key={p}>
-        ⏱ {p} : {selectedFiche.tempsInspection?.[p]?.debut} →{" "}
-        {selectedFiche.tempsInspection?.[p]?.fin} (
-        {selectedFiche.tempsInspection?.[p]?.tempsAlloue})
-      </p>
-    ))}
-
-    <p>
-      🔢 Total : {selectedFiche.tempsInspection?.total}
-    </p>
-
-    {/* ================= OBSERVATIONS ================= */}
-    <h4>Observations</h4>
-    {["matin", "apresMidi", "nuit"].map((p) => (
-      <p key={p}>
-        📝 {p} : {selectedFiche.observations?.[p]}
-      </p>
-    ))}
-
-    {/* ================= TECHNICIENS ================= */}
-    <h4>Techniciens</h4>
-    {["matin", "apresMidi", "nuit"].map((p) => (
-      <p key={p}>
-        👨‍🔧 {p} : {(selectedFiche.techniciens?.[p] || []).join(", ")}
-      </p>
-    ))}
-
-    {/* ================= ACTIONS ================= */}
-    <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
-      <button onClick={() => validerFiche(selectedFiche._id, selectedFiche.notifId)}>
-        ✅ Valider
-      </button>
-
-      <button onClick={() => setSelectedFiche(null)}>
-        ❌ Fermer
-      </button>
-
-      <button onClick={() => exportPDF(selectedFiche)}>
-        📄 Exporter PDF
-      </button>
-    </div>
-  </>
-
-
-  ):selectedFiche?.pointsControle ? (
-  <>
-    <h3>Fiche 2250KVA</h3>
-
-    {/* ================= INFOS GENERALES ================= */}
-    <p>
-      📅 Date :{" "}
-      {selectedFiche.date
-        ? new Date(selectedFiche.date).toLocaleDateString()
-        : ""}
-    </p>
-    <p>📌 Désignation : {selectedFiche.designation}</p>
-    <p>📍 Lieu : {selectedFiche.lieuInstallation}</p>
-
-    {/* ================= TABLEAU ================= */}
-    <h4>Points de contrôle</h4>
-
-    <table style={{ borderCollapse: "collapse", width: "100%" }}>
-      <thead>
-        <tr style={{ backgroundColor: "#eee" }}>
-          <th style={th}>Spécification</th>
-          <th style={th}>Désignation</th>
-
-          <th colSpan="2" style={th}>Matin</th>
-          <th colSpan="2" style={th}>Après-midi</th>
-          <th colSpan="2" style={th}>Nuit</th>
-        </tr>
-
-        <tr style={{ backgroundColor: "#eee" }}>
-          <th></th>
-          <th></th>
-
-          <th style={th}>Normal</th>
-          <th style={th}>Anomalie</th>
-
-          <th style={th}>Normal</th>
-          <th style={th}>Anomalie</th>
-
-          <th style={th}>Normal</th>
-          <th style={th}>Anomalie</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        {selectedFiche.pointsControle.map((c, i) => (
-          <tr key={i}>
-            <td style={td}>{c.specification}</td>
-            <td style={td}>{c.designation}</td>
-
-            {/* MATIN */}
-            <td style={td}>{c.matin?.normal ? "✔" : ""}</td>
-            <td style={td}>{c.matin?.anomalie ? "❌" : ""}</td>
-
-            {/* APRES MIDI */}
-            <td style={td}>{c.apresMidi?.normal ? "✔" : ""}</td>
-            <td style={td}>{c.apresMidi?.anomalie ? "❌" : ""}</td>
-
-            {/* NUIT */}
-            <td style={td}>{c.nuit?.normal ? "✔" : ""}</td>
-            <td style={td}>{c.nuit?.anomalie ? "❌" : ""}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-
-    {/* ================= TEMPS ================= */}
-    <h4 style={{ marginTop: "20px" }}>Temps Inspection</h4>
-
-    {["matin", "apresMidi", "nuit"].map((p) => (
-      <p key={p}>
-        ⏱ {p} : {selectedFiche.tempsInspection?.[p]?.debut} →{" "}
-        {selectedFiche.tempsInspection?.[p]?.fin} (
-        {selectedFiche.tempsInspection?.[p]?.tempsAlloue})
-      </p>
-    ))}
-
-    <p>🔢 Total : {selectedFiche.tempsInspection?.total}</p>
-
-    {/* ================= OBSERVATIONS ================= */}
-    <h4>Observations</h4>
-    {["matin", "apresMidi", "nuit"].map((p) => (
-      <p key={p}>
-        📝 {p} : {selectedFiche.observations?.[p]}
-      </p>
-    ))}
-
-    {/* ================= TECHNICIENS ================= */}
-    <h4>Techniciens</h4>
-    {["matin", "apresMidi", "nuit"].map((p) => (
-      <p key={p}>
-        👨‍🔧 {p} : {(selectedFiche.techniciens?.[p] || []).join(", ")}
-      </p>
-    ))}
-
-    {/* ================= ACTIONS ================= */}
-    <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
-      <button
-        onClick={() =>
-          validerFiche(selectedFiche._id, selectedFiche.notifId)
-        }
-      >
-        ✅ Valider
-      </button>
-
-      <button onClick={() => setSelectedFiche(null)}>
-        ❌ Fermer
-      </button>
-
-      <button onClick={() => exportPDF(selectedFiche)}>
-        📄 Exporter PDF
-      </button>
-    </div>
-  </>
-
-
-//fiche  olapion
-): selectedFiche?.operations ? (
-<>
-  <h3>Fiche Olapion</h3>
-
-  {/* ================= INFOS ================= */}
-  <p>
-    📅 Date :{" "}
-    {selectedFiche.date
-      ? new Date(selectedFiche.date).toLocaleDateString()
-      : ""}
-  </p>
-
-  <p>📌 Désignation : {selectedFiche.designation}</p>
-  <p>📍 Lieu : {selectedFiche.lieuInstallation}</p>
-
-  {/* ================= TABLEAU ================= */}
-  <h4>Points de contrôle</h4>
-
-  <table style={{ borderCollapse: "collapse", width: "100%" }}>
-    <thead>
-      <tr style={{ backgroundColor: "#eee" }}>
-        <th style={th}>Spécification</th>
-        <th style={th}>Désignation</th>
-
-        <th colSpan="2" style={th}>Matin</th>
-        <th colSpan="2" style={th}>Après-midi</th>
-        <th colSpan="2" style={th}>Nuit</th>
-      </tr>
-
-      <tr style={{ backgroundColor: "#eee" }}>
-        <th></th>
-        <th></th>
-
-        <th style={th}>Normal</th>
-        <th style={th}>Anomalie</th>
-
-        <th style={th}>Normal</th>
-        <th style={th}>Anomalie</th>
-
-        <th style={th}>Normal</th>
-        <th style={th}>Anomalie</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      {selectedFiche.operations.map((c, i) => (
-        <tr key={i}>
-          <td style={td}>{c.specification}</td>
-          <td style={td}>{c.designation}</td>
-
-          {/* MATIN */}
-          <td style={td}>{c.matin?.normal ? "✔" : ""}</td>
-          <td style={td}>{c.matin?.anomalie ? "❌" : ""}</td>
-
-          {/* APRES MIDI */}
-          <td style={td}>{c.apresMidi?.normal ? "✔" : ""}</td>
-          <td style={td}>{c.apresMidi?.anomalie ? "❌" : ""}</td>
-
-          {/* NUIT */}
-          <td style={td}>{c.nuit?.normal ? "✔" : ""}</td>
-          <td style={td}>{c.nuit?.anomalie ? "❌" : ""}</td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-
-  {/* ================= TEMPS ================= */}
-  <h4 style={{ marginTop: "20px" }}>Temps Inspection</h4>
-
-  {["matin", "apresMidi", "nuit"].map((p) => (
-    <p key={p}>
-      ⏱ {p} :{" "}
-      {selectedFiche.tempsInspection?.[p]?.debut} →{" "}
-      {selectedFiche.tempsInspection?.[p]?.fin} (
-      {selectedFiche.tempsInspection?.[p]?.tempsAlloue})
-    </p>
-  ))}
-
-  <p>🔢 Total : {selectedFiche.tempsInspection?.total}</p>
-
-  {/* ================= OBSERVATIONS ================= */}
-  <h4>Observations</h4>
-  {["matin", "apresMidi", "nuit"].map((p) => (
-    <p key={p}>
-      📝 {p} : {selectedFiche.observations?.[p]}
-    </p>
-  ))}
-
-  {/* ================= TECHNICIENS ================= */}
-  <h4>Techniciens</h4>
-  {["matin", "apresMidi", "nuit"].map((p) => (
-    <p key={p}>
-      👨‍🔧 {p} : {(selectedFiche.techniciens?.[p] || []).join(", ")}
-    </p>
-  ))}
-
-  {/* ================= ACTIONS ================= */}
-  <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
-    <button
-      onClick={() =>
-        validerFiche(selectedFiche._id, selectedFiche.notifId)
-      }
-    >
-      ✅ Valider
-    </button>
-
-    <button onClick={() => setSelectedFiche(null)}>
-      ❌ Fermer
-    </button>
-
-    <button onClick={() => exportPDF(selectedFiche)}>
-      📄 Exporter PDF
-    </button>
-  </div>
-</>
-): selectedFiche?.groupes ? (
-  <>
-    <h3>📡 Fiche Balisage</h3>
-
-    {/* ================= INFOS GENERALES ================= */}
-    <p>
-      📅 Date :{" "}
-      {selectedFiche.date
-        ? new Date(selectedFiche.date).toLocaleDateString()
-        : ""}
-    </p>
-
-    <p>👨‍🔧 Technicien : {selectedFiche.technicien}</p>
-
-    <p>📌 Statut : {selectedFiche.statut}</p>
-
-    {/* ================= TABLEAU ================= */}
-    <h4>Inspection Balisage</h4>
-
-    <table style={{ borderCollapse: "collapse", width: "100%" }}>
-      <thead>
-        <tr style={{ backgroundColor: "#eee" }}>
-          <th style={th}>Fonction</th>
-          <th style={th}>Désignation</th>
-
-          <th colSpan="4" style={th}>Matin</th>
-          <th colSpan="4" style={th}>Nuit</th>
-        </tr>
-
-        <tr style={{ backgroundColor: "#eee" }}>
-          <th></th>
-          <th></th>
-
-          <th style={th}>NF</th>
-          <th style={th}>Fonctionnement</th>
-          <th style={th}>Interventions</th>
-          <th style={th}>Obs</th>
-
-          <th style={th}>NF</th>
-          <th style={th}>Fonctionnement</th>
-          <th style={th}>Interventions</th>
-          <th style={th}>Obs</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        {selectedFiche.groupes.map((g, gi) => (
-          <React.Fragment key={gi}>
-            {g.lignes.map((l, li) => (
-              <tr key={li}>
-                {/* Groupe */}
-                {li === 0 && (
-                  <td rowSpan={g.lignes.length}>
-                    <b>{g.titre}</b>
-                  </td>
-                )}
-
-                {/* Désignation */}
-                <td>{l.designation}</td>
-
-                {/* ================= MATIN ================= */}
-                <td>{l.matin?.nf}</td>
-                <td>{l.matin?.fonctionnement}</td>
-                <td>{l.matin?.interventions}</td>
-                <td>{l.matin?.observations}</td>
-
-                {/* ================= NUIT ================= */}
-                <td>{l.nuit?.nf}</td>
-                <td>{l.nuit?.fonctionnement}</td>
-                <td>{l.nuit?.interventions}</td>
-                <td>{l.nuit?.observations}</td>
-              </tr>
-            ))}
-          </React.Fragment>
-        ))}
-      </tbody>
-    </table>
-
-    {/* ================= ACTIONS ================= */}
-    <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
-      <button
-        onClick={() =>
-          validerFiche(selectedFiche._id, selectedFiche.notifId)
-        }
-      >
-        ✅ Valider
-      </button>
-
-      <button onClick={() => setSelectedFiche(null)}>
-        ❌ Fermer
-      </button>
-
-      <button onClick={() => exportPDF(selectedFiche)}>
-        📄 Exporter PDF
-      </button>
-    </div>
-  </>
-
-  //fiche pamaa 
-      ): selectedFiche?.groupes ? (
-  <>
-    <h3>📡 Fiche Balisage</h3>
-
-    {/* ================= INFOS GENERALES ================= */}
-    <p>
-      📅 Date :{" "}
-      {selectedFiche.date
-        ? new Date(selectedFiche.date).toLocaleDateString()
-        : ""}
-    </p>
-
-    <p>👨‍🔧 Technicien : {selectedFiche.technicien}</p>
-
-    <p>📌 Statut : {selectedFiche.statut}</p>
-
-    {/* ================= TABLEAU ================= */}
-    <h4>Inspection Balisage</h4>
-
-    <table style={{ borderCollapse: "collapse", width: "100%" }}>
-      <thead>
-        <tr style={{ backgroundColor: "#eee" }}>
-          <th style={th}>Fonction</th>
-          <th style={th}>Désignation</th>
-
-          <th colSpan="4" style={th}>Matin</th>
-          <th colSpan="4" style={th}>Nuit</th>
-        </tr>
-
-        <tr style={{ backgroundColor: "#eee" }}>
-          <th></th>
-          <th></th>
-
-          <th style={th}>NF</th>
-          <th style={th}>Fonctionnement</th>
-          <th style={th}>Interventions</th>
-          <th style={th}>Obs</th>
-
-          <th style={th}>NF</th>
-          <th style={th}>Fonctionnement</th>
-          <th style={th}>Interventions</th>
-          <th style={th}>Obs</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        {selectedFiche.groupes.map((g, gi) => (
-          <React.Fragment key={gi}>
-            {g.lignes.map((l, li) => (
-              <tr key={li}>
-                {/* Groupe */}
-                {li === 0 && (
-                  <td rowSpan={g.lignes.length}>
-                    <b>{g.titre}</b>
-                  </td>
-                )}
-
-                {/* Désignation */}
-                <td>{l.designation}</td>
-
-                {/* ================= MATIN ================= */}
-                <td>{l.matin?.nf}</td>
-                <td>{l.matin?.fonctionnement}</td>
-                <td>{l.matin?.interventions}</td>
-                <td>{l.matin?.observations}</td>
-
-                {/* ================= NUIT ================= */}
-                <td>{l.nuit?.nf}</td>
-                <td>{l.nuit?.fonctionnement}</td>
-                <td>{l.nuit?.interventions}</td>
-                <td>{l.nuit?.observations}</td>
-              </tr>
-            ))}
-          </React.Fragment>
-        ))}
-      </tbody>
-    </table>
-
-    {/* ================= ACTIONS ================= */}
-    <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
-      <button
-        onClick={() =>
-          validerFiche(selectedFiche._id, selectedFiche.notifId)
-        }
-      >
-        ✅ Valider
-      </button>
-
-      <button onClick={() => setSelectedFiche(null)}>
-        ❌ Fermer
-      </button>
-
-      <button onClick={() => exportPDF(selectedFiche)}>
-        📄 Exporter PDF
-      </button>
-    </div>
-  </>
-):selectedFiche?.tableaux ? (
-  <>
-    <h3>📡 Fiche Annuelle PaMa</h3>
-
-    {/* ================= INFOS ================= */}
-    <p>
-      📅 Date :{" "}
-      {selectedFiche.date
-        ? new Date(selectedFiche.date).toLocaleDateString()
-        : ""}
-    </p>
-
-    <p>
-      👨‍🔧 Techniciens :{" "}
-      {Array.isArray(selectedFiche.techniciens_operateurs)
-        ? selectedFiche.techniciens_operateurs.join(", ")
-        : ""}
-    </p>
-
-    <p>📌 Statut : {selectedFiche.statut}</p>
-
-    {/* ================= TABLEAUX ================= */}
-    {selectedFiche.tableaux.map((tableau, tIdx) => (
-      <div key={tIdx} style={{ marginBottom: "30px" }}>
-        <h4>Tableau {tableau.titre}</h4>
-
-        <table style={{ borderCollapse: "collapse", width: "100%" }}>
-          <thead>
-            <tr style={{ backgroundColor: "#eee" }}>
-              <th style={th}>Ligne</th>
-
-              {tableau.verifications.map((v) => (
-                <th key={v} style={th}>
-                  {v}
-                </th>
-              ))}
-            </tr>
-          </thead>
-
-          <tbody>
-            {Object.entries(tableau.lignes).map(([ligne, verifs], i) => (
-              <tr key={i}>
-                <td style={td}>
-                  <b>{ligne}</b>
-                </td>
-
-                {tableau.verifications.map((v) => (
-                  <td key={v} style={td}>
-                    {verifs[v]}
-                  </td>
+                {/* Actions */}
+                <div
+                  style={{ marginTop: '20px', display: 'flex', gap: '10px' }}
+                >
+                  <button
+                    onClick={() =>
+                      validerFiche(selectedFiche._id, selectedFiche.notifId)
+                    }
+                  >
+                    ✅ Valider
+                  </button>
+                  <button onClick={() => setSelectedFiche(null)}>
+                    ❌ Fermer
+                  </button>
+                  <button onClick={() => exportPDF(selectedFiche)}>
+                    📄 Exporter PDF
+                  </button>
+                </div>
+              </>
+            ) : selectedFiche?.blocs ? (
+              <>
+                <h3>Fiche Annuelle Feux Séquentiels</h3>
+
+                {/* Informations générales */}
+                <p>
+                  📅 Date :{' '}
+                  {selectedFiche.date
+                    ? new Date(selectedFiche.date).toLocaleDateString()
+                    : 'Non renseignée'}
+                </p>
+
+                <p>
+                  👨‍🔧 Technicien / Opérateur :{' '}
+                  {selectedFiche.techniciens_operateurs || 'Non renseigné'}
+                </p>
+
+                <p>
+                  📝 Observations générales :{' '}
+                  {selectedFiche.observations_generales || 'Aucune'}
+                </p>
+
+                {/* Tableau pour chaque bloc */}
+                {selectedFiche.blocs.map((bloc, bi) => (
+                  <div key={bi} style={{ marginTop: '20px' }}>
+                    <h4>Bloc {bloc.titre}</h4>
+
+                    {bloc.elements && bloc.elements.length > 0 ? (
+                      <table
+                        style={{
+                          borderCollapse: 'collapse',
+                          width: '100%',
+                          marginTop: '10px',
+                        }}
+                      >
+                        <thead>
+                          <tr style={{ backgroundColor: '#eee' }}>
+                            <th
+                              style={{
+                                border: '1px solid #000',
+                                padding: '5px',
+                              }}
+                            >
+                              Vérification
+                            </th>
+                            <th
+                              style={{
+                                border: '1px solid #000',
+                                padding: '5px',
+                              }}
+                            >
+                              État
+                            </th>
+                            <th
+                              style={{
+                                border: '1px solid #000',
+                                padding: '5px',
+                              }}
+                            >
+                              Interventions
+                            </th>
+                            <th
+                              style={{
+                                border: '1px solid #000',
+                                padding: '5px',
+                              }}
+                            >
+                              Observations
+                            </th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {bloc.elements.map((elem, ei) => (
+                            <tr key={ei}>
+                              <td
+                                style={{
+                                  border: '1px solid #000',
+                                  padding: '5px',
+                                }}
+                              >
+                                {elem.verification}
+                              </td>
+
+                              <td
+                                style={{
+                                  border: '1px solid #000',
+                                  padding: '5px',
+                                }}
+                              >
+                                {elem.etat || '-'}
+                              </td>
+
+                              <td
+                                style={{
+                                  border: '1px solid #000',
+                                  padding: '5px',
+                                }}
+                              >
+                                {elem.interventions || '-'}
+                              </td>
+
+                              <td
+                                style={{
+                                  border: '1px solid #000',
+                                  padding: '5px',
+                                }}
+                              >
+                                {elem.observations || '-'}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <p>Aucun élément disponible</p>
+                    )}
+                  </div>
                 ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    ))}
 
-    {/* ================= ACTIONS ================= */}
-    <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
-      <button
-        onClick={() =>
-          validerFiche(selectedFiche._id, selectedFiche.notifId)
-        }
-      >
-        ✅ Valider
-      </button>
+                {/* Actions */}
+                <div
+                  style={{ marginTop: '20px', display: 'flex', gap: '10px' }}
+                >
+                  <button onClick={() => validerFiche(selectedFiche._id)}>
+                    ✅ Valider
+                  </button>
 
-      <button onClick={() => setSelectedFiche(null)}>
-        ❌ Fermer
-      </button>
+                  <button onClick={() => setSelectedFiche(null)}>
+                    ❌ Fermer
+                  </button>
 
-      <button onClick={() => exportPDF(selectedFiche)}>
-        📄 Exporter PDF
-      </button>
-    </div>
-  </>
+                  <button onClick={() => exportPDF(selectedFiche)}>
+                    📄 Exporter PDF
+                  </button>
+                </div>
+              </>
+            ) : // fiche 5 snin papi
 
+            selectedFiche?.papi ? (
+              <>
+                <h3>Fiche d’Inspection Quinquennale PAPI</h3>
 
+                {/* Informations générales */}
+                <p>
+                  📅 Date :{' '}
+                  {selectedFiche.date
+                    ? new Date(selectedFiche.date).toLocaleDateString()
+                    : 'Non renseignée'}
+                </p>
 
+                <p>
+                  👨‍🔧 Technicien / Opérateur :{' '}
+                  {selectedFiche.techniciens_operateurs || 'Non renseigné'}
+                </p>
 
+                <p>
+                  📝 Observations générales :{' '}
+                  {selectedFiche.observations_generales || 'Aucune'}
+                </p>
 
+                {/* Tableau pour chaque poste PAPI */}
+                {selectedFiche.papi.map((p, pi) => (
+                  <div key={pi} style={{ marginTop: '20px' }}>
+                    <h4>Numéro {p.numero}</h4>
 
+                    {p.elements && p.elements.length > 0 ? (
+                      <table
+                        style={{
+                          borderCollapse: 'collapse',
+                          width: '100%',
+                          marginTop: '10px',
+                        }}
+                      >
+                        <thead>
+                          <tr style={{ backgroundColor: '#eee' }}>
+                            <th
+                              style={{
+                                border: '1px solid #000',
+                                padding: '5px',
+                              }}
+                            >
+                              Vérification
+                            </th>
+                            {[
+                              '11',
+                              '12',
+                              '21',
+                              '22',
+                              '31',
+                              '32',
+                              '41',
+                              '42',
+                            ].map((champ) => (
+                              <th
+                                key={champ}
+                                style={{
+                                  border: '1px solid #000',
+                                  padding: '5px',
+                                }}
+                              >
+                                {champ}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
 
+                        <tbody>
+                          {p.elements.map((elem, ei) => (
+                            <tr key={ei}>
+                              <td
+                                style={{
+                                  border: '1px solid #000',
+                                  padding: '5px',
+                                }}
+                              >
+                                {elem.verification}
+                              </td>
+
+                              {[
+                                '11',
+                                '12',
+                                '21',
+                                '22',
+                                '31',
+                                '32',
+                                '41',
+                                '42',
+                              ].map((champ) => (
+                                <td
+                                  key={champ}
+                                  style={{
+                                    border: '1px solid #000',
+                                    padding: '5px',
+                                  }}
+                                >
+                                  {elem[champ] || '-'}
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <p>Aucun élément disponible</p>
+                    )}
+                  </div>
+                ))}
+
+                {/* Actions */}
+                <div
+                  style={{ marginTop: '20px', display: 'flex', gap: '10px' }}
+                >
+                  <button onClick={() => validerFiche(selectedFiche._id)}>
+                    ✅ Valider
+                  </button>
+                  <button onClick={() => setSelectedFiche(null)}>
+                    ❌ Fermer
+                  </button>
+                  <button onClick={() => exportPDF(selectedFiche)}>
+                    📄 Exporter PDF
+                  </button>
+                </div>
+              </>
+            ) : selectedFiche?.ficheCorrective?.length > 0 ? (
+              <>
+                <h3>Fiche Corrective</h3>
+
+                {selectedFiche.ficheCorrective.map((fiche, fi) => (
+                  <div key={fi} style={{ marginBottom: '30px' }}>
+                    {/* ================= INFOS GÉNÉRALES ================= */}
+                    <p>
+                      📅 Date :{' '}
+                      {fiche.date
+                        ? new Date(fiche.date).toLocaleDateString()
+                        : 'Non renseignée'}
+                    </p>
+
+                    <p>
+                      🛠️ Désignation : {fiche.designation || 'Non renseignée'}
+                    </p>
+                    <p>📍 Lieu : {fiche.lieuInstallation || 'Non renseigné'}</p>
+                    <p>
+                      📅 Date détection :{' '}
+                      {fiche.dateDetection
+                        ? new Date(fiche.dateDetection).toLocaleDateString()
+                        : 'Non renseignée'}
+                    </p>
+
+                    <p>
+                      📢 Réclamation par :{' '}
+                      {fiche.reclamationPar || 'Non renseigné'}
+                    </p>
+                    <p>
+                      👤 Personne contactée :{' '}
+                      {fiche.personneContactee || 'Non renseignée'}
+                    </p>
+
+                    <p>⏱️ Début : {fiche.debutIntervention || '-'}</p>
+                    <p>⏱️ Remise en service : {fiche.remiseEnService || '-'}</p>
+                    <p>⌛ Temps alloué : {fiche.tempsAlloue || '-'}</p>
+                    <p>
+                      📝 Observations :{' '}
+                      {fiche.observationsGenerales || 'Aucune'}
+                    </p>
+
+                    <p>
+                      👨‍🔧 Technicien :{' '}
+                      {fiche.techniciensOperateurs?.[0]?.nom || 'Non renseigné'}
+                    </p>
+
+                    {/* ================= DIAGNOSTIC ================= */}
+                    <h4 style={{ marginTop: '20px' }}>Diagnostic</h4>
+                    {fiche.diagnostic?.length > 0 ? (
+                      <table
+                        style={{
+                          borderCollapse: 'collapse',
+                          width: '100%',
+                          marginTop: '10px',
+                        }}
+                      >
+                        <thead>
+                          <tr style={{ backgroundColor: '#eee' }}>
+                            <th style={th}>Panne</th>
+                            <th style={th}>Effet</th>
+                            <th style={th}>Gravité</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {fiche.diagnostic.map((d, i) => (
+                            <tr key={i}>
+                              <td style={td}>{d.panneCause || '-'}</td>
+                              <td style={td}>{d.effet || '-'}</td>
+                              <td style={td}>{d.gravite || '-'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <p>Aucun diagnostic disponible</p>
+                    )}
+
+                    {/* ================= DEPANNAGE ================= */}
+                    <h4 style={{ marginTop: '20px' }}>
+                      Dépannage / Réparation
+                    </h4>
+                    {fiche.depannageReparation?.length > 0 ? (
+                      <table
+                        style={{
+                          borderCollapse: 'collapse',
+                          width: '100%',
+                          marginTop: '10px',
+                        }}
+                      >
+                        <thead>
+                          <tr style={{ backgroundColor: '#eee' }}>
+                            <th style={th}>Pièces de rechange</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {fiche.depannageReparation.map((d, i) => (
+                            <tr key={i}>
+                              <td style={td}>{d.piecesDeRechange || '-'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <p>Aucun dépannage / réparation disponible</p>
+                    )}
+
+                    {/* ================= SIGNATURE ================= */}
+                    {fiche.signature && (
+                      <div style={{ marginTop: '20px' }}>
+                        <h4>Signature</h4>
+                        <img
+                          src={fiche.signature}
+                          alt="signature"
+                          style={{ border: '1px solid #000', width: '200px' }}
+                        />
+                      </div>
+                    )}
+
+                    {/* ================= ACTIONS ================= */}
+                    <div
+                      style={{
+                        marginTop: '20px',
+                        display: 'flex',
+                        gap: '10px',
+                      }}
+                    >
+                      <button
+                        onClick={() =>
+                          validerFiche(selectedFiche._id, selectedFiche.notifId)
+                        }
+                      >
+                        ✅ Valider
+                      </button>
+                      <button onClick={() => setSelectedFiche(null)}>
+                        ❌ Fermer
+                      </button>
+                      <button onClick={() => exportPDF(selectedFiche)}>
+                        📄 Exporter PDF
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </>
+            ) : // fiche nobreak
+
+            selectedFiche?.controles ? (
+              <>
+                <h3>Fiche No-Break</h3>
+
+                {/* ================= INFOS GENERALES ================= */}
+                <p>
+                  📅 Date :{' '}
+                  {selectedFiche.date
+                    ? new Date(selectedFiche.date).toLocaleDateString()
+                    : ''}
+                </p>
+                <p>📌 Désignation : {selectedFiche.designation}</p>
+                <p>📍 Lieu : {selectedFiche.lieuInstallation}</p>
+
+                {/* ================= TABLEAU CONTROLES ================= */}
+                <h4>Contrôles</h4>
+
+                <table
+                  style={{
+                    borderCollapse: 'collapse',
+                    width: '100%',
+                    marginTop: '10px',
+                  }}
+                >
+                  <thead>
+                    <tr style={{ backgroundColor: '#eee' }}>
+                      <th style={th}>Spécification</th>
+                      <th style={th}>Désignation</th>
+
+                      <th colSpan="2" style={th}>
+                        Matin
+                      </th>
+                      <th colSpan="2" style={th}>
+                        Après-midi
+                      </th>
+                      <th colSpan="2" style={th}>
+                        Nuit
+                      </th>
+                    </tr>
+
+                    <tr style={{ backgroundColor: '#eee' }}>
+                      <th style={th}></th>
+                      <th style={th}></th>
+
+                      <th style={th}>Normal</th>
+                      <th style={th}>Anomalie</th>
+
+                      <th style={th}>Normal</th>
+                      <th style={th}>Anomalie</th>
+
+                      <th style={th}>Normal</th>
+                      <th style={th}>Anomalie</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {selectedFiche.controles.map((c, i) => (
+                      <tr key={i}>
+                        <td style={td}>{c.specification}</td>
+                        <td style={td}>{c.designation}</td>
+
+                        {/* MATIN */}
+                        <td style={td}>{c.matin?.normal ? '✔' : ''}</td>
+                        <td style={td}>{c.matin?.anomalie ? '❌' : ''}</td>
+
+                        {/* APRES MIDI */}
+                        <td style={td}>{c.apresMidi?.normal ? '✔' : ''}</td>
+                        <td style={td}>{c.apresMidi?.anomalie ? '❌' : ''}</td>
+
+                        {/* NUIT */}
+                        <td style={td}>{c.nuit?.normal ? '✔' : ''}</td>
+                        <td style={td}>{c.nuit?.anomalie ? '❌' : ''}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {/* ================= TEMPS ================= */}
+                <h4 style={{ marginTop: '20px' }}>Temps Inspection</h4>
+
+                {['matin', 'apresMidi', 'nuit'].map((p) => (
+                  <p key={p}>
+                    ⏱ {p} : {selectedFiche.tempsInspection?.[p]?.debut} →{' '}
+                    {selectedFiche.tempsInspection?.[p]?.fin} (
+                    {selectedFiche.tempsInspection?.[p]?.tempsAlloue})
+                  </p>
+                ))}
+
+                <p>🔢 Total : {selectedFiche.tempsInspection?.total}</p>
+
+                {/* ================= OBSERVATIONS ================= */}
+                <h4>Observations</h4>
+                {['matin', 'apresMidi', 'nuit'].map((p) => (
+                  <p key={p}>
+                    📝 {p} : {selectedFiche.observations?.[p]}
+                  </p>
+                ))}
+
+                {/* ================= TECHNICIENS ================= */}
+                <h4>Techniciens</h4>
+                {['matin', 'apresMidi', 'nuit'].map((p) => (
+                  <p key={p}>
+                    👨‍🔧 {p} : {(selectedFiche.techniciens?.[p] || []).join(', ')}
+                  </p>
+                ))}
+
+                {/* ================= ACTIONS ================= */}
+                <div
+                  style={{ marginTop: '20px', display: 'flex', gap: '10px' }}
+                >
+                  <button
+                    onClick={() =>
+                      validerFiche(selectedFiche._id, selectedFiche.notifId)
+                    }
+                  >
+                    ✅ Valider
+                  </button>
+
+                  <button onClick={() => setSelectedFiche(null)}>
+                    ❌ Fermer
+                  </button>
+
+                  <button onClick={() => exportPDF(selectedFiche)}>
+                    📄 Exporter PDF
+                  </button>
+                </div>
+              </>
+            ) : selectedFiche?.pointsControle ? (
+              <>
+                <h3>Fiche 2250KVA</h3>
+
+                {/* ================= INFOS GENERALES ================= */}
+                <p>
+                  📅 Date :{' '}
+                  {selectedFiche.date
+                    ? new Date(selectedFiche.date).toLocaleDateString()
+                    : ''}
+                </p>
+                <p>📌 Désignation : {selectedFiche.designation}</p>
+                <p>📍 Lieu : {selectedFiche.lieuInstallation}</p>
+
+                {/* ================= TABLEAU ================= */}
+                <h4>Points de contrôle</h4>
+
+                <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+                  <thead>
+                    <tr style={{ backgroundColor: '#eee' }}>
+                      <th style={th}>Spécification</th>
+                      <th style={th}>Désignation</th>
+
+                      <th colSpan="2" style={th}>
+                        Matin
+                      </th>
+                      <th colSpan="2" style={th}>
+                        Après-midi
+                      </th>
+                      <th colSpan="2" style={th}>
+                        Nuit
+                      </th>
+                    </tr>
+
+                    <tr style={{ backgroundColor: '#eee' }}>
+                      <th></th>
+                      <th></th>
+
+                      <th style={th}>Normal</th>
+                      <th style={th}>Anomalie</th>
+
+                      <th style={th}>Normal</th>
+                      <th style={th}>Anomalie</th>
+
+                      <th style={th}>Normal</th>
+                      <th style={th}>Anomalie</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {selectedFiche.pointsControle.map((c, i) => (
+                      <tr key={i}>
+                        <td style={td}>{c.specification}</td>
+                        <td style={td}>{c.designation}</td>
+
+                        {/* MATIN */}
+                        <td style={td}>{c.matin?.normal ? '✔' : ''}</td>
+                        <td style={td}>{c.matin?.anomalie ? '❌' : ''}</td>
+
+                        {/* APRES MIDI */}
+                        <td style={td}>{c.apresMidi?.normal ? '✔' : ''}</td>
+                        <td style={td}>{c.apresMidi?.anomalie ? '❌' : ''}</td>
+
+                        {/* NUIT */}
+                        <td style={td}>{c.nuit?.normal ? '✔' : ''}</td>
+                        <td style={td}>{c.nuit?.anomalie ? '❌' : ''}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {/* ================= TEMPS ================= */}
+                <h4 style={{ marginTop: '20px' }}>Temps Inspection</h4>
+
+                {['matin', 'apresMidi', 'nuit'].map((p) => (
+                  <p key={p}>
+                    ⏱ {p} : {selectedFiche.tempsInspection?.[p]?.debut} →{' '}
+                    {selectedFiche.tempsInspection?.[p]?.fin} (
+                    {selectedFiche.tempsInspection?.[p]?.tempsAlloue})
+                  </p>
+                ))}
+
+                <p>🔢 Total : {selectedFiche.tempsInspection?.total}</p>
+
+                {/* ================= OBSERVATIONS ================= */}
+                <h4>Observations</h4>
+                {['matin', 'apresMidi', 'nuit'].map((p) => (
+                  <p key={p}>
+                    📝 {p} : {selectedFiche.observations?.[p]}
+                  </p>
+                ))}
+
+                {/* ================= TECHNICIENS ================= */}
+                <h4>Techniciens</h4>
+                {['matin', 'apresMidi', 'nuit'].map((p) => (
+                  <p key={p}>
+                    👨‍🔧 {p} : {(selectedFiche.techniciens?.[p] || []).join(', ')}
+                  </p>
+                ))}
+
+                {/* ================= ACTIONS ================= */}
+                <div
+                  style={{ marginTop: '20px', display: 'flex', gap: '10px' }}
+                >
+                  <button
+                    onClick={() =>
+                      validerFiche(selectedFiche._id, selectedFiche.notifId)
+                    }
+                  >
+                    ✅ Valider
+                  </button>
+
+                  <button onClick={() => setSelectedFiche(null)}>
+                    ❌ Fermer
+                  </button>
+
+                  <button onClick={() => exportPDF(selectedFiche)}>
+                    📄 Exporter PDF
+                  </button>
+                </div>
+              </>
+            ) : //fiche  olapion
+            selectedFiche?.operations ? (
+              <>
+                <h3>Fiche Olapion</h3>
+
+                {/* ================= INFOS ================= */}
+                <p>
+                  📅 Date :{' '}
+                  {selectedFiche.date
+                    ? new Date(selectedFiche.date).toLocaleDateString()
+                    : ''}
+                </p>
+
+                <p>📌 Désignation : {selectedFiche.designation}</p>
+                <p>📍 Lieu : {selectedFiche.lieuInstallation}</p>
+
+                {/* ================= TABLEAU ================= */}
+                <h4>Points de contrôle</h4>
+
+                <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+                  <thead>
+                    <tr style={{ backgroundColor: '#eee' }}>
+                      <th style={th}>Spécification</th>
+                      <th style={th}>Désignation</th>
+
+                      <th colSpan="2" style={th}>
+                        Matin
+                      </th>
+                      <th colSpan="2" style={th}>
+                        Après-midi
+                      </th>
+                      <th colSpan="2" style={th}>
+                        Nuit
+                      </th>
+                    </tr>
+
+                    <tr style={{ backgroundColor: '#eee' }}>
+                      <th></th>
+                      <th></th>
+
+                      <th style={th}>Normal</th>
+                      <th style={th}>Anomalie</th>
+
+                      <th style={th}>Normal</th>
+                      <th style={th}>Anomalie</th>
+
+                      <th style={th}>Normal</th>
+                      <th style={th}>Anomalie</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {selectedFiche.operations.map((c, i) => (
+                      <tr key={i}>
+                        <td style={td}>{c.specification}</td>
+                        <td style={td}>{c.designation}</td>
+
+                        {/* MATIN */}
+                        <td style={td}>{c.matin?.normal ? '✔' : ''}</td>
+                        <td style={td}>{c.matin?.anomalie ? '❌' : ''}</td>
+
+                        {/* APRES MIDI */}
+                        <td style={td}>{c.apresMidi?.normal ? '✔' : ''}</td>
+                        <td style={td}>{c.apresMidi?.anomalie ? '❌' : ''}</td>
+
+                        {/* NUIT */}
+                        <td style={td}>{c.nuit?.normal ? '✔' : ''}</td>
+                        <td style={td}>{c.nuit?.anomalie ? '❌' : ''}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {/* ================= TEMPS ================= */}
+                <h4 style={{ marginTop: '20px' }}>Temps Inspection</h4>
+
+                {['matin', 'apresMidi', 'nuit'].map((p) => (
+                  <p key={p}>
+                    ⏱ {p} : {selectedFiche.tempsInspection?.[p]?.debut} →{' '}
+                    {selectedFiche.tempsInspection?.[p]?.fin} (
+                    {selectedFiche.tempsInspection?.[p]?.tempsAlloue})
+                  </p>
+                ))}
+
+                <p>🔢 Total : {selectedFiche.tempsInspection?.total}</p>
+
+                {/* ================= OBSERVATIONS ================= */}
+                <h4>Observations</h4>
+                {['matin', 'apresMidi', 'nuit'].map((p) => (
+                  <p key={p}>
+                    📝 {p} : {selectedFiche.observations?.[p]}
+                  </p>
+                ))}
+
+                {/* ================= TECHNICIENS ================= */}
+                <h4>Techniciens</h4>
+                {['matin', 'apresMidi', 'nuit'].map((p) => (
+                  <p key={p}>
+                    👨‍🔧 {p} : {(selectedFiche.techniciens?.[p] || []).join(', ')}
+                  </p>
+                ))}
+
+                {/* ================= ACTIONS ================= */}
+                <div
+                  style={{ marginTop: '20px', display: 'flex', gap: '10px' }}
+                >
+                  <button
+                    onClick={() =>
+                      validerFiche(selectedFiche._id, selectedFiche.notifId)
+                    }
+                  >
+                    ✅ Valider
+                  </button>
+
+                  <button onClick={() => setSelectedFiche(null)}>
+                    ❌ Fermer
+                  </button>
+
+                  <button onClick={() => exportPDF(selectedFiche)}>
+                    📄 Exporter PDF
+                  </button>
+                </div>
+              </>
+            ) : selectedFiche?.groupes ? (
+              <>
+                <h3>📡 Fiche Balisage</h3>
+
+                {/* ================= INFOS GENERALES ================= */}
+                <p>
+                  📅 Date :{' '}
+                  {selectedFiche.date
+                    ? new Date(selectedFiche.date).toLocaleDateString()
+                    : ''}
+                </p>
+
+                <p>👨‍🔧 Technicien : {selectedFiche.technicien}</p>
+
+                <p>📌 Statut : {selectedFiche.statut}</p>
+
+                {/* ================= TABLEAU ================= */}
+                <h4>Inspection Balisage</h4>
+
+                <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+                  <thead>
+                    <tr style={{ backgroundColor: '#eee' }}>
+                      <th style={th}>Fonction</th>
+                      <th style={th}>Désignation</th>
+
+                      <th colSpan="4" style={th}>
+                        Matin
+                      </th>
+                      <th colSpan="4" style={th}>
+                        Nuit
+                      </th>
+                    </tr>
+
+                    <tr style={{ backgroundColor: '#eee' }}>
+                      <th></th>
+                      <th></th>
+
+                      <th style={th}>NF</th>
+                      <th style={th}>Fonctionnement</th>
+                      <th style={th}>Interventions</th>
+                      <th style={th}>Obs</th>
+
+                      <th style={th}>NF</th>
+                      <th style={th}>Fonctionnement</th>
+                      <th style={th}>Interventions</th>
+                      <th style={th}>Obs</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {selectedFiche.groupes.map((g, gi) => (
+                      <React.Fragment key={gi}>
+                        {g.lignes.map((l, li) => (
+                          <tr key={li}>
+                            {/* Groupe */}
+                            {li === 0 && (
+                              <td rowSpan={g.lignes.length}>
+                                <b>{g.titre}</b>
+                              </td>
+                            )}
+
+                            {/* Désignation */}
+                            <td>{l.designation}</td>
+
+                            {/* ================= MATIN ================= */}
+                            <td>{l.matin?.nf}</td>
+                            <td>{l.matin?.fonctionnement}</td>
+                            <td>{l.matin?.interventions}</td>
+                            <td>{l.matin?.observations}</td>
+
+                            {/* ================= NUIT ================= */}
+                            <td>{l.nuit?.nf}</td>
+                            <td>{l.nuit?.fonctionnement}</td>
+                            <td>{l.nuit?.interventions}</td>
+                            <td>{l.nuit?.observations}</td>
+                          </tr>
+                        ))}
+                      </React.Fragment>
+                    ))}
+                  </tbody>
+                </table>
+
+                {/* ================= ACTIONS ================= */}
+                <div
+                  style={{ marginTop: '20px', display: 'flex', gap: '10px' }}
+                >
+                  <button
+                    onClick={() =>
+                      validerFiche(selectedFiche._id, selectedFiche.notifId)
+                    }
+                  >
+                    ✅ Valider
+                  </button>
+
+                  <button onClick={() => setSelectedFiche(null)}>
+                    ❌ Fermer
+                  </button>
+
+                  <button onClick={() => exportPDF(selectedFiche)}>
+                    📄 Exporter PDF
+                  </button>
+                </div>
+              </>
+            ) : //fiche pamaa
+            selectedFiche?.groupes ? (
+              <>
+                <h3>📡 Fiche Balisage</h3>
+
+                {/* ================= INFOS GENERALES ================= */}
+                <p>
+                  📅 Date :{' '}
+                  {selectedFiche.date
+                    ? new Date(selectedFiche.date).toLocaleDateString()
+                    : ''}
+                </p>
+
+                <p>👨‍🔧 Technicien : {selectedFiche.technicien}</p>
+
+                <p>📌 Statut : {selectedFiche.statut}</p>
+
+                {/* ================= TABLEAU ================= */}
+                <h4>Inspection Balisage</h4>
+
+                <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+                  <thead>
+                    <tr style={{ backgroundColor: '#eee' }}>
+                      <th style={th}>Fonction</th>
+                      <th style={th}>Désignation</th>
+
+                      <th colSpan="4" style={th}>
+                        Matin
+                      </th>
+                      <th colSpan="4" style={th}>
+                        Nuit
+                      </th>
+                    </tr>
+
+                    <tr style={{ backgroundColor: '#eee' }}>
+                      <th></th>
+                      <th></th>
+
+                      <th style={th}>NF</th>
+                      <th style={th}>Fonctionnement</th>
+                      <th style={th}>Interventions</th>
+                      <th style={th}>Obs</th>
+
+                      <th style={th}>NF</th>
+                      <th style={th}>Fonctionnement</th>
+                      <th style={th}>Interventions</th>
+                      <th style={th}>Obs</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {selectedFiche.groupes.map((g, gi) => (
+                      <React.Fragment key={gi}>
+                        {g.lignes.map((l, li) => (
+                          <tr key={li}>
+                            {/* Groupe */}
+                            {li === 0 && (
+                              <td rowSpan={g.lignes.length}>
+                                <b>{g.titre}</b>
+                              </td>
+                            )}
+
+                            {/* Désignation */}
+                            <td>{l.designation}</td>
+
+                            {/* ================= MATIN ================= */}
+                            <td>{l.matin?.nf}</td>
+                            <td>{l.matin?.fonctionnement}</td>
+                            <td>{l.matin?.interventions}</td>
+                            <td>{l.matin?.observations}</td>
+
+                            {/* ================= NUIT ================= */}
+                            <td>{l.nuit?.nf}</td>
+                            <td>{l.nuit?.fonctionnement}</td>
+                            <td>{l.nuit?.interventions}</td>
+                            <td>{l.nuit?.observations}</td>
+                          </tr>
+                        ))}
+                      </React.Fragment>
+                    ))}
+                  </tbody>
+                </table>
+
+                {/* ================= ACTIONS ================= */}
+                <div
+                  style={{ marginTop: '20px', display: 'flex', gap: '10px' }}
+                >
+                  <button
+                    onClick={() =>
+                      validerFiche(selectedFiche._id, selectedFiche.notifId)
+                    }
+                  >
+                    ✅ Valider
+                  </button>
+
+                  <button onClick={() => setSelectedFiche(null)}>
+                    ❌ Fermer
+                  </button>
+
+                  <button onClick={() => exportPDF(selectedFiche)}>
+                    📄 Exporter PDF
+                  </button>
+                </div>
+              </>
+            ) : selectedFiche?.tableaux ? (
+              <>
+                <h3>📡 Fiche Annuelle PaMa</h3>
+
+                {/* ================= INFOS ================= */}
+                <p>
+                  📅 Date :{' '}
+                  {selectedFiche.date
+                    ? new Date(selectedFiche.date).toLocaleDateString()
+                    : ''}
+                </p>
+
+                <p>
+                  👨‍🔧 Techniciens :{' '}
+                  {Array.isArray(selectedFiche.techniciens_operateurs)
+                    ? selectedFiche.techniciens_operateurs.join(', ')
+                    : ''}
+                </p>
+
+                <p>📌 Statut : {selectedFiche.statut}</p>
+
+                {/* ================= TABLEAUX ================= */}
+                {selectedFiche.tableaux.map((tableau, tIdx) => (
+                  <div key={tIdx} style={{ marginBottom: '30px' }}>
+                    <h4>Tableau {tableau.titre}</h4>
+
+                    <table
+                      style={{ borderCollapse: 'collapse', width: '100%' }}
+                    >
+                      <thead>
+                        <tr style={{ backgroundColor: '#eee' }}>
+                          <th style={th}>Ligne</th>
+
+                          {tableau.verifications.map((v) => (
+                            <th key={v} style={th}>
+                              {v}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {Object.entries(tableau.lignes).map(
+                          ([ligne, verifs], i) => (
+                            <tr key={i}>
+                              <td style={td}>
+                                <b>{ligne}</b>
+                              </td>
+
+                              {tableau.verifications.map((v) => (
+                                <td key={v} style={td}>
+                                  {verifs[v]}
+                                </td>
+                              ))}
+                            </tr>
+                          )
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                ))}
+
+                {/* ================= ACTIONS ================= */}
+                <div
+                  style={{ marginTop: '20px', display: 'flex', gap: '10px' }}
+                >
+                  <button
+                    onClick={() =>
+                      validerFiche(selectedFiche._id, selectedFiche.notifId)
+                    }
+                  >
+                    ✅ Valider
+                  </button>
+
+                  <button onClick={() => setSelectedFiche(null)}>
+                    ❌ Fermer
+                  </button>
+
+                  <button onClick={() => exportPDF(selectedFiche)}>
+                    📄 Exporter PDF
+                  </button>
+                </div>
+              </>
+            ) : selectedFiche?.blocsBrigade ? (
+              <>
+                <h3>🛠️ Fiche Brigade</h3>
+
+                {/* ================= INFOS ================= */}
+                <p>
+                  📅 Date :{' '}
+                  {selectedFiche.date
+                    ? new Date(selectedFiche.date).toLocaleDateString()
+                    : ''}
+                </p>
+
+                <p>📌 Statut : {selectedFiche.statut}</p>
+
+                {/* ================= BLOCS ================= */}
+                {['matin', 'apresMidi', 'nuit'].map((bloc, idx) => (
+                  <div key={idx} style={{ marginTop: '20px' }}>
+                    <h4>
+                      {bloc === 'matin' && '🌅 Matin'}
+                      {bloc === 'apresMidi' && '🌇 Après-midi'}
+                      {bloc === 'nuit' && '🌙 Nuit'}
+                    </h4>
+
+                    {/* ===== TABLE CONSIGNES ===== */}
+                    <table
+                      style={{ borderCollapse: 'collapse', width: '100%' }}
+                    >
+                      <thead>
+                        <tr style={{ backgroundColor: '#eee' }}>
+                          <th style={th}>Consigne</th>
+                          <th style={th}>Inspection</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {(selectedFiche.blocsBrigade?.[bloc] || []).map(
+                          (row, i) => (
+                            <tr key={i}>
+                              <td style={td}>{row.consigne || '-'}</td>
+                              <td style={td}>{row.inspection || '-'}</td>
+                            </tr>
+                          )
+                        )}
+                      </tbody>
+                    </table>
+
+                    {/* ===== TECHNICIENS ===== */}
+                    <h5 style={{ marginTop: '10px' }}>👨‍🔧 Techniciens</h5>
+
+                    <table
+                      style={{ borderCollapse: 'collapse', width: '100%' }}
+                    >
+                      <thead>
+                        <tr style={{ backgroundColor: '#eee' }}>
+                          <th style={th}>Nom</th>
+                          <th style={th}>Signature</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {(selectedFiche.techniciens?.[bloc] || []).map(
+                          (tech, i) => (
+                            <tr key={i}>
+                              <td style={td}>{tech.nom || '-'}</td>
+                              <td style={td}>
+                                {tech.signature ? (
+                                  <img src={tech.signature} width="100" />
+                                ) : (
+                                  '—'
+                                )}
+                              </td>
+                            </tr>
+                          )
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                ))}
+
+                {/* ================= ACTIONS ================= */}
+                <div
+                  style={{ marginTop: '20px', display: 'flex', gap: '10px' }}
+                >
+                  <button
+                    onClick={() =>
+                      validerFiche(selectedFiche._id, selectedFiche.notifId)
+                    }
+                  >
+                    ✅ Valider
+                  </button>
+
+                  <button onClick={() => setSelectedFiche(null)}>
+                    ❌ Fermer
+                  </button>
+                </div>
+              </>
             ) : selectedFiche.installations?.length > 0 ? (
               <>
                 <h3>Fiche Feux Obstacles</h3>

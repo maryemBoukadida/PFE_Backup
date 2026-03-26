@@ -156,6 +156,11 @@ app.use("/api/fiche-olapion", ficheOlapionRoutes);
 // fiche balsiage 
 const ficheBalisageRoutes = require("./routes/ficheBalisageRoutes");
 app.use("/api/fiche-balisage", ficheBalisageRoutes);
+
+// fichier brigade : 
+const ficheBrigadeRoutes = require('./routes/ficheBrigadeRoutes');
+app.use('/api/fiche-brigade', ficheBrigadeRoutes);
+
 // Catch-all 404
 const gestionEquipementRoutes = require("./routes/gestionEquipementRoutes");
 app.use("/api/gestionequipements", gestionEquipementRoutes);

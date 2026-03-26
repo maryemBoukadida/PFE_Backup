@@ -1,7 +1,7 @@
-const FicheCorrective = require("../models/ficheCorrective");
-const Notification = require("../models/Notification");
-const HistoriqueAction = require("../models/HistoriqueAction");
-const InventaireGmao = require("../models/Inventaire");
+const FicheCorrective = require('../models/ficheCorrective');
+const Notification = require('../models/Notification');
+const HistoriqueAction = require('../models/HistoriqueAction');
+const InventaireGmao = require('../models/Inventaire');
 
 // ================= CREER UNE FICHE =================
 exports.creerFicheCorrective = async(req, res) => {
@@ -10,7 +10,12 @@ exports.creerFicheCorrective = async(req, res) => {
         const nouvelleFiche = await fiche.save();
         res.status(201).json(nouvelleFiche);
     } catch (err) {
-        res.status(500).json({ message: "Erreur création fiche corrective", error: err.message });
+        res
+            .status(500)
+            .json({
+                message: 'Erreur création fiche corrective',
+                error: err.message,
+            });
     }
 };
 
@@ -20,7 +25,12 @@ exports.getFichesCorrective = async(req, res) => {
         const fiches = await FicheCorrective.find();
         res.json(fiches);
     } catch (err) {
-        res.status(500).json({ message: "Erreur récupération fiches corrective", error: err.message });
+        res
+            .status(500)
+            .json({
+                message: 'Erreur récupération fiches corrective',
+                error: err.message,
+            });
     }
 };
 
@@ -28,7 +38,8 @@ exports.getFichesCorrective = async(req, res) => {
 exports.getFicheCorrectiveById = async(req, res) => {
     try {
         const fiche = await FicheCorrective.findById(req.params.id);
-        if (!fiche) return res.status(404).json({ message: "Fiche corrective non trouvée" });
+        if (!fiche)
+            return res.status(404).json({ message: 'Fiche corrective non trouvée' });
         res.json(fiche);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -39,28 +50,29 @@ exports.getFicheCorrectiveById = async(req, res) => {
 exports.envoyerFicheCorrective = async(req, res) => {
     try {
         const fiche = await FicheCorrective.findById(req.params.id);
-        if (!fiche) return res.status(404).json({ message: "Fiche corrective non trouvée" });
+        if (!fiche)
+            return res.status(404).json({ message: 'Fiche corrective non trouvée' });
 
         // Vérification techniciens
         if (!fiche.ficheCorrective[0].techniciensOperateurs ||
             fiche.ficheCorrective[0].techniciensOperateurs.length === 0
         ) {
-            return res.status(400).json({ message: "Le champ technicien est vide" });
+            return res.status(400).json({ message: 'Le champ technicien est vide' });
         }
 
-        fiche.statut = "envoyee";
+        fiche.statut = 'envoyee';
         await fiche.save();
 
         const notification = new Notification({
-            type: "fiche_corrective",
+            type: 'fiche_corrective',
             message: `Une fiche corrective a été envoyée`,
             dataId: fiche._id,
-            read: false
+            read: false,
         });
 
         await notification.save();
 
-        res.json({ message: "Fiche corrective envoyée avec succès" });
+        res.json({ message: 'Fiche corrective envoyée avec succès' });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -72,23 +84,24 @@ exports.validerFicheCorrective = async(req, res) => {
         const { ficheId, notifId } = req.body;
 
         const fiche = await FicheCorrective.findById(ficheId);
-        if (!fiche) return res.status(404).json({ message: "Fiche corrective non trouvée" });
+        if (!fiche)
+            return res.status(404).json({ message: 'Fiche corrective non trouvée' });
 
-        fiche.statut = "validée";
+        fiche.statut = 'validée';
         await fiche.save();
 
         const historique = new HistoriqueAction({
-            type: "fiche_corrective",
-            message: "Fiche corrective validée",
+            type: 'fiche_corrective',
+            message: 'Fiche corrective validée',
             dataId: fiche._id,
-            date: new Date()
+            date: new Date(),
         });
 
         await historique.save();
 
         if (notifId) await Notification.findByIdAndUpdate(notifId, { read: true });
 
-        res.json({ message: "Fiche validée ✅", fiche });
+        res.json({ message: 'Fiche validée ✅', fiche });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -99,7 +112,7 @@ exports.getAllDesignations = async(req, res) => {
 
         let result = [];
 
-        data.forEach(doc => {
+        data.forEach((doc) => {
             if (doc.balisage_gmao) {
                 result = result.concat(doc.balisage_gmao);
             }
@@ -114,15 +127,14 @@ exports.getAllDesignations = async(req, res) => {
         });
 
         // 🔥 garder فقط designation + stock
-        const cleaned = result.map(item => ({
+        const cleaned = result.map((item) => ({
             designation: item.designation,
-            stock: item.stock
+            stock: item.stock,
         }));
 
         res.json(cleaned);
-
     } catch (err) {
-        console.error("Erreur getAllDesignations :", err);
+        console.error('Erreur getAllDesignations :', err);
         res.status(500).json({ message: err.message });
     }
 };
@@ -134,12 +146,12 @@ exports.updateStock = async(req, res) => {
         const doc = await InventaireGmao.findOne();
 
         if (!doc) {
-            return res.status(404).json({ message: "Inventaire introuvable" });
+            return res.status(404).json({ message: 'Inventaire introuvable' });
         }
 
         const updateArray = (arr) => {
             for (let item of arr) {
-                pieces.forEach(p => {
+                pieces.forEach((p) => {
                     if (item.designation === p.designation) {
                         if (item.stock < p.quantite) {
                             throw new Error(`Stock insuffisant pour ${p.designation}`);
@@ -156,8 +168,7 @@ exports.updateStock = async(req, res) => {
 
         await doc.save();
 
-        res.json({ message: "Stock mis à jour ✅" });
-
+        res.json({ message: 'Stock mis à jour ✅' });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

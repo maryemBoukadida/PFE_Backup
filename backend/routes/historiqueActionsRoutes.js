@@ -5,22 +5,25 @@ const HistoriqueAction = require("../models/HistoriqueAction");
 
 // Importer tous les modèles
 const models = {
-    fiche_effar: require("../models/ficheEffar"),
-    fiche_hors_sql: require("../models/FicheHorsSql"),
-    fiche_ann_infrastructure: require("../models/ficheAnnInfrastructure"),
-    fiche_ann_tgbt: require("../models/ficheAnnTgbt"),
-    fiche_ann_voie: require("../models/ficheAnnVoie"),
-    fiche_piste: require("../models/FichePiste"),
-    fiche_dgs: require("../models/FicheDGS"),
-    fiche_lvp: require("../models/FicheLVP"),
-    fiche_feux_obstacles: require("../models/FicheFeuxObstacles"),
-    fiche_regulateures: require("../models/FicheRegulateures"),
-    fiche_postes: require("../models/FichePoste"),
-    fiche_aides_radios: require("../models/FicheAidesRadios"),
-    fiche_feux_encastres: require("../models/ficheFeuxEncastres"),
-    fiche_semes_regulateures: require("../models/ficheSemesRegulateures"),
-    fiche_semes_postes: require("../models/ficheSemesPostes"),
-    fiche_semes_dgs: require("../models/ficheSemesDgs"),
+    fiche_effar: require('../models/ficheEffar'),
+    fiche_hors_sql: require('../models/FicheHorsSql'),
+    fiche_ann_infrastructure: require('../models/ficheAnnInfrastructure'),
+    fiche_ann_tgbt: require('../models/ficheAnnTgbt'),
+    fiche_ann_voie: require('../models/ficheAnnVoie'),
+    fiche_piste: require('../models/FichePiste'),
+    fiche_dgs: require('../models/FicheDGS'),
+    fiche_lvp: require('../models/FicheLVP'),
+    fiche_feux_obstacles: require('../models/FicheFeuxObstacles'),
+    fiche_regulateures: require('../models/FicheRegulateures'),
+    fiche_postes: require('../models/FichePoste'),
+    fiche_aides_radios: require('../models/FicheAidesRadios'),
+    fiche_feux_encastres: require('../models/ficheFeuxEncastres'),
+    fiche_semes_regulateures: require('../models/ficheSemesRegulateures'),
+    fiche_semes_postes: require('../models/ficheSemesPostes'),
+    fiche_semes_dgs: require('../models/ficheSemesDgs'),
+    fiche_brigade: require('../models/Brigade'),
+    fiche_balisage: require('../models/FicheBalisage'),
+    fiche_corrective: require('../models/ficheCorrective')
 };
 
 // GET toutes les actions
