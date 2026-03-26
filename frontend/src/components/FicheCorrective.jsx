@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import SignatureCanvas from 'react-signature-canvas';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -189,14 +190,17 @@ const handleSubmit = async (e) => {
     alert(" Erreur lors de l'enregistrement");
   }
 };
+  const navigate = useNavigate();
 
-const handleEnvoyer = async () => {
+  const handleEnvoyer = async () => {
+
   if (!ficheId) return alert("Enregistrer d'abord !");
 
   try {
     await envoyerFicheCorrective(ficheId);
 
     alert(" Fiche envoyée avec succès");
+     navigate('/historique-actions-tech');
 
   } catch (err) {
     console.error(err);

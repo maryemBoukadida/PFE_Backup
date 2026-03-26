@@ -2,7 +2,7 @@ const FicheCorrective = require('../models/ficheCorrective');
 const Notification = require('../models/Notification');
 const HistoriqueAction = require('../models/HistoriqueAction');
 const InventaireGmao = require('../models/Inventaire');
-
+const Historique = require('../models/HistoriqueTechnicien');
 // ================= CREER UNE FICHE =================
 exports.creerFicheCorrective = async(req, res) => {
     try {
@@ -10,12 +10,10 @@ exports.creerFicheCorrective = async(req, res) => {
         const nouvelleFiche = await fiche.save();
         res.status(201).json(nouvelleFiche);
     } catch (err) {
-        res
-            .status(500)
-            .json({
-                message: 'Erreur création fiche corrective',
-                error: err.message,
-            });
+        res.status(500).json({
+            message: 'Erreur création fiche corrective',
+            error: err.message,
+        });
     }
 };
 
@@ -25,12 +23,10 @@ exports.getFichesCorrective = async(req, res) => {
         const fiches = await FicheCorrective.find();
         res.json(fiches);
     } catch (err) {
-        res
-            .status(500)
-            .json({
-                message: 'Erreur récupération fiches corrective',
-                error: err.message,
-            });
+        res.status(500).json({
+            message: 'Erreur récupération fiches corrective',
+            error: err.message,
+        });
     }
 };
 
@@ -49,31 +45,48 @@ exports.getFicheCorrectiveById = async(req, res) => {
 // ================= ENVOYER =================
 exports.envoyerFicheCorrective = async(req, res) => {
     try {
+        // 🔹 Récupérer la fiche
         const fiche = await FicheCorrective.findById(req.params.id);
-        if (!fiche)
-            return res.status(404).json({ message: 'Fiche corrective non trouvée' });
 
-        // Vérification techniciens
-        if (!fiche.ficheCorrective[0].techniciensOperateurs ||
-            fiche.ficheCorrective[0].techniciensOperateurs.length === 0
-        ) {
-            return res.status(400).json({ message: 'Le champ technicien est vide' });
+        if (!fiche) {
+            return res.status(404).json({ message: 'Fiche corrective non trouvée' });
         }
 
+        // 🔹 Statut de la fiche
         fiche.statut = 'envoyee';
         await fiche.save();
 
+        // 🔹 Enregistrer actions pour tous les techniciens
+        const techniciens = fiche.ficheCorrective[0].techniciensOperateurs || [];
+
+        for (const tech of techniciens) {
+            const historique = new Historique({
+                technicien: tech.nom || 'Inconnu', // si vide
+                fiche_corrective_id: fiche._id,
+                typeFiche: 'corrective',
+                description: fiche.ficheCorrective[0].designation || '',
+                observations: fiche.ficheCorrective[0].observationsGenerales || '',
+                status: 'en_cours',
+            });
+
+            await historique.save();
+        }
+
+        // 🔹 Notification globale
         const notification = new Notification({
             type: 'fiche_corrective',
             message: `Une fiche corrective a été envoyée`,
             dataId: fiche._id,
             read: false,
         });
-
         await notification.save();
 
-        res.json({ message: 'Fiche corrective envoyée avec succès' });
+        res.json({
+            message: 'Fiche envoyée + historique créé pour tous les techniciens',
+            fiche,
+        });
     } catch (err) {
+        console.error(err);
         res.status(500).json({ message: err.message });
     }
 };

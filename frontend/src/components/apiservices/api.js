@@ -1,46 +1,49 @@
 // frontend/src/api.js
-import axios from "axios";
+import axios from 'axios';
 
-const API_URL = "http://localhost:5000/equipements";
+const API_URL = 'http://localhost:5000/equipements';
 
-const INVENTAIRE_API = "http://localhost:5000/api/inventaire";
-const INSPECTION_API = "http://localhost:5000/api/inspections";
-const INSPECTION_TECH_API = "http://localhost:5000/api/inspections/tech";
-const FICHE_PAPI_API = "http://localhost:5000/api/fiche_papi";
-const FICHE_PISTE_API = "http://localhost:5000/api/fiche-piste";
-const FICHE_DGS_API = "http://localhost:5000/api/fiche-dgs";
-const FICHE_FEUX_OBSTACLES_API = "http://localhost:5000/api/feux-obstacles";
-const FICHE_LVP_API = "http://localhost:5000/api/fiche-lvp";
-const FICHE_REGULATEURES_API = "http://localhost:5000/api/fiche-regulateures";
-const FICHE_POSTES_API = "http://localhost:5000/api/fiche-postes";
-const FICHE_AIDES_RADIOS_API = "http://localhost:5000/api/fiche-aides-radios";
-const FICHE_FEUXEN_API = "http://localhost:5000/api/fiche-feux-encastres";
-const FICHE_REGULATEURS_API = "http://localhost:5000/api/fiche-semes-regulateures";
-const FICHE_POSTESS_API = "http://localhost:5000/api/fiche-semes-postes";
-const FICHE_DGSS_API = "http://localhost:5000/api/fiche-semes-dgs";
-const FICHE_TGBT_API = "http://localhost:5000/api/fiche-ann-tgbt";
-const FICHE_VOIE_API = "http://localhost:5000/api/fiche-ann-voie";
-const FICHE_ANN_PAMA_API = "http://localhost:5000/api/fiche-ann-pa-ma";
-const FICHE_ANN_INFRASTRUCTURE_API = "http://localhost:5000/api/fiche-ann-infrastructure";
-const FICHE_HORS_SQL_API = "http://localhost:5000/api/fiche-hors-sql";
-const FICHE_EFFAR_API = "http://localhost:5000/api/fiche-effar";
-const FICHE_ANN_OBS_API = "http://localhost:5000/api/fiche-ann-obs";
-const FICHE_ANN_CABLE_API = "http://localhost:5000/api/fiche-ann-cable";
-const FICHE_ANN_FEUX_SEQ_API = "http://localhost:5000/api/fiche-ann-feux-sequentiels";
-const FICHE_QUI_PAPI_API = "http://localhost:5000/api/fiche-qui-papi";
-const FICHE_CORRECTIVE_API = "http://localhost:5000/api/fiche-corrective";
-const FICHE_NOBREAK_API = "http://localhost:5000/api/fiche-nobreak";
-const FICHE_2250KVA_API = "http://localhost:5000/api/fiche-2250kva";
-const FICHE_OLAPION_API = "http://localhost:5000/api/fiche-olapion";
-const FICHE_BALISAGE_API = "http://localhost:5000/api/fiche-balisage";
+const INVENTAIRE_API = 'http://localhost:5000/api/inventaire';
+const INSPECTION_API = 'http://localhost:5000/api/inspections';
+const INSPECTION_TECH_API = 'http://localhost:5000/api/inspections/tech';
+const FICHE_PAPI_API = 'http://localhost:5000/api/fiche_papi';
+const FICHE_PISTE_API = 'http://localhost:5000/api/fiche-piste';
+const FICHE_DGS_API = 'http://localhost:5000/api/fiche-dgs';
+const FICHE_FEUX_OBSTACLES_API = 'http://localhost:5000/api/feux-obstacles';
+const FICHE_LVP_API = 'http://localhost:5000/api/fiche-lvp';
+const FICHE_REGULATEURES_API = 'http://localhost:5000/api/fiche-regulateures';
+const FICHE_POSTES_API = 'http://localhost:5000/api/fiche-postes';
+const FICHE_AIDES_RADIOS_API = 'http://localhost:5000/api/fiche-aides-radios';
+const FICHE_FEUXEN_API = 'http://localhost:5000/api/fiche-feux-encastres';
+const FICHE_REGULATEURS_API =
+    'http://localhost:5000/api/fiche-semes-regulateures';
+const FICHE_POSTESS_API = 'http://localhost:5000/api/fiche-semes-postes';
+const FICHE_DGSS_API = 'http://localhost:5000/api/fiche-semes-dgs';
+const FICHE_TGBT_API = 'http://localhost:5000/api/fiche-ann-tgbt';
+const FICHE_VOIE_API = 'http://localhost:5000/api/fiche-ann-voie';
+const FICHE_ANN_PAMA_API = 'http://localhost:5000/api/fiche-ann-pa-ma';
+const FICHE_ANN_INFRASTRUCTURE_API =
+    'http://localhost:5000/api/fiche-ann-infrastructure';
+const FICHE_HORS_SQL_API = 'http://localhost:5000/api/fiche-hors-sql';
+const FICHE_EFFAR_API = 'http://localhost:5000/api/fiche-effar';
+const FICHE_ANN_OBS_API = 'http://localhost:5000/api/fiche-ann-obs';
+const FICHE_ANN_CABLE_API = 'http://localhost:5000/api/fiche-ann-cable';
+const FICHE_ANN_FEUX_SEQ_API =
+    'http://localhost:5000/api/fiche-ann-feux-sequentiels';
+const FICHE_QUI_PAPI_API = 'http://localhost:5000/api/fiche-qui-papi';
+const FICHE_CORRECTIVE_API = 'http://localhost:5000/api/fiche-corrective';
+const FICHE_NOBREAK_API = 'http://localhost:5000/api/fiche-nobreak';
+const FICHE_2250KVA_API = 'http://localhost:5000/api/fiche-2250kva';
+const FICHE_OLAPION_API = 'http://localhost:5000/api/fiche-olapion';
+const FICHE_BALISAGE_API = 'http://localhost:5000/api/fiche-balisage';
 const BRIGADE_API = 'http://localhost:5000/api/fiche-brigade';
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = 'http://localhost:5000';
 
 // 🔹 Récupérer tous les équipements
 export const getEquipements = async() => {
     const res = await fetch(API_URL);
     if (!res.ok) {
-        const text = await res.text().catch(() => "");
+        const text = await res.text().catch(() => '');
         throw new Error(`Impossible de récupérer les équipements: ${text}`);
     }
     return res.json();
@@ -49,8 +52,8 @@ export const getEquipements = async() => {
 // 🔹 Créer un équipement
 export const createEquipement = async(equipement) => {
     const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(equipement),
     });
 
@@ -62,15 +65,15 @@ export const createEquipement = async(equipement) => {
         throw new Error(`Erreur serveur: ${text}`);
     }
 
-    if (!res.ok) throw new Error(data.message || "Erreur création équipement");
+    if (!res.ok) throw new Error(data.message || 'Erreur création équipement');
     return data;
 };
 
 // 🔹 Mettre à jour un équipement
 export const updateEquipement = async(id, data) => {
     const res = await fetch(`${API_URL}/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
     });
 
@@ -82,18 +85,21 @@ export const updateEquipement = async(id, data) => {
         throw new Error(`Erreur serveur: ${text}`);
     }
 
-    if (!res.ok) throw new Error(parsed.message || "Erreur mise à jour équipement");
+    if (!res.ok)
+        throw new Error(parsed.message || 'Erreur mise à jour équipement');
     return parsed;
 };
 
 // 🔹 Supprimer un équipement par ID
 export const deleteEquipement = async(id) => {
-    const res = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+    const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
 
     let data = {};
-    try { data = await res.json(); } catch {}
+    try {
+        data = await res.json();
+    } catch {}
 
-    if (!res.ok) throw new Error(data.message || "Erreur suppression");
+    if (!res.ok) throw new Error(data.message || 'Erreur suppression');
     return data;
 };
 
@@ -108,10 +114,10 @@ export const getFileByCode = async(code) => {
         throw new Error(`Erreur serveur: ${text}`);
     }
 
-    if (!res.ok) throw new Error(data.message || "Erreur récupération fichier Excel");
+    if (!res.ok)
+        throw new Error(data.message || 'Erreur récupération fichier Excel');
     return data; // { fileUrl: "http://localhost:5000/nom_du_fichier.xlsx" }
 };
-
 
 //inventaire
 
@@ -120,11 +126,11 @@ export const getAllInventaires = async(type) => {
     return res.data;
 };
 
-// inspections 
+// inspections
 export const createInspection = async(inspection) => {
     const res = await fetch(INSPECTION_API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(inspection),
     });
 
@@ -137,7 +143,7 @@ export const createInspection = async(inspection) => {
         throw new Error(`Erreur serveur: ${text}`);
     }
 
-    if (!res.ok) throw new Error(data.message || "Erreur création inspection");
+    if (!res.ok) throw new Error(data.message || 'Erreur création inspection');
 
     return data;
 };
@@ -148,28 +154,29 @@ export const getInspections = async() => {
     const res = await fetch(INSPECTION_API);
 
     if (!res.ok) {
-        const text = await res.text().catch(() => "");
+        const text = await res.text().catch(() => '');
         throw new Error(`Erreur récupération inspections: ${text}`);
     }
 
     return res.json();
 };
 
-
 export const envoyerInspectionTech = async(inspection) => {
     const res = await fetch(`${INSPECTION_TECH_API}/envoyer`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             ...inspection,
-            type: "JOURNALIERE", // 
+            type: 'JOURNALIERE', //
         }),
     });
 
     const text = await res.text();
     let data = {};
-    try { data = JSON.parse(text); } catch {}
-    if (!res.ok) throw new Error(data.message || "Erreur serveur");
+    try {
+        data = JSON.parse(text);
+    } catch {}
+    if (!res.ok) throw new Error(data.message || 'Erreur serveur');
     return data;
 };
 
@@ -201,16 +208,16 @@ export const fetchNotifications = async() => {
 export const sendFicheHist = async(ficheId) => {
     try {
         const res = await fetch(`${FICHE_PAPI_API}/valider/${ficheId}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
         });
 
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         const data = await res.json();
-        console.log("🟢 Validation response:", data);
+        console.log('🟢 Validation response:', data);
         return data;
     } catch (err) {
-        console.error("❌ Erreur sendFicheHist:", err);
+        console.error('❌ Erreur sendFicheHist:', err);
         throw err;
     }
 };
@@ -218,7 +225,7 @@ export const sendFicheHist = async(ficheId) => {
 export const getHistorique = async() => {
     try {
         const res = await fetch(`${INSPECTION_API}/historiques`);
-        if (!res.ok) throw new Error("Erreur récupération historique");
+        if (!res.ok) throw new Error('Erreur récupération historique');
         return await res.json();
     } catch (err) {
         console.error(err);
@@ -243,9 +250,8 @@ export const updateFichePiste = async(id, data) => {
 };
 // envoyer fiche piste
 export const envoyerFichePiste = async(id) => {
-
     const response = await fetch(`${FICHE_PISTE_API}/envoyer/${id}`, {
-        method: "POST"
+        method: 'POST',
     });
 
     return response.json();
@@ -261,17 +267,16 @@ export const getFicheDGS = async() => {
 // enregistrer fiche DGS (brouillon)
 export const enregistrerFicheDGS = async(id, data) => {
     const response = await fetch(`${FICHE_DGS_API}/enregistrer/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
     });
     return response.json();
 };
 // envoyer fiche DGS
 export const envoyerFicheDGS = async(id) => {
-
     const response = await fetch(`${FICHE_DGS_API}/envoyer/${id}`, {
-        method: "POST"
+        method: 'POST',
     });
 
     return response.json();
@@ -284,31 +289,33 @@ export const getFicheFeuxObstacles = async() => {
     const res = await axios.get(FICHE_FEUX_OBSTACLES_API);
     return res.data;
 };
-//enregistrer 
+//enregistrer
 export const enregistrerFicheFeuxObstacles = async(id, data) => {
-    const response = await fetch(`${FICHE_FEUX_OBSTACLES_API}/enregistrer/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-    });
+    const response = await fetch(
+        `${FICHE_FEUX_OBSTACLES_API}/enregistrer/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        }
+    );
     return response.json();
 };
-//envoyer 
+//envoyer
 export const envoyerFicheFeuxObstacles = async(id) => {
-
     const response = await fetch(`${FICHE_FEUX_OBSTACLES_API}/envoyer/${id}`, {
-        method: "POST"
+        method: 'POST',
     });
 
     return response.json();
 };
 // =======================
-// FICHE FeuxLVP 
+// FICHE FeuxLVP
 // =======================
 export const getFicheLVP = async() => {
     try {
         const res = await fetch(FICHE_LVP_API);
-        if (!res.ok) throw new Error("Erreur lors de la récupération de la fiche LVP");
+        if (!res.ok)
+            throw new Error('Erreur lors de la récupération de la fiche LVP');
         return await res.json();
     } catch (err) {
         console.error(err);
@@ -318,9 +325,9 @@ export const getFicheLVP = async() => {
 //enregiterement
 export const enregistrerFicheLVP = async(id, data) => {
     const response = await fetch(`${FICHE_LVP_API}/enregistrer/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
     });
     return response.json();
 };
@@ -328,7 +335,7 @@ export const enregistrerFicheLVP = async(id, data) => {
 export const envoyerFicheLVP = async(id) => {
     try {
         const response = await fetch(`${FICHE_LVP_API}/envoyer/${id}`, {
-            method: "POST"
+            method: 'POST',
         });
 
         if (!response.ok) throw new Error("Erreur lors de l'envoi de la fiche LVP");
@@ -340,7 +347,7 @@ export const envoyerFicheLVP = async(id) => {
     }
 };
 // =======================
-// FICHE Regulateures 
+// FICHE Regulateures
 // =======================
 export const getFicheRegulateures = async() => {
     const res = await axios.get(FICHE_REGULATEURES_API);
@@ -363,7 +370,7 @@ export const getFichePostes = async() => {
     const response = await fetch(FICHE_POSTES_API);
 
     if (!response.ok) {
-        throw new Error("Erreur récupération fiche postes");
+        throw new Error('Erreur récupération fiche postes');
     }
 
     return response.json();
@@ -380,11 +387,10 @@ export const envoyerFichePostes = async(id) => {
 // FICHE aides radios
 // =======================
 export const getFicheAidesRadios = async() => {
-
     const response = await fetch(FICHE_AIDES_RADIOS_API);
 
     if (!response.ok) {
-        throw new Error("Erreur récupération fiche aides radios");
+        throw new Error('Erreur récupération fiche aides radios');
     }
 
     return response.json();
@@ -411,7 +417,7 @@ export const creerFicheFeuxEncastres = async(data) => {
 export const getFicheFeuxEncastres = async() => {
     const response = await fetch(FICHE_FEUXEN_API);
     if (!response.ok) {
-        throw new Error("Erreur récupération fiche feux encastrés");
+        throw new Error('Erreur récupération fiche feux encastrés');
     }
     return response.json();
 };
@@ -430,7 +436,7 @@ export const envoyerFicheFeuxEncastres = async(id) => {
 export const getFicheSemesRegulateures = async() => {
     const response = await fetch(FICHE_REGULATEURS_API);
     if (!response.ok) {
-        throw new Error("Erreur récupération fiche semestrielle régulateurs");
+        throw new Error('Erreur récupération fiche semestrielle régulateurs');
     }
     return response.json();
 };
@@ -453,7 +459,7 @@ export const getFicheSemesPostes = async() => {
     const response = await fetch(FICHE_POSTESS_API);
 
     if (!response.ok) {
-        throw new Error("Erreur récupération fiche semestrielle des postes");
+        throw new Error('Erreur récupération fiche semestrielle des postes');
     }
 
     return response.json();
@@ -474,14 +480,14 @@ export const envoyerFicheSemesPostes = async(id) => {
 export const getFicheSemesDgs = async() => {
     const response = await fetch(FICHE_DGSS_API);
     if (!response.ok) {
-        throw new Error("Erreur récupération fiche semestrielle DGS");
+        throw new Error('Erreur récupération fiche semestrielle DGS');
     }
     return response.json();
 };
 
 // ================= SAVE =================
 export const enregistrerFicheSemesDgs = async(id, data) => {
-    if (!id) throw new Error("ID manquant");
+    if (!id) throw new Error('ID manquant');
 
     const res = await axios.put(`${FICHE_DGSS_API}/${id}`, data);
     return res.data;
@@ -489,19 +495,19 @@ export const enregistrerFicheSemesDgs = async(id, data) => {
 
 // ================= SEND =================
 export const envoyerFicheSemesDgs = async(id) => {
-    if (!id) throw new Error("ID manquant");
+    if (!id) throw new Error('ID manquant');
 
     const res = await axios.put(`${FICHE_DGSS_API}/envoyer/${id}`);
     return res.data;
 };
 // =======================
-// FICHE annuelle TGBT 
+// FICHE annuelle TGBT
 // =======================
 // 🔹 GET dernière fiche annuelle TGBT
 export const getFicheAnnTgbt = async() => {
     const response = await fetch(FICHE_TGBT_API);
     if (!response.ok) {
-        throw new Error("Erreur récupération fiche annuelle TGBT");
+        throw new Error('Erreur récupération fiche annuelle TGBT');
     }
     return response.json();
 };
@@ -519,13 +525,13 @@ export const envoyerFicheAnnTgbt = async(id) => {
 };
 
 // =======================
-// FICHE annuelle Voie 
+// FICHE annuelle Voie
 // =======================
 // 🔹 GET : récupérer la fiche
 export const getFicheAnnVoie = async() => {
     const response = await fetch(FICHE_VOIE_API);
     if (!response.ok) {
-        throw new Error("Erreur récupération fiche annuelle voie");
+        throw new Error('Erreur récupération fiche annuelle voie');
     }
     return response.json();
 };
@@ -543,7 +549,7 @@ export const envoyerFicheAnnVoie = async(id) => {
 };
 
 // =======================
-// FICHE annuelle papi manche avant 
+// FICHE annuelle papi manche avant
 // =====================
 export const getFicheAnnPaMa = async() => {
     const res = await axios.get(FICHE_ANN_PAMA_API);
@@ -573,7 +579,7 @@ export const getFicheAnnInfrastructure = async() => {
     const response = await fetch(FICHE_ANN_INFRASTRUCTURE_API);
 
     if (!response.ok) {
-        throw new Error("Erreur récupération fiche infrastructure");
+        throw new Error('Erreur récupération fiche infrastructure');
     }
 
     return response.json();
@@ -582,15 +588,15 @@ export const getFicheAnnInfrastructure = async() => {
 // ================= ENREGISTRER FICHE =================
 export const enregistrerFicheAnnInfrastructure = async(fiche) => {
     const response = await fetch(FICHE_ANN_INFRASTRUCTURE_API, {
-        method: "POST",
+        method: 'POST',
         headers: {
-            "Content-Type": "application/json"
+            'Content-Type': 'application/json',
         },
-        body: JSON.stringify(fiche)
+        body: JSON.stringify(fiche),
     });
 
     if (!response.ok) {
-        throw new Error("Erreur enregistrement fiche infrastructure");
+        throw new Error('Erreur enregistrement fiche infrastructure');
     }
 
     return response.json();
@@ -600,43 +606,44 @@ export const envoyerFicheAnnInfrastructure = async(id) => {
     return res.data;
 };
 
-//historiques 
+//historiques
 export const ajouterHistoriqueAction = async(action) => {
-    const res = await fetch("http://localhost:5000/api/historique-actions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+    const res = await fetch('http://localhost:5000/api/historique-actions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(action),
     });
 
-    if (!res.ok) throw new Error("Erreur ajout historique");
+    if (!res.ok) throw new Error('Erreur ajout historique');
     return res.json();
 };
 
 export const getHistoriqueActions = async() => {
-    const response = await fetch("http://localhost:5000/api/historique-actions");
+    const response = await fetch('http://localhost:5000/api/historique-actions');
     if (!response.ok) {
-        throw new Error("Erreur récupération historique actions");
+        throw new Error('Erreur récupération historique actions');
     }
     return response.json();
 };
 
-
 export const getFicheDetail = async(type, dataId) => {
-    const res = await fetch(`http://localhost:5000/api/historique-actions/fiche/${type}/${dataId}`);
+    const res = await fetch(
+        `http://localhost:5000/api/historique-actions/fiche/${type}/${dataId}`
+    );
     if (!res.ok) throw new Error(`Erreur récupération fiche : ${res.status}`);
     return res.json();
 };
 
-
-
 // Marquer une notification comme lue
 export const marquerNotifCommeLue = async(notifId) => {
     if (!notifId) return;
-    const res = await fetch(`http://localhost:5000/api/notifications/${notifId}/read`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-    });
-    if (!res.ok) throw new Error("Erreur lors du marquage de la notification");
+    const res = await fetch(
+        `http://localhost:5000/api/notifications/${notifId}/read`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+        }
+    );
+    if (!res.ok) throw new Error('Erreur lors du marquage de la notification');
     return res.json();
 };
 
@@ -645,47 +652,37 @@ export const marquerNotifCommeLue = async(notifId) => {
 // =====================
 // ================= RECUPERER TOUTES LES FICHES =================
 export const getFicheHorsSql = async() => {
-
     const response = await fetch(FICHE_HORS_SQL_API);
 
     if (!response.ok) {
-        throw new Error("Erreur récupération fiche Hors SQL");
+        throw new Error('Erreur récupération fiche Hors SQL');
     }
 
     return response.json();
-
 };
 // ================= ENREGISTRER FICHE =================
 export const enregistrerFicheHorsSql = async(fiche) => {
-
     const response = await fetch(FICHE_HORS_SQL_API, {
-
-        method: "POST",
+        method: 'POST',
 
         headers: {
-            "Content-Type": "application/json"
+            'Content-Type': 'application/json',
         },
 
-        body: JSON.stringify(fiche)
-
+        body: JSON.stringify(fiche),
     });
 
     if (!response.ok) {
-        throw new Error("Erreur enregistrement fiche Hors SQL");
+        throw new Error('Erreur enregistrement fiche Hors SQL');
     }
 
     return response.json();
-
 };
 // ================= ENVOYER FICHE =================
 export const envoyerFicheHorsSql = async(id) => {
-
-    const res = await axios.put(
-        `${FICHE_HORS_SQL_API}/envoyer/${id}`
-    );
+    const res = await axios.put(`${FICHE_HORS_SQL_API}/envoyer/${id}`);
 
     return res.data;
-
 };
 
 // =======================
@@ -694,7 +691,7 @@ export const envoyerFicheHorsSql = async(id) => {
 export const getFicheEffar = async() => {
     const response = await fetch(FICHE_EFFAR_API);
     if (!response.ok) {
-        throw new Error("Erreur récupération fiches Effaroucheur");
+        throw new Error('Erreur récupération fiches Effaroucheur');
     }
     return response.json();
 };
@@ -702,13 +699,13 @@ export const getFicheEffar = async() => {
 // Enregistrer une fiche
 export const enregistrerFicheEffar = async(fiche) => {
     const response = await fetch(FICHE_EFFAR_API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(fiche),
     });
 
     if (!response.ok) {
-        throw new Error("Erreur enregistrement fiche Effaroucheur");
+        throw new Error('Erreur enregistrement fiche Effaroucheur');
     }
     return response.json();
 };
@@ -727,7 +724,7 @@ export const getFicheAnnObs = async() => {
     const response = await fetch(FICHE_ANN_OBS_API);
 
     if (!response.ok) {
-        throw new Error("Erreur récupération fiche obstacles");
+        throw new Error('Erreur récupération fiche obstacles');
     }
 
     return response.json();
@@ -736,15 +733,15 @@ export const getFicheAnnObs = async() => {
 // enregistrer fiche
 export const enregistrerFicheAnnObs = async(fiche) => {
     const response = await fetch(FICHE_ANN_OBS_API, {
-        method: "POST",
+        method: 'POST',
         headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
         },
         body: JSON.stringify(fiche),
     });
 
     if (!response.ok) {
-        throw new Error("Erreur enregistrement fiche obstacles");
+        throw new Error('Erreur enregistrement fiche obstacles');
     }
 
     return response.json();
@@ -756,47 +753,49 @@ export const envoyerFicheAnnObs = async(id) => {
     return res.data;
 };
 
-
-// fihce annuelle cables 
+// fihce annuelle cables
 // GET toutes les fiches
 export const getFicheAnnCable = async() => {
     const response = await fetch(FICHE_ANN_CABLE_API);
-    if (!response.ok) throw new Error("Erreur récupération fiches Cable");
+    if (!response.ok) throw new Error('Erreur récupération fiches Cable');
     return response.json();
 };
 
 // POST enregistrer fiche
 export const enregistrerFicheAnnCable = async(fiche) => {
     const response = await fetch(FICHE_ANN_CABLE_API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(fiche)
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(fiche),
     });
-    if (!response.ok) throw new Error("Erreur enregistrement fiche Cable");
+    if (!response.ok) throw new Error('Erreur enregistrement fiche Cable');
     return response.json();
 };
 
 // PUT envoyer fiche
 export const envoyerFicheAnnCable = async(id) => {
-    const res = await fetch(`${FICHE_ANN_CABLE_API}/envoyer/${id}`, { method: "PUT" });
+    const res = await fetch(`${FICHE_ANN_CABLE_API}/envoyer/${id}`, {
+        method: 'PUT',
+    });
     return res.json();
 };
-//// fiche sequeenetielle annuelele 
+//// fiche sequeenetielle annuelele
 
 export const getFicheAnnFeuxSeq = async() => {
     const response = await fetch(FICHE_ANN_FEUX_SEQ_API);
-    if (!response.ok) throw new Error("Erreur récupération fiche feux séquentiels");
+    if (!response.ok)
+        throw new Error('Erreur récupération fiche feux séquentiels');
     return response.json();
 };
 
 // ================= ENREGISTRER FICHE =================
 export const enregistrerFicheAnnFeuxSeq = async(fiche) => {
     const res = await fetch(FICHE_ANN_FEUX_SEQ_API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(fiche),
     });
-    if (!res.ok) throw new Error("Erreur enregistrement fiche");
+    if (!res.ok) throw new Error('Erreur enregistrement fiche');
     return res.json();
 };
 
@@ -810,18 +809,18 @@ export const envoyerFicheAnnFeuxSeq = async(id) => {
 // GET toutes les fiches
 export const getFichesQuiPapi = async() => {
     const res = await fetch(FICHE_QUI_PAPI_API);
-    if (!res.ok) throw new Error("Erreur récupération fiches PAPI");
+    if (!res.ok) throw new Error('Erreur récupération fiches PAPI');
     return res.json();
 };
 
 // ENREGISTRER fiche
 export const enregistrerFicheQuiPapi = async(fiche) => {
     const res = await fetch(FICHE_QUI_PAPI_API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(fiche)
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(fiche),
     });
-    if (!res.ok) throw new Error("Erreur enregistrement fiche PAPI");
+    if (!res.ok) throw new Error('Erreur enregistrement fiche PAPI');
     return res.json();
 };
 
@@ -837,18 +836,18 @@ export const envoyerFicheQuiPapi = async(id) => {
 // GET toutes les fiches
 export const getFichesCorrective = async() => {
     const res = await fetch(FICHE_CORRECTIVE_API);
-    if (!res.ok) throw new Error("Erreur récupération fiches Corrective");
+    if (!res.ok) throw new Error('Erreur récupération fiches Corrective');
     return res.json();
 };
 
 // ENREGISTRER fiche
 export const enregistrerFicheCorrective = async(fiche) => {
     const res = await fetch(FICHE_CORRECTIVE_API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(fiche)
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(fiche),
     });
-    if (!res.ok) throw new Error("Erreur enregistrement fiche Corrective");
+    if (!res.ok) throw new Error('Erreur enregistrement fiche Corrective');
     return res.json();
 };
 
@@ -857,48 +856,50 @@ export const envoyerFicheCorrective = async(id) => {
     const res = await axios.put(`${FICHE_CORRECTIVE_API}/envoyer/${id}`);
     return res.data;
 };
-//ffiche no break 
+//ffiche no break
 // GET ALL
 export const getFichesNoBreak = async() => {
     const res = await fetch(FICHE_NOBREAK_API);
-    if (!res.ok) throw new Error("Erreur récupération fiches No-Break");
+    if (!res.ok) throw new Error('Erreur récupération fiches No-Break');
     return res.json();
 };
 
 // ENREGISTRER fiche
 export const enregistrerFicheNoBreak = async(fiche) => {
     const res = await fetch(FICHE_NOBREAK_API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(fiche)
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(fiche),
     });
-    if (!res.ok) throw new Error("Erreur enregistrement fiche No-Break");
+    if (!res.ok) throw new Error('Erreur enregistrement fiche No-Break');
     return res.json();
 };
 
 // ENVOYER fiche
 export const envoyerFicheNoBreak = async(id) => {
-    const res = await fetch(`${FICHE_NOBREAK_API}/envoyer/${id}`, { method: "PUT" });
-    if (!res.ok) throw new Error("Erreur envoi fiche No-Break");
+    const res = await fetch(`${FICHE_NOBREAK_API}/envoyer/${id}`, {
+        method: 'PUT',
+    });
+    if (!res.ok) throw new Error('Erreur envoi fiche No-Break');
     return res.json();
 };
 
-// fiche KVA 
+// fiche KVA
 // GET toutes les fiches
 export const getFiches2250KVA = async() => {
     const res = await fetch(FICHE_2250KVA_API);
-    if (!res.ok) throw new Error("Erreur récupération fiches 2250KVA");
+    if (!res.ok) throw new Error('Erreur récupération fiches 2250KVA');
     return res.json();
 };
 
 // ENREGISTRER
 export const enregistrerFiche2250KVA = async(fiche) => {
     const res = await fetch(FICHE_2250KVA_API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(fiche)
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(fiche),
     });
-    if (!res.ok) throw new Error("Erreur enregistrement fiche 2250KVA");
+    if (!res.ok) throw new Error('Erreur enregistrement fiche 2250KVA');
     return res.json();
 };
 
@@ -908,23 +909,23 @@ export const envoyerFiche2250KVA = async(id) => {
     return res.data;
 };
 
-// fiche olupion 
+// fiche olupion
 // ================= GET ALL =================
 export const getFichesOlapion = async() => {
     const res = await fetch(FICHE_OLAPION_API);
-    if (!res.ok) throw new Error("Erreur récupération fiches Olapion");
+    if (!res.ok) throw new Error('Erreur récupération fiches Olapion');
     return res.json();
 };
 
 // ================= CREATE =================
 export const enregistrerFicheOlapion = async(fiche) => {
     const res = await fetch(FICHE_OLAPION_API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(fiche)
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(fiche),
     });
 
-    if (!res.ok) throw new Error("Erreur enregistrement fiche Olapion");
+    if (!res.ok) throw new Error('Erreur enregistrement fiche Olapion');
     return res.json();
 };
 
@@ -934,24 +935,24 @@ export const envoyerFicheOlapion = async(id) => {
     return res.data;
 };
 
-// fiche olaapion 
+// fiche olaapion
 
 // ================= GET ALL =================
 export const getFichesBalisage = async() => {
     const res = await fetch(FICHE_BALISAGE_API);
-    if (!res.ok) throw new Error("Erreur récupération fiches Balisage");
+    if (!res.ok) throw new Error('Erreur récupération fiches Balisage');
     return res.json();
 };
 
 // ================= CREATE =================
 export const enregistrerFicheBalisage = async(fiche) => {
     const res = await fetch(FICHE_BALISAGE_API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(fiche)
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(fiche),
     });
 
-    if (!res.ok) throw new Error("Erreur enregistrement fiche Balisage");
+    if (!res.ok) throw new Error('Erreur enregistrement fiche Balisage');
     return res.json();
 };
 
@@ -960,13 +961,13 @@ export const envoyerFicheBalisage = async(id) => {
     const res = await axios.put(`${FICHE_BALISAGE_API}/envoyer/${id}`);
     return res.data;
 };
-//inventaure 
+//inventaure
 // 🔹 GET BALISAGE
 export const getBalisage = async() => {
     const response = await fetch(`${BASE_URL}/api/gestionequipements/balisage`);
 
     if (!response.ok) {
-        throw new Error("Erreur lors de la récupération des données");
+        throw new Error('Erreur lors de la récupération des données');
     }
 
     return response.json();
@@ -977,7 +978,7 @@ export const getPG = async() => {
     const response = await fetch(`${BASE_URL}/api/gestionequipements/pg`);
 
     if (!response.ok) {
-        throw new Error("Erreur lors de la récupération des données");
+        throw new Error('Erreur lors de la récupération des données');
     }
 
     return response.json();
@@ -988,12 +989,11 @@ export const getAutre = async() => {
     const response = await fetch(`${BASE_URL}/api/gestionequipements/autre`);
 
     if (!response.ok) {
-        throw new Error("Erreur lors de la récupération des données");
+        throw new Error('Erreur lors de la récupération des données');
     }
 
     return response.json();
 };
-
 
 export const getDesignations = async(type) => {
     try {
@@ -1006,9 +1006,8 @@ export const getDesignations = async(type) => {
         const data = await response.json();
 
         return Array.isArray(data) ? data : [];
-
     } catch (error) {
-        console.error("Erreur getDesignations :", error);
+        console.error('Erreur getDesignations :', error);
         return [];
     }
 };
@@ -1018,7 +1017,7 @@ export const getAllDesignations = async() => {
     const res = await fetch(`${BASE_URL}/api/fiche-corrective/all`);
 
     if (!res.ok) {
-        throw new Error("Erreur récupération designations ❌");
+        throw new Error('Erreur récupération designations ');
     }
 
     return res.json();
@@ -1026,41 +1025,37 @@ export const getAllDesignations = async() => {
 
 export const updateStock = async(data) => {
     const res = await fetch(`${BASE_URL}/api/fiche-corrective/update-stock`, {
-        method: "PUT",
+        method: 'PUT',
         headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
     });
 
     if (!res.ok) {
-        throw new Error("Erreur update stock ❌");
+        throw new Error('Erreur update stock ❌');
     }
 
     return res.json();
 };
 
-
-
-
 export const addEquipement = async(data) => {
     try {
         const response = await fetch(`${BASE_URL}/api/stock/equipement`, {
-            method: "POST",
+            method: 'POST',
             headers: {
-                "Content-Type": "application/json"
+                'Content-Type': 'application/json',
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify(data),
         });
 
         if (!response.ok) {
             const errorText = await response.text();
-            throw new Error(errorText || "Erreur ajout équipement");
+            throw new Error(errorText || 'Erreur ajout équipement');
         }
         return await response.json();
-
     } catch (error) {
-        console.error("Erreur addEquipement :", error);
+        console.error('Erreur addEquipement :', error);
         throw error;
     }
 };
@@ -1068,18 +1063,18 @@ export const addEquipement = async(data) => {
 // ================= GET =================
 export const getFichesBrigade = async() => {
     const res = await fetch(BRIGADE_API);
-    if (!res.ok) throw new Error("Erreur récupération fiches Brigade");
+    if (!res.ok) throw new Error('Erreur récupération fiches Brigade');
     return res.json();
 };
 
 // ================= CREATE =================
 export const enregistrerFicheBrigade = async(fiche) => {
     const res = await fetch(BRIGADE_API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(fiche),
     });
-    if (!res.ok) throw new Error("Erreur enregistrement fiche Brigade");
+    if (!res.ok) throw new Error('Erreur enregistrement fiche Brigade');
     return res.json();
 };
 
@@ -1087,4 +1082,23 @@ export const enregistrerFicheBrigade = async(fiche) => {
 export const envoyerFicheBrigade = async(id) => {
     const res = await axios.put(`${BRIGADE_API}/envoyer/${id}`);
     return res.data;
+};
+
+export const getHistoriqueTechnicienActions = async() => {
+    const res = await fetch(`${BASE_URL}/api/historique-technicien`);
+
+    if (!res.ok) {
+        throw new Error('Erreur récupération historique ');
+    }
+
+    return res.json();
+};
+export const getFicheCorrectiveDetail = async(id) => {
+    const res = await fetch(`${BASE_URL}/api/fiche-corrective/${id}`);
+
+    if (!res.ok) {
+        throw new Error("Erreur récupération fiche ");
+    }
+
+    return res.json();
 };

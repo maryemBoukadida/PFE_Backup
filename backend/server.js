@@ -111,6 +111,11 @@ app.use("/api/fiche-ann-infrastructure", ficheAnnInfrastructureRoutes);
 
 const historiqueActionsRoutes = require("./routes/historiqueActionsRoutes");
 app.use("/api/historique-actions", historiqueActionsRoutes);
+// histroiques techenein
+const historiqueRoutes = require('./routes/historiqueRoutes');
+app.use('/api/historique-technicien', historiqueRoutes);
+
+
 // fiche hors sql 
 const ficheHorsSqlRoutes = require("./routes/ficheHorsSqlRoutes");
 app.use("/api/fiche-hors-sql", ficheHorsSqlRoutes);

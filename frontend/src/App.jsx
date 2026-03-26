@@ -9,9 +9,10 @@ import FicheCorrective from './components/FicheCorrective';
 import GestionInventaireHm from './components/GestionInventaire';
 import GestionEquipement from './components/Gestionequipement';
 import GestionStock from './components/Gestionstock';
-import BalisagePage from "./components/BalisagePage";
-import PGPage from "./components/PGPage";
+import BalisagePage from './components/BalisagePage';
+import PGPage from './components/PGPage';
 import AutrePage from './components/AutrePage';
+import HistoriqueTechnicien from './components/HistoriqueTechnicien ';
 //import TechNotifications from "./TechNotifications";
 function App() {
   return (
@@ -21,6 +22,10 @@ function App() {
         <Route path="/equipements" element={<Equipements />} />
         <Route path="/historiques" element={<Historiques />} />
         <Route path="/historique-actions" element={<HistoriqueActions />} />
+        <Route
+          path="/historique-actions-tech"
+          element={<HistoriqueTechnicien />}
+        />
 
         <Route
           path="/technicien"
@@ -31,12 +36,12 @@ function App() {
           }
         />
         <Route path="/fiche-corrective" element={<FicheCorrective />} />
-<Route path="/gestion-inventaire" element={<GestionInventaireHm />}>
-  <Route index element={<GestionInventaireHm />} />
-  <Route path="equipements" element={<GestionEquipement />} />
-  <Route path="stocks" element={<GestionStock />} />
-</Route>
-<Route path="/gestion-equipement" element={<GestionEquipement />} />
+        <Route path="/gestion-inventaire" element={<GestionInventaireHm />}>
+          <Route index element={<GestionInventaireHm />} />
+          <Route path="equipements" element={<GestionEquipement />} />
+          <Route path="stocks" element={<GestionStock />} />
+        </Route>
+        <Route path="/gestion-equipement" element={<GestionEquipement />} />
         <Route path="/balisage" element={<BalisagePage />} />
         <Route path="/pg" element={<PGPage />} />
         <Route path="/autre" element={<AutrePage />} />
