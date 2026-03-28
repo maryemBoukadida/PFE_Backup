@@ -24,9 +24,9 @@ const initialPointsControle = [
   { specification:"", designation:"Etat des circuits de commande des pompes et indicateur jaugeage des citernes", matin:{normal:false,anomalie:false}, apresMidi:{normal:false,anomalie:false}, nuit:{normal:false,anomalie:false} },
   { specification:"", designation:"Etat du panneau de synchronisation DST4601/PX", matin:{normal:false,anomalie:false}, apresMidi:{normal:false,anomalie:false}, nuit:{normal:false,anomalie:false} },
   { specification:"", designation:"Horaire de GPE", matin:{normal:false,anomalie:false}, apresMidi:{normal:false,anomalie:false}, nuit:{normal:false,anomalie:false} },
-  { specification:"", designation:"Etat de commutateur Aut/Man", matin:{normal:false,anomalie:false}, apresMidi:{normal:false,anomalie:false}, nuit:{normal:false,anomalie:false} },
+  { specification:"", designation:"Etat de commutateur ", matin:{normal:false,anomalie:false}, apresMidi:{normal:false,anomalie:false}, nuit:{normal:false,anomalie:false} },
   { specification:"", designation:"Etat des connections, branchements des câbles électriques, relais et cartes électroniques", matin:{normal:false,anomalie:false}, apresMidi:{normal:false,anomalie:false}, nuit:{normal:false,anomalie:false} },
-  { specification:"", designation:"Etat de commutateur PIX 12 Aut/Man", matin:{normal:false,anomalie:false}, apresMidi:{normal:false,anomalie:false}, nuit:{normal:false,anomalie:false} },
+  { specification:"", designation:"Etat de commutateur PIX 12 ", matin:{normal:false,anomalie:false}, apresMidi:{normal:false,anomalie:false}, nuit:{normal:false,anomalie:false} },
 ];
 
 // =======================
@@ -137,168 +137,210 @@ const handleChangeNested = (section, field, value) => {
 
   // ================= UI =================
   return (
-    <form onSubmit={handleSubmit} style={{ maxWidth: "1000px", margin: "auto" }}>
+    <form
+      onSubmit={handleSubmit}
+      style={{ maxWidth: '1000px', margin: 'auto' }}
+    >
       <h2>Fiche 2250KVA</h2>
 
       <label>Date</label>
-      <DatePicker selected={fiche.date} onChange={(d)=>handleChange("date",d)} />
- <label>Désignation</label>
-          <input value={fiche.designation} onChange={(e) => handleChange("designation", e.target.value)} className="input"/>
-     <label>Lieu d'installation</label>
-          <input value={fiche.lieuInstallation} onChange={(e) => handleChange("lieuInstallation", e.target.value)} className="input"/>
+      <DatePicker
+        selected={fiche.date}
+        onChange={(d) => handleChange('date', d)}
+      />
+      <label>Désignation</label>
+      <input
+        value={fiche.designation}
+        onChange={(e) => handleChange('designation', e.target.value)}
+        className="input"
+      />
+      <label>Lieu d'installation</label>
+      <input
+        value={fiche.lieuInstallation}
+        onChange={(e) => handleChange('lieuInstallation', e.target.value)}
+        className="input"
+      />
 
       <h3>Points de contrôle</h3>
 
-<table className="table-controle">
-  <thead>
-    <tr>
-      <th>Spécification</th>
-      <th>Désignation</th>
+      <table className="table-controle">
+        <thead>
+          <tr>
+            <th>Spécification</th>
+            <th>Désignation</th>
 
-      <th colSpan="2">Matin</th>
-      <th colSpan="2">Après-midi</th>
-      <th colSpan="2">Nuit</th>
-    </tr>
+            <th colSpan="2">Matin</th>
+            <th colSpan="2">Après-midi</th>
+            <th colSpan="2">Nuit</th>
+          </tr>
 
-    <tr>
-      <th></th>
-      <th></th>
+          <tr>
+            <th></th>
+            <th></th>
 
-      <th>Normal</th>
-      <th>Anomalie</th>
+            <th>Normal</th>
+            <th>Anomalie</th>
 
-      <th>Normal</th>
-      <th>Anomalie</th>
+            <th>Normal</th>
+            <th>Anomalie</th>
 
-      <th>Normal</th>
-      <th>Anomalie</th>
-    </tr>
-  </thead>
+            <th>Normal</th>
+            <th>Anomalie</th>
+          </tr>
+        </thead>
 
-  <tbody>
-    {fiche.pointsControle.map((c, i) => (
-      <tr key={i}>
-        
-        {/* SPECIFICATION */}
-        <td>{c.specification}</td>
+        <tbody>
+          {fiche.pointsControle.map((c, i) => (
+            <tr key={i}>
+              {/* SPECIFICATION */}
+              <td>{c.specification}</td>
 
-        {/* DESIGNATION */}
-        <td>{c.designation}</td>
+              {/* DESIGNATION */}
+              <td>{c.designation}</td>
 
-        {/* MATIN */}
-        <td>
-          <input
-            type="checkbox"
-            checked={c.matin.normal}
-            onChange={() => handleCheckbox(i, "matin", "normal")}
-            disabled={isDisabled("matin")}
+              {/* MATIN */}
+              <td>
+                <input
+                  type="checkbox"
+                  checked={c.matin.normal}
+                  onChange={() => handleCheckbox(i, 'matin', 'normal')}
+                  disabled={isDisabled('matin')}
+                />
+              </td>
+              <td>
+                <input
+                  type="checkbox"
+                  checked={c.matin.anomalie}
+                  onChange={() => handleCheckbox(i, 'matin', 'anomalie')}
+                  disabled={isDisabled('matin')}
+                />
+              </td>
+
+              {/* APRES MIDI */}
+              <td>
+                <input
+                  type="checkbox"
+                  checked={c.apresMidi.normal}
+                  onChange={() => handleCheckbox(i, 'apresMidi', 'normal')}
+                  disabled={isDisabled('apresMidi')}
+                />
+              </td>
+              <td>
+                <input
+                  type="checkbox"
+                  checked={c.apresMidi.anomalie}
+                  onChange={() => handleCheckbox(i, 'apresMidi', 'anomalie')}
+                  disabled={isDisabled('apresMidi')}
+                />
+              </td>
+
+              {/* NUIT */}
+              <td>
+                <input
+                  type="checkbox"
+                  checked={c.nuit.normal}
+                  onChange={() => handleCheckbox(i, 'nuit', 'normal')}
+                  disabled={isDisabled('nuit')}
+                />
+              </td>
+              <td>
+                <input
+                  type="checkbox"
+                  checked={c.nuit.anomalie}
+                  onChange={() => handleCheckbox(i, 'nuit', 'anomalie')}
+                  disabled={isDisabled('nuit')}
+                />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <h3>Temps inspection</h3>
+      {['matin', 'apresMidi', 'nuit'].map((period) => (
+        <div key={period}>
+          <label>{period} Début</label>
+          <TimePicker
+            value={fiche.tempsInspection[period].debut}
+            onChange={(t) =>
+              handleChangeNested('tempsInspection', period, {
+                ...fiche.tempsInspection[period],
+                debut: t,
+              })
+            }
+            disabled={isDisabled(period)} // <-- ici
           />
-        </td>
-        <td>
-          <input
-            type="checkbox"
-            checked={c.matin.anomalie}
-            onChange={() => handleCheckbox(i, "matin", "anomalie")}
-            disabled={isDisabled("matin")}
+          <label>{period} Fin</label>
+          <TimePicker
+            value={fiche.tempsInspection[period].fin}
+            onChange={(t) =>
+              handleChangeNested('tempsInspection', period, {
+                ...fiche.tempsInspection[period],
+                fin: t,
+              })
+            }
+            disabled={isDisabled(period)} // <-- ici
           />
-        </td>
+          <span>Alloué: {fiche.tempsInspection[period].tempsAlloue}</span>
+        </div>
+      ))}
 
-        {/* APRES MIDI */}
-        <td>
-          <input
-            type="checkbox"
-            checked={c.apresMidi.normal}
-            onChange={() => handleCheckbox(i, "apresMidi", "normal")}
-            disabled={isDisabled("apresMidi")}
+      {/* Observations */}
+      <h3>Observations</h3>
+      {['matin', 'apresMidi', 'nuit'].map((period) => (
+        <div key={period}>
+          <label>{period}</label>
+          <textarea
+            value={fiche.observations[period]}
+            onChange={(e) =>
+              handleChangeNested('observations', period, e.target.value)
+            }
+            disabled={isDisabled(period)} // <-- ici
           />
-        </td>
-        <td>
+        </div>
+      ))}
+
+      {/* Techniciens */}
+      <h3>Techniciens</h3>
+      {['matin', 'apresMidi', 'nuit'].map((period) => (
+        <div key={period}>
+          <label>{period}</label>
           <input
-            type="checkbox"
-            checked={c.apresMidi.anomalie}
-            onChange={() => handleCheckbox(i, "apresMidi", "anomalie")}
-            disabled={isDisabled("apresMidi")}
+            value={fiche.techniciens[period].join(', ')}
+            onChange={(e) =>
+              handleChangeNested(
+                'techniciens',
+                period,
+                e.target.value.split(',').map((s) => s.trim())
+              )
+            }
+            placeholder="Nom technicien(s), séparé par virgule"
+            disabled={isDisabled(period)} // <-- ici
           />
-        </td>
-
-        {/* NUIT */}
-        <td>
-          <input
-            type="checkbox"
-            checked={c.nuit.normal}
-            onChange={() => handleCheckbox(i, "nuit", "normal")}
-            disabled={isDisabled("nuit")}
-          />
-        </td>
-        <td>
-          <input
-            type="checkbox"
-            checked={c.nuit.anomalie}
-            onChange={() => handleCheckbox(i, "nuit", "anomalie")}
-            disabled={isDisabled("nuit")}
-          />
-        </td>
-
-      </tr>
-    ))}
-  </tbody>
-</table>
-
- <h3>Temps inspection</h3>
- {["matin","apresMidi","nuit"].map(period => (
-   <div key={period}>
-     <label>{period} Début</label>
-     <TimePicker
-       value={fiche.tempsInspection[period].debut}
-       onChange={(t) => handleChangeNested("tempsInspection", period, { ...fiche.tempsInspection[period], debut: t })}
-       disabled={isDisabled(period)} // <-- ici
-     />
-     <label>{period} Fin</label>
-     <TimePicker
-       value={fiche.tempsInspection[period].fin}
-       onChange={(t) => handleChangeNested("tempsInspection", period, { ...fiche.tempsInspection[period], fin: t })}
-       disabled={isDisabled(period)} // <-- ici
-     />
-     <span>Alloué: {fiche.tempsInspection[period].tempsAlloue}</span>
-   </div>
- ))}
-
-     
-    {/* Observations */}
-<h3>Observations</h3>
-{["matin","apresMidi","nuit"].map(period => (
-  <div key={period}>
-    <label>{period}</label>
-    <textarea
-      value={fiche.observations[period]}
-      onChange={(e) => handleChangeNested("observations", period, e.target.value)}
-      disabled={isDisabled(period)} // <-- ici
-    />
-  </div>
-))}
-
-         {/* Techniciens */}
-<h3>Techniciens</h3>
-{["matin","apresMidi","nuit"].map(period => (
-  <div key={period}>
-    <label>{period}</label>
-    <input
-      value={fiche.techniciens[period].join(", ")}
-      onChange={(e) => handleChangeNested("techniciens", period, e.target.value.split(",").map(s => s.trim()))}
-      placeholder="Nom technicien(s), séparé par virgule"
-      disabled={isDisabled(period)} // <-- ici
-    />
-  </div>
-))}
-
+        </div>
+      ))}
 
       <button type="submit">Enregistrer</button>
-      <button type="button" onClick={handleEnvoyer}>Envoyer</button>
+      <button type="button" onClick={handleEnvoyer}>
+        Envoyer
+      </button>
       <button type="button" onClick={() => window.location.reload()}>
-  Retour
-</button>
+        Retour
+      </button>
+      <div
+        style={{
+          marginTop: '40px',
+          paddingTop: '20px',
+          borderTop: '2px solid #ddd',
+          textAlign: 'center',
+          fontSize: '12px',
+          color: '#666',
+          fontStyle: 'italic',
+        }}
+      >
+        <p style={{ margin: '0' }}>Doc N°:TAVTUN/NBE.TD.BAL.FM.075</p>
+      </div>
     </form>
-    
   );
 }
 

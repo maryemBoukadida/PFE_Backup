@@ -12,7 +12,7 @@ router.put("/enregistrer/:id", ficheFeuxObstaclesController.enregistrerFicheFeux
 
 // POST : envoyer la fiche → crée notification
 router.post("/envoyer/:id", ficheFeuxObstaclesController.envoyerFicheFeuxObstacles);
-
+router.post('/valider', ficheFeuxObstaclesController.validerFicheFeuxObstacles);
 
 // Pour récupérer toutes les notifications
 router.get("/:id", ficheFeuxObstaclesController.getFicheDGSById);

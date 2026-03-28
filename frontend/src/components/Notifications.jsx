@@ -1684,8 +1684,2882 @@ export default function Notifications() {
             : 'date_inconnue'
         }.pdf`
       );
+      // ===================== EXPORT PDF annuelle fiche correcctive // =====================
+    } else if (selectedFiche?.ficheCorrective) {
+      const fc = selectedFiche.ficheCorrective[0];
+      const doc = new jsPDF();
+
+      // ================= EN-TÊTE PROFESSIONNEL =================
+      doc.setFillColor(231, 76, 60);
+      doc.rect(0, 0, doc.internal.pageSize.width, 25, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'bold');
+      doc.text('FICHE CORRECTIVE - GMAO', 14, 18);
+
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+
+      // ================= INFORMATIONS GÉNÉRALES =================
+      let startY = 32;
+
+      doc.setFillColor(255, 245, 245);
+      doc.rect(14, startY, 180, 45, 'F');
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(231, 76, 60);
+      doc.text('📋 INFORMATIONS GÉNÉRALES', 14, startY + 6);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(0, 0, 0);
+
+      // Ligne 1
+      doc.text(
+        `📅 Date d'intervention : ${fc.date ? new Date(fc.date).toLocaleDateString('fr-FR') : 'Non spécifiée'}`,
+        14,
+        startY + 14
+      );
+
+      doc.text(
+        `🔖 N° Fiche : ${fc.numeroFiche || selectedFiche._id?.slice(-8) || 'FC-' + Math.random().toString(36).substr(2, 8)}`,
+        110,
+        startY + 14
+      );
+
+      // Ligne 2
+      doc.text(
+        `📍 Lieu d'installation : ${fc.lieuInstallation || 'Non spécifié'}`,
+        14,
+        startY + 21
+      );
+
+      doc.text(
+        `🏭 Équipement : ${fc.equipement || 'Non spécifié'}`,
+        110,
+        startY + 21
+      );
+
+      // Ligne 3
+      doc.text(
+        `👨‍🔧 Technicien(s) : ${fc.techniciensOperateurs?.map((t) => t.nom).join(', ') || 'Non spécifié'}`,
+        14,
+        startY + 28
+      );
+
+      doc.text(`📊 Priorité : ${fc.priorite || 'Normale'}`, 110, startY + 28);
+
+      // Ligne 4 - Observations générales
+      doc.text(
+        `📝 Observations générales : ${fc.observationsGenerales || 'Aucune observation'}`,
+        14,
+        startY + 35,
+        { maxWidth: 180 }
+      );
+
+      startY = startY + 55;
+
+      // ================= SECTION DIAGNOSTIC =================
+      doc.setFillColor(231, 76, 60);
+      doc.rect(14, startY, 180, 8, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('🔍 DIAGNOSTIC DE PANNE', 14, startY + 6);
+
+      doc.setTextColor(0, 0, 0);
+      startY += 12;
+
+      if (fc.diagnostic && fc.diagnostic.length > 0) {
+        const diagColumns = [
+          'N°',
+          'Panne / Cause',
+          'Effet constaté',
+          'Gravité',
+          'Statut',
+        ];
+        const diagRows = fc.diagnostic.map((d, idx) => [
+          (idx + 1).toString(),
+          d.panneCause || '',
+          d.effet || '',
+          d.gravite || '',
+          d.resolu ? '✅ Résolu' : '⚠️ En cours',
+        ]);
+
+        autoTable(doc, {
+          head: [diagColumns],
+          body: diagRows,
+          startY: startY,
+          theme: 'striped',
+          headStyles: {
+            fillColor: [231, 76, 60],
+            textColor: 255,
+            fontSize: 10,
+            fontStyle: 'bold',
+          },
+          styles: {
+            fontSize: 9,
+            cellPadding: 4,
+            valign: 'middle',
+          },
+          columnStyles: {
+            0: { cellWidth: 15, halign: 'center' },
+            1: { cellWidth: 60 },
+            2: { cellWidth: 55 },
+            3: { cellWidth: 25, halign: 'center' },
+            4: { cellWidth: 25, halign: 'center' },
+          },
+          alternateRowStyles: { fillColor: [255, 245, 245] },
+        });
+
+        startY = doc.lastAutoTable.finalY + 15;
+      } else {
+        doc.setFont('helvetica', 'italic');
+        doc.setTextColor(150, 150, 150);
+        doc.text('Aucun diagnostic enregistré', 14, startY);
+        doc.setTextColor(0, 0, 0);
+        doc.setFont('helvetica', 'normal');
+        startY += 10;
+      }
+
+      // ================= SECTION DÉPANNAGE ET RÉPARATION =================
+      if (startY > doc.internal.pageSize.height - 80) {
+        doc.addPage();
+        startY = 20;
+      }
+
+      doc.setFillColor(46, 204, 113);
+      doc.rect(14, startY, 180, 8, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('🛠️ DÉPANNAGE & RÉPARATION', 14, startY + 6);
+
+      doc.setTextColor(0, 0, 0);
+      startY += 12;
+
+      if (fc.depannageReparation && fc.depannageReparation.length > 0) {
+        const depColumns = [
+          'N°',
+          'Pièce de rechange',
+          'Quantité',
+          'Référence',
+          'Coût unitaire',
+          'Total',
+        ];
+        const depRows = fc.depannageReparation.map((d, idx) => [
+          (idx + 1).toString(),
+          d.piecesDeRechange || '',
+          d.quantite || '0',
+          d.reference || '',
+          d.coutUnitaire ? `${d.coutUnitaire} €` : '',
+          d.total ? `${d.total} €` : '',
+        ]);
+
+        autoTable(doc, {
+          head: [depColumns],
+          body: depRows,
+          startY: startY,
+          theme: 'striped',
+          headStyles: {
+            fillColor: [46, 204, 113],
+            textColor: 255,
+            fontSize: 10,
+            fontStyle: 'bold',
+          },
+          styles: {
+            fontSize: 9,
+            cellPadding: 4,
+          },
+          columnStyles: {
+            0: { cellWidth: 12, halign: 'center' },
+            1: { cellWidth: 65 },
+            2: { cellWidth: 15, halign: 'center' },
+            3: { cellWidth: 35 },
+            4: { cellWidth: 25, halign: 'right' },
+            5: { cellWidth: 28, halign: 'right' },
+          },
+          alternateRowStyles: { fillColor: [245, 255, 245] },
+        });
+
+        startY = doc.lastAutoTable.finalY + 10;
+
+        // Calcul du total général
+        const totalGeneral = fc.depannageReparation.reduce(
+          (sum, d) => sum + (parseFloat(d.total) || 0),
+          0
+        );
+        if (totalGeneral > 0) {
+          doc.setFont('helvetica', 'bold');
+          doc.text(
+            `💰 Total général : ${totalGeneral.toFixed(2)} €`,
+            140,
+            startY
+          );
+          doc.setFont('helvetica', 'normal');
+          startY += 8;
+        }
+      } else {
+        doc.setFont('helvetica', 'italic');
+        doc.setTextColor(150, 150, 150);
+        doc.text('Aucune pièce de rechange utilisée', 14, startY);
+        doc.setTextColor(0, 0, 0);
+        doc.setFont('helvetica', 'normal');
+        startY += 10;
+      }
+
+      // ================= TEMPS D'INTERVENTION =================
+      if (startY > doc.internal.pageSize.height - 70) {
+        doc.addPage();
+        startY = 20;
+      }
+
+      doc.setFillColor(52, 152, 219);
+      doc.rect(14, startY, 180, 8, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text("⏱️ TEMPS D'INTERVENTION", 14, startY + 6);
+
+      doc.setTextColor(0, 0, 0);
+      startY += 15;
+
+      doc.setFillColor(240, 248, 255);
+      doc.rect(14, startY, 180, 45, 'F');
+
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+
+      doc.text("🕐 Début d'intervention :", 20, startY + 8);
+      doc.setFont('helvetica', 'bold');
+      doc.text(fc.debutIntervention || 'Non spécifié', 80, startY + 8);
+
+      doc.setFont('helvetica', 'normal');
+      doc.text('🕒 Remise en service :', 20, startY + 16);
+      doc.setFont('helvetica', 'bold');
+      doc.text(fc.remiseEnService || 'Non spécifié', 80, startY + 16);
+
+      doc.setFont('helvetica', 'normal');
+      doc.text('⏳ Temps alloué :', 20, startY + 24);
+      doc.setFont('helvetica', 'bold');
+      doc.text(fc.tempsAlloue || 'Non spécifié', 80, startY + 24);
+
+      // Calcul de la durée si les deux temps sont renseignés
+      if (fc.debutIntervention && fc.remiseEnService) {
+        doc.setFont('helvetica', 'normal');
+        doc.text('⏱️ Durée totale :', 20, startY + 32);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(46, 204, 113);
+        doc.text('Calcul automatique', 80, startY + 32);
+        doc.setTextColor(0, 0, 0);
+      }
+
+      startY += 55;
+
+      // ================= SIGNATURES =================
+      if (startY > doc.internal.pageSize.height - 100) {
+        doc.addPage();
+        startY = 20;
+      }
+
+      doc.setFillColor(241, 196, 15);
+      doc.rect(14, startY, 180, 8, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('✍️ VALIDATIONS ET SIGNATURES', 14, startY + 6);
+
+      doc.setTextColor(0, 0, 0);
+      startY += 20;
+
+      // Signature technicien
+      if (fc.signature) {
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Signature du technicien :', 14, startY);
+
+        try {
+          const imgProps = doc.getImageProperties(fc.signature);
+          const imgWidth = 80;
+          const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+
+          doc.setDrawColor(200, 200, 200);
+          doc.setLineWidth(0.5);
+          doc.rect(14, startY + 4, imgWidth + 10, imgHeight + 8);
+
+          doc.addImage(
+            fc.signature,
+            'PNG',
+            18,
+            startY + 8,
+            imgWidth,
+            imgHeight
+          );
+
+          doc.setFontSize(8);
+          doc.setTextColor(0, 150, 0);
+          doc.text('✓ Signature apposée', 18, startY + imgHeight + 12);
+        } catch (err) {
+          console.error('Erreur signature:', err);
+          doc.setTextColor(255, 0, 0);
+          doc.text('❌ Signature non valide', 14, startY + 8);
+        }
+
+        startY += 55;
+      } else {
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(150, 150, 150);
+        doc.text('Signature du technicien :', 14, startY);
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.5);
+        doc.line(14, startY + 8, 100, startY + 8);
+        doc.text('(Non signé)', 14, startY + 12);
+        startY += 30;
+      }
+
+      // Signature responsable
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(0, 0, 0);
+      doc.text('Validation du responsable :', 14, startY);
+      doc.setDrawColor(0, 0, 0);
+      doc.line(14, startY + 8, 100, startY + 8);
+      doc.setFontSize(7);
+      doc.setTextColor(100, 100, 100);
+      doc.text('Date et signature', 45, startY + 12);
+
+      startY += 25;
+
+      // ================= COMMENTAIRES FINAUX =================
+      if (fc.commentairesFinaux) {
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(0, 0, 0);
+        doc.text('📌 Commentaires finaux :', 14, startY);
+        doc.setFont('helvetica', 'normal');
+        doc.text(fc.commentairesFinaux, 14, startY + 6, { maxWidth: 180 });
+      }
+
+      // ================= PIED DE PAGE =================
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.5);
+        doc.line(
+          14,
+          doc.internal.pageSize.height - 20,
+          doc.internal.pageSize.width - 14,
+          doc.internal.pageSize.height - 20
+        );
+
+        doc.setFontSize(8);
+        doc.setTextColor(100, 100, 100);
+        doc.text(
+          `Document GMAO - Fiche Corrective - Page ${i} / ${pageCount}`,
+          14,
+          doc.internal.pageSize.height - 12
+        );
+        doc.text(
+          new Date().toLocaleString('fr-FR'),
+          doc.internal.pageSize.width - 45,
+          doc.internal.pageSize.height - 12
+        );
+      }
+
+      // ================= SAUVEGARDE =================
+      const dateStr = fc.date
+        ? new Date(fc.date).toISOString().split('T')[0]
+        : new Date().toISOString().split('T')[0];
+
+      doc.save(`GMAO_Fiche_Corrective_${dateStr}.pdf`);
+
+      // ===================== EXPORT PDF no break// =====================
+    } else if (selectedFiche?.controles) {
+      const doc = new jsPDF();
+
+      // ================= EN-TÊTE PROFESSIONNEL =================
+      doc.setFillColor(155, 89, 182);
+      doc.rect(0, 0, doc.internal.pageSize.width, 25, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'bold');
+      doc.text('FICHE NO-BREAK - CONTRÔLE ONDULEUR', 14, 18);
+
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+
+      // ================= INFORMATIONS GÉNÉRALES =================
+      let startY = 32;
+
+      doc.setFillColor(250, 240, 255);
+      doc.rect(14, startY, 180, 45, 'F');
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(155, 89, 182);
+      doc.text('📋 INFORMATIONS GÉNÉRALES', 14, startY + 6);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(0, 0, 0);
+
+      doc.text(
+        `📅 Date du contrôle : ${selectedFiche.date ? new Date(selectedFiche.date).toLocaleDateString('fr-FR') : 'Non spécifiée'}`,
+        14,
+        startY + 14
+      );
+
+      doc.text(
+        `🔖 N° Fiche : ${selectedFiche.numeroFiche || selectedFiche._id?.slice(-8) || 'NB-' + Math.random().toString(36).substr(2, 8)}`,
+        110,
+        startY + 14
+      );
+
+      doc.text(
+        `📍 Lieu d'installation : ${selectedFiche.lieuInstallation || 'Non spécifié'}`,
+        14,
+        startY + 21
+      );
+
+      doc.text(`🏭 Équipement : Onduleur No-Break`, 110, startY + 21);
+
+      doc.text(
+        `🏷️ Désignation : ${selectedFiche.designation || 'Non spécifiée'}`,
+        14,
+        startY + 28
+      );
+
+      doc.text(
+        `📊 Type d'onduleur : ${selectedFiche.typeOnduleur || 'Non spécifié'}`,
+        110,
+        startY + 28
+      );
+
+      doc.text(
+        `🔋 Capacité batteries : ${selectedFiche.capaciteBatteries || 'Non spécifiée'}`,
+        14,
+        startY + 35
+      );
+
+      doc.text(
+        `👤 Contrôleur : ${selectedFiche.controleur || 'Non spécifié'}`,
+        110,
+        startY + 35
+      );
+
+      startY = startY + 55;
+
+      // ================= TABLEAU DES CONTROLES =================
+      doc.setFillColor(155, 89, 182);
+      doc.rect(14, startY, 180, 8, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text(
+        '🔍 POINTS DE CONTRÔLE - ÉTAT DE FONCTIONNEMENT',
+        14,
+        startY + 6
+      );
+
+      doc.setTextColor(0, 0, 0);
+      startY += 12;
+
+      const getStatusIcon = (period) => {
+        if (period.normal) return { text: '✔ Normal', color: [46, 204, 113] };
+        if (period.anomalie)
+          return { text: '⚠ Anomalie', color: [231, 76, 60] };
+        return { text: '⚪ Non contrôlé', color: [149, 165, 166] };
+      };
+
+      const tableColumn = [
+        'N°',
+        'Spécification',
+        'Désignation',
+        'Matin',
+        'A-Midi',
+        'Nuit',
+        'Statut',
+      ];
+
+      const tableRows = selectedFiche.controles.map((c, idx) => {
+        const matin = getStatusIcon(c.matin);
+        const apresMidi = getStatusIcon(c.apresMidi);
+        const nuit = getStatusIcon(c.nuit);
+
+        const hasAnomalie =
+          c.matin.anomalie || c.apresMidi.anomalie || c.nuit.anomalie;
+        const hasNormal = c.matin.normal || c.apresMidi.normal || c.nuit.normal;
+
+        let statut = '❌ Non contrôlé';
+        if (hasAnomalie) statut = '⚠️ Anomalie';
+        if (!hasAnomalie && hasNormal) statut = '✅ Conforme';
+
+        return [
+          (idx + 1).toString(),
+          c.specification || '',
+          c.designation || '',
+          matin.text,
+          apresMidi.text,
+          nuit.text,
+          statut,
+        ];
+      });
+
+      autoTable(doc, {
+        head: [tableColumn],
+        body: tableRows,
+        startY: startY,
+        theme: 'striped',
+        headStyles: {
+          fillColor: [155, 89, 182],
+          textColor: 255,
+          fontSize: 9,
+          fontStyle: 'bold',
+        },
+        styles: {
+          fontSize: 8,
+          cellPadding: 3,
+          valign: 'middle',
+        },
+        columnStyles: {
+          0: { cellWidth: 10, halign: 'center' },
+          1: { cellWidth: 45 },
+          2: { cellWidth: 45 },
+          3: { cellWidth: 20, halign: 'center' },
+          4: { cellWidth: 20, halign: 'center' },
+          5: { cellWidth: 20, halign: 'center' },
+          6: { cellWidth: 20, halign: 'center' },
+        },
+        alternateRowStyles: { fillColor: [250, 245, 255] },
+        rowStyles: (row, data) => {
+          const rowData = tableRows[data.row.index];
+          if (rowData && rowData[6] === '⚠️ Anomalie') {
+            return { fillColor: [255, 240, 245] };
+          }
+          return {};
+        },
+      });
+
+      startY = doc.lastAutoTable.finalY + 15;
+
+      // ================= SYNTHÈSE DES ANOMALIES =================
+      const anomalies = selectedFiche.controles.filter(
+        (c) => c.matin.anomalie || c.apresMidi.anomalie || c.nuit.anomalie
+      );
+
+      if (anomalies.length > 0) {
+        if (startY > doc.internal.pageSize.height - 80) {
+          doc.addPage();
+          startY = 20;
+        }
+
+        doc.setFillColor(231, 76, 60);
+        doc.rect(14, startY, 180, 8, 'F');
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.text('⚠️ SYNTHÈSE DES ANOMALIES DÉTECTÉES', 14, startY + 6);
+
+        doc.setTextColor(0, 0, 0);
+        startY += 15;
+
+        doc.setFillColor(255, 245, 245);
+        doc.rect(14, startY, 180, anomalies.length * 12 + 10, 'F');
+
+        anomalies.forEach((anomalie, idx) => {
+          const periods = [];
+          let description = '';
+
+          if (anomalie.matin.anomalie) {
+            periods.push('Matin');
+            description =
+              anomalie.matin.descriptionAnomalie ||
+              anomalie.matin.anomalie ||
+              '';
+          }
+          if (anomalie.apresMidi.anomalie) {
+            periods.push('Après-midi');
+            description =
+              anomalie.apresMidi.descriptionAnomalie ||
+              anomalie.apresMidi.anomalie ||
+              '';
+          }
+          if (anomalie.nuit.anomalie) {
+            periods.push('Nuit');
+            description =
+              anomalie.nuit.descriptionAnomalie || anomalie.nuit.anomalie || '';
+          }
+
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(231, 76, 60);
+          doc.text(
+            `⚠️ ${anomalie.specification || 'Point de contrôle'}`,
+            20,
+            startY + 6 + idx * 12
+          );
+
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(0, 0, 0);
+          doc.setFontSize(8);
+          doc.text(
+            `Période(s): ${periods.join(', ')}`,
+            30,
+            startY + 11 + idx * 12
+          );
+          if (description && description !== 'true') {
+            doc.text(`Description: ${description}`, 30, startY + 16 + idx * 12);
+          }
+        });
+
+        startY += anomalies.length * 12 + 25;
+      }
+
+      // ================= TEMPS D'INSPECTION =================
+      if (startY > doc.internal.pageSize.height - 80) {
+        doc.addPage();
+        startY = 20;
+      }
+
+      doc.setFillColor(52, 152, 219);
+      doc.rect(14, startY, 180, 8, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text("⏱️ TEMPS D'INSPECTION ET MESURES", 14, startY + 6);
+
+      doc.setTextColor(0, 0, 0);
+      startY += 15;
+
+      doc.setFillColor(240, 248, 255);
+      doc.rect(14, startY, 180, 65, 'F');
+
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+
+      let tempStartY = startY + 8;
+
+      ['matin', 'apresMidi', 'nuit'].forEach((p, idx) => {
+        const t = selectedFiche.tempsInspection[p] || {};
+        const periodeLabels = {
+          matin: '🌅 Matin (8h-14h)',
+          apresMidi: '☀️ Après-midi (14h-20h)',
+          nuit: '🌙 Nuit (20h-8h)',
+        };
+
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${periodeLabels[p]} :`, 20, tempStartY + idx * 14);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Début: ${t.debut || '---'}`, 80, tempStartY + idx * 14);
+        doc.text(`Fin: ${t.fin || '---'}`, 115, tempStartY + idx * 14);
+        doc.text(
+          `Durée: ${t.tempsAlloue || '0'} min`,
+          150,
+          tempStartY + idx * 14
+        );
+      });
+
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(52, 152, 219);
+      doc.text(
+        `📊 Temps total d'inspection : ${selectedFiche.tempsInspection.total || '0'} minutes`,
+        20,
+        tempStartY + 48
+      );
+      doc.setTextColor(0, 0, 0);
+
+      startY += 75;
+
+      // ================= MESURES ÉLECTRIQUES =================
+      if (selectedFiche.mesuresElectriques) {
+        if (startY > doc.internal.pageSize.height - 80) {
+          doc.addPage();
+          startY = 20;
+        }
+
+        doc.setFillColor(52, 73, 94);
+        doc.rect(14, startY, 180, 8, 'F');
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.text('⚡ MESURES ÉLECTRIQUES', 14, startY + 6);
+
+        doc.setTextColor(0, 0, 0);
+        startY += 15;
+
+        const mesures = selectedFiche.mesuresElectriques;
+        const mesuresColumns = [
+          'Paramètre',
+          'Matin',
+          'Après-midi',
+          'Nuit',
+          'Norme',
+          'Conforme',
+        ];
+        const mesuresRows = [
+          [
+            'Tension entrée (V)',
+            mesures.tensionEntree?.matin || '---',
+            mesures.tensionEntree?.apresMidi || '---',
+            mesures.tensionEntree?.nuit || '---',
+            '220V ± 10%',
+            mesures.tensionEntree?.conforme ? '✅' : '⚠️',
+          ],
+          [
+            'Tension sortie (V)',
+            mesures.tensionSortie?.matin || '---',
+            mesures.tensionSortie?.apresMidi || '---',
+            mesures.tensionSortie?.nuit || '---',
+            '220V ± 5%',
+            mesures.tensionSortie?.conforme ? '✅' : '⚠️',
+          ],
+          [
+            'Courant charge (A)',
+            mesures.courantCharge?.matin || '---',
+            mesures.courantCharge?.apresMidi || '---',
+            mesures.courantCharge?.nuit || '---',
+            'Selon charge',
+            mesures.courantCharge?.conforme ? '✅' : '⚠️',
+          ],
+          [
+            'Fréquence (Hz)',
+            mesures.frequence?.matin || '---',
+            mesures.frequence?.apresMidi || '---',
+            mesures.frequence?.nuit || '---',
+            '50Hz ± 1%',
+            mesures.frequence?.conforme ? '✅' : '⚠️',
+          ],
+          [
+            'Température (°C)',
+            mesures.temperature?.matin || '---',
+            mesures.temperature?.apresMidi || '---',
+            mesures.temperature?.nuit || '---',
+            '< 40°C',
+            mesures.temperature?.conforme ? '✅' : '⚠️',
+          ],
+        ];
+
+        autoTable(doc, {
+          head: [mesuresColumns],
+          body: mesuresRows,
+          startY: startY,
+          theme: 'striped',
+          headStyles: {
+            fillColor: [52, 73, 94],
+            textColor: 255,
+            fontSize: 8,
+          },
+          styles: { fontSize: 8, cellPadding: 3 },
+          columnStyles: {
+            0: { cellWidth: 35, fontStyle: 'bold' },
+            1: { cellWidth: 25, halign: 'center' },
+            2: { cellWidth: 25, halign: 'center' },
+            3: { cellWidth: 25, halign: 'center' },
+            4: { cellWidth: 35, halign: 'center' },
+            5: { cellWidth: 15, halign: 'center' },
+          },
+        });
+
+        startY = doc.lastAutoTable.finalY + 15;
+      }
+
+      // ================= OBSERVATIONS PAR PÉRIODE =================
+      if (startY > doc.internal.pageSize.height - 100) {
+        doc.addPage();
+        startY = 20;
+      }
+
+      doc.setFillColor(241, 196, 15);
+      doc.rect(14, startY, 180, 8, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('📝 OBSERVATIONS ET COMMENTAIRES', 14, startY + 6);
+
+      doc.setTextColor(0, 0, 0);
+      startY += 15;
+
+      ['matin', 'apresMidi', 'nuit'].forEach((p, idx) => {
+        const periodeLabels = {
+          matin: '🌅 Période Matin',
+          apresMidi: '☀️ Période Après-midi',
+          nuit: '🌙 Période Nuit',
+        };
+
+        const obs = selectedFiche.observations?.[p] || '';
+
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${periodeLabels[p]} :`, 14, startY + idx * 12);
+        doc.setFont('helvetica', 'normal');
+        doc.text(obs || 'Aucune observation', 65, startY + idx * 12, {
+          maxWidth: 125,
+        });
+      });
+
+      startY += 45;
+
+      // ================= TECHNICIENS ET SIGNATURES =================
+      if (startY > doc.internal.pageSize.height - 120) {
+        doc.addPage();
+        startY = 20;
+      }
+
+      doc.setFillColor(46, 204, 113);
+      doc.rect(14, startY, 180, 8, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text("👨‍🔧 TECHNICIENS D'INTERVENTION", 14, startY + 6);
+
+      doc.setTextColor(0, 0, 0);
+      startY += 15;
+
+      ['matin', 'apresMidi', 'nuit'].forEach((p, idx) => {
+        const periodeLabels = {
+          matin: '🌅 Matin',
+          apresMidi: '☀️ Après-midi',
+          nuit: '🌙 Nuit',
+        };
+
+        const techs = selectedFiche.techniciens?.[p] || [];
+        const techList = Array.isArray(techs) ? techs : [];
+
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${periodeLabels[p]} :`, 14, startY + idx * 10);
+        doc.setFont('helvetica', 'normal');
+
+        if (techList.length > 0) {
+          doc.text(techList.join(', '), 50, startY + idx * 10, {
+            maxWidth: 140,
+          });
+        } else {
+          doc.text('Aucun technicien affecté', 50, startY + idx * 10);
+        }
+      });
+
+      startY += 45;
+
+      // ================= SIGNATURES FINALES =================
+      if (startY > doc.internal.pageSize.height - 100) {
+        doc.addPage();
+        startY = 20;
+      }
+
+      doc.setFillColor(155, 89, 182);
+      doc.rect(14, startY, 180, 8, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('✍️ VALIDATIONS', 14, startY + 6);
+
+      doc.setTextColor(0, 0, 0);
+      startY += 20;
+
+      doc.setDrawColor(200, 200, 200);
+      doc.setLineWidth(0.5);
+
+      // Signature technicien
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Signature du technicien :', 14, startY);
+      doc.setDrawColor(0, 0, 0);
+      doc.line(14, startY + 6, 90, startY + 6);
+      doc.setFontSize(7);
+      doc.setTextColor(100, 100, 100);
+      doc.text('Nom et signature', 45, startY + 10);
+
+      // Signature responsable
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(0, 0, 0);
+      doc.text('Validation responsable technique :', 110, startY);
+      doc.setDrawColor(0, 0, 0);
+      doc.line(110, startY + 6, 190, startY + 6);
+      doc.setFontSize(7);
+      doc.setTextColor(100, 100, 100);
+      doc.text('Nom et signature', 145, startY + 10);
+
+      startY += 25;
+
+      // Cachet entreprise
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'italic');
+      doc.setTextColor(150, 150, 150);
+      doc.text("Cachet de l'entreprise", 150, startY);
+      doc.rect(145, startY - 8, 45, 20);
+
+      // ================= PIED DE PAGE =================
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.5);
+        doc.line(
+          14,
+          doc.internal.pageSize.height - 20,
+          doc.internal.pageSize.width - 14,
+          doc.internal.pageSize.height - 20
+        );
+
+        doc.setFontSize(8);
+        doc.setTextColor(100, 100, 100);
+        doc.text(
+          `Document GMAO - Fiche No-Break - Page ${i} / ${pageCount}`,
+          14,
+          doc.internal.pageSize.height - 12
+        );
+        doc.text(
+          new Date().toLocaleString('fr-FR'),
+          doc.internal.pageSize.width - 45,
+          doc.internal.pageSize.height - 12
+        );
+      }
+
+      // ================= SAUVEGARDE =================
+      const dateStr = selectedFiche.date
+        ? new Date(selectedFiche.date).toISOString().split('T')[0]
+        : new Date().toISOString().split('T')[0];
+
+      doc.save(`GMAO_Fiche_NoBreak_${dateStr}.pdf`);
+      // ===================== EXPORT PDF brigade =====================
+    } else if (selectedFiche?.blocsBrigade) {
+      const doc = new jsPDF();
+
+      // ================= EN-TÊTE PROFESSIONNEL =================
+      // Logo et titre principal
+      doc.setFillColor(41, 128, 185);
+      doc.rect(0, 0, doc.internal.pageSize.width, 25, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'bold');
+      doc.text('FICHE BRIGADE - GMAO', 14, 18);
+
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+
+      // ================= INFORMATIONS GÉNÉRALES =================
+      let startY = 32;
+
+      doc.setFillColor(240, 248, 255);
+      doc.rect(14, startY, 180, 32, 'F');
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text('📋 INFORMATIONS GÉNÉRALES', 14, startY + 6);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.text(
+        `📅 Date : ${selectedFiche.date ? new Date(selectedFiche.date).toLocaleDateString('fr-FR') : 'Non spécifiée'}`,
+        14,
+        startY + 14
+      );
+
+      doc.text(
+        `⏰ Heure d'émission : ${selectedFiche.heure || new Date().toLocaleTimeString('fr-FR')}`,
+        14,
+        startY + 21
+      );
+
+      doc.text(
+        `🔖 Identifiant : ${selectedFiche._id?.slice(-8) || 'FICHE-' + Math.random().toString(36).substr(2, 8)}`,
+        110,
+        startY + 14
+      );
+
+      doc.text(
+        `👤 Opérateur : ${selectedFiche.operateur || 'Système GMAO'}`,
+        110,
+        startY + 21
+      );
+
+      startY = startY + 42;
+
+      // ================= TABLEAU DES CONSIGNES ET INSPECTIONS =================
+      doc.setFillColor(52, 152, 219);
+      doc.rect(14, startY, 180, 8, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('CONSIGNES ET INSPECTIONS', 14, startY + 6);
+
+      doc.setTextColor(0, 0, 0);
+      startY += 12;
+
+      const tableColumn = ['Période', 'Consignes', 'Inspection', 'Statut'];
+      let tableRows = [];
+
+      const periodeLabels = {
+        matin: '🌅 Matin (8h-14h)',
+        apresMidi: '☀️ Après-midi (14h-20h)',
+        nuit: '🌙 Nuit (20h-8h)',
+      };
+
+      ['matin', 'apresMidi', 'nuit'].forEach((bloc) => {
+        const lignes = selectedFiche.blocsBrigade[bloc] || [];
+
+        if (lignes.length === 0) {
+          tableRows.push([
+            periodeLabels[bloc],
+            'Aucune consigne',
+            'Aucune inspection',
+            '❌ Non renseigné',
+          ]);
+        } else {
+          lignes.forEach((row, idx) => {
+            const statut =
+              row.consigne && row.inspection ? '✅ Complété' : '⚠️ Partiel';
+            tableRows.push([
+              idx === 0 ? periodeLabels[bloc] : '',
+              row.consigne || '',
+              row.inspection || '',
+              statut,
+            ]);
+          });
+        }
+      });
+
+      autoTable(doc, {
+        head: [tableColumn],
+        body: tableRows,
+        startY: startY,
+        theme: 'striped',
+        headStyles: {
+          fillColor: [52, 152, 219],
+          textColor: 255,
+          fontSize: 10,
+          fontStyle: 'bold',
+        },
+        styles: {
+          fontSize: 9,
+          cellPadding: 4,
+          valign: 'middle',
+        },
+        columnStyles: {
+          0: { cellWidth: 45, fontStyle: 'bold' },
+          1: { cellWidth: 55 },
+          2: { cellWidth: 55 },
+          3: { cellWidth: 25, halign: 'center' },
+        },
+        alternateRowStyles: { fillColor: [245, 245, 245] },
+      });
+
+      startY = doc.lastAutoTable.finalY + 15;
+
+      // ================= SECTION TECHNICIENS ET SIGNATURES =================
+      doc.setFillColor(46, 204, 113);
+      doc.rect(14, startY, 180, 8, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('TECHNICIENS ET SIGNATURES', 14, startY + 6);
+
+      doc.setTextColor(0, 0, 0);
+      startY += 15;
+
+      ['matin', 'apresMidi', 'nuit'].forEach((bloc, blocIndex) => {
+        const techs = selectedFiche.techniciens[bloc] || [];
+        const blocLabel = periodeLabels[bloc];
+
+        if (techs.length > 0 || blocIndex < 2) {
+          // Titre du bloc avec fond coloré
+          doc.setFillColor(240, 248, 255);
+          doc.rect(14, startY, 180, 8, 'F');
+
+          doc.setFontSize(10);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(41, 128, 185);
+          doc.text(blocLabel, 14, startY + 6);
+          doc.setTextColor(0, 0, 0);
+
+          startY += 12;
+
+          if (techs.length === 0) {
+            doc.setFont('helvetica', 'italic');
+            doc.setTextColor(150, 150, 150);
+            doc.text('Aucun technicien affecté', 20, startY);
+            doc.setTextColor(0, 0, 0);
+            doc.setFont('helvetica', 'normal');
+            startY += 8;
+          } else {
+            techs.forEach((tech, idx) => {
+              // Vérifier si on doit créer une nouvelle page
+              if (startY > doc.internal.pageSize.height - 60) {
+                doc.addPage();
+                startY = 20;
+              }
+
+              // Fond alterné pour chaque technicien
+              if (idx % 2 === 0) {
+                doc.setFillColor(250, 250, 250);
+                doc.rect(14, startY - 4, 180, 24, 'F');
+              }
+
+              doc.setFont('helvetica', 'bold');
+              doc.text(`👤 ${tech.nom || 'Technicien non nommé'}`, 16, startY);
+
+              doc.setFont('helvetica', 'normal');
+              doc.setFontSize(8);
+              doc.setTextColor(100, 100, 100);
+              doc.text(
+                `Matricule: ${tech.matricule || 'Non spécifié'}`,
+                16,
+                startY + 4
+              );
+              doc.setTextColor(0, 0, 0);
+              doc.setFontSize(9);
+
+              // Ajout de la signature
+              if (tech.signature) {
+                // Cadre pour la signature
+                doc.setDrawColor(200, 200, 200);
+                doc.setLineWidth(0.5);
+                doc.rect(120, startY - 2, 70, 20);
+
+                try {
+                  doc.addImage(tech.signature, 'PNG', 122, startY, 66, 16);
+                  doc.setFontSize(7);
+                  doc.setTextColor(0, 150, 0);
+                  doc.text('✓ Signé', 155, startY + 18);
+                } catch (err) {
+                  console.error('Erreur signature:', err);
+                  doc.setFontSize(8);
+                  doc.setTextColor(255, 0, 0);
+                  doc.text('❌ Signature non valide', 145, startY + 8);
+                }
+              } else {
+                doc.setDrawColor(200, 200, 200);
+                doc.setLineWidth(0.5);
+                doc.rect(120, startY - 2, 70, 20);
+                doc.setFontSize(8);
+                doc.setTextColor(150, 150, 150);
+                doc.text('Non signé', 150, startY + 8);
+                doc.text('_________________', 148, startY + 12);
+              }
+
+              doc.setTextColor(0, 0, 0);
+              startY += 24;
+            });
+          }
+
+          startY += 8;
+        }
+      });
+
+      // ================= SECTION OBSERVATIONS =================
+      if (startY > doc.internal.pageSize.height - 60) {
+        doc.addPage();
+        startY = 20;
+      }
+
+      doc.setFillColor(241, 196, 15);
+      doc.rect(14, startY, 180, 8, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('OBSERVATIONS ET COMMENTAIRES', 14, startY + 6);
+
+      doc.setTextColor(0, 0, 0);
+      startY += 15;
+
+      const observations = selectedFiche.observations || {};
+      ['matin', 'apresMidi', 'nuit'].forEach((bloc) => {
+        const obs = observations[bloc];
+        if (obs && obs.trim()) {
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(9);
+          doc.text(`${periodeLabels[bloc]} :`, 14, startY);
+          doc.setFont('helvetica', 'normal');
+          doc.text(obs, 14, startY + 5, { maxWidth: 170 });
+          startY += 20;
+        }
+      });
+
+      if (
+        !observations.matin &&
+        !observations.apresMidi &&
+        !observations.nuit
+      ) {
+        doc.setFont('helvetica', 'italic');
+        doc.setTextColor(150, 150, 150);
+        doc.text('Aucune observation enregistrée', 14, startY);
+        doc.setTextColor(0, 0, 0);
+        doc.setFont('helvetica', 'normal');
+        startY += 10;
+      }
+
+      // ================= PIED DE PAGE AVEC SIGNATURES FINALES =================
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+
+        // Ligne de séparation
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.5);
+        doc.line(
+          14,
+          doc.internal.pageSize.height - 20,
+          doc.internal.pageSize.width - 14,
+          doc.internal.pageSize.height - 20
+        );
+
+        // Pied de page
+        doc.setFontSize(8);
+        doc.setTextColor(100, 100, 100);
+        doc.text(
+          `Document généré par GMAO - Page ${i} / ${pageCount}`,
+          14,
+          doc.internal.pageSize.height - 12
+        );
+        doc.text(
+          new Date().toLocaleString('fr-FR'),
+          doc.internal.pageSize.width - 45,
+          doc.internal.pageSize.height - 12
+        );
+
+        // Signature responsable (seulement sur la dernière page)
+        if (i === pageCount) {
+          doc.setFontSize(9);
+          doc.setTextColor(0, 0, 0);
+          doc.text(
+            'Validation responsable :',
+            14,
+            doc.internal.pageSize.height - 28
+          );
+          doc.setDrawColor(0, 0, 0);
+          doc.line(
+            70,
+            doc.internal.pageSize.height - 29,
+            140,
+            doc.internal.pageSize.height - 29
+          );
+          doc.setFontSize(7);
+          doc.setTextColor(100, 100, 100);
+          doc.text('Signature', 100, doc.internal.pageSize.height - 24);
+        }
+      }
+
+      // ================= SAUVEGARDE DU PDF =================
+      const dateStr = selectedFiche.date
+        ? new Date(selectedFiche.date).toISOString().split('T')[0]
+        : new Date().toISOString().split('T')[0];
+
+      doc.save(`GMAO_Fiche_Brigade_${dateStr}.pdf`);
 
       // ===================== EXPORT PDF annuelle voie=====================
+      // ===================== EXPORT PDF 2250 KVA =====================
+    } else if (selectedFiche?.pointsControle) {
+      const doc = new jsPDF();
+
+      // ================= EN-TÊTE PROFESSIONNEL =================
+      doc.setFillColor(52, 73, 94);
+      doc.rect(0, 0, doc.internal.pageSize.width, 25, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'bold');
+      doc.text('FICHE 2250KVA - CONTRÔLE TECHNIQUE', 14, 18);
+
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+
+      // ================= INFORMATIONS GÉNÉRALES =================
+      let startY = 32;
+
+      doc.setFillColor(240, 248, 255);
+      doc.rect(14, startY, 180, 40, 'F');
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(52, 73, 94);
+      doc.text('📋 INFORMATIONS GÉNÉRALES', 14, startY + 6);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(0, 0, 0);
+
+      doc.text(
+        `📅 Date du contrôle : ${selectedFiche.date ? new Date(selectedFiche.date).toLocaleDateString('fr-FR') : 'Non spécifiée'}`,
+        14,
+        startY + 14
+      );
+
+      doc.text(
+        `🔖 N° Fiche : ${selectedFiche.numeroFiche || selectedFiche._id?.slice(-8) || 'CT-' + Math.random().toString(36).substr(2, 8)}`,
+        110,
+        startY + 14
+      );
+
+      doc.text(
+        `📍 Lieu d'installation : ${selectedFiche.lieuInstallation || 'Non spécifié'}`,
+        14,
+        startY + 21
+      );
+
+      doc.text(`🏭 Équipement : Groupe électrogène 2250KVA`, 110, startY + 21);
+
+      doc.text(
+        `🏷️ Désignation : ${selectedFiche.designation || 'Non spécifiée'}`,
+        14,
+        startY + 28
+      );
+
+      doc.text(
+        `📊 Type de contrôle : ${selectedFiche.typeControle || 'Contrôle périodique'}`,
+        110,
+        startY + 28
+      );
+
+      doc.text(
+        `👤 Responsable : ${selectedFiche.responsable || 'Non spécifié'}`,
+        14,
+        startY + 35
+      );
+
+      startY = startY + 50;
+
+      // ================= TABLEAU DES POINTS DE CONTRÔLE =================
+      doc.setFillColor(52, 73, 94);
+      doc.rect(14, startY, 180, 8, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text(
+        '🔍 POINTS DE CONTRÔLE ET ÉTAT DE FONCTIONNEMENT',
+        14,
+        startY + 6
+      );
+
+      doc.setTextColor(0, 0, 0);
+      startY += 12;
+
+      const tableColumn = [
+        'N°',
+        'Spécification',
+        'Désignation',
+        'Matin',
+        'A-Midi',
+        'Nuit',
+        'Statut',
+      ];
+
+      const getStatusIcon = (matin, apresMidi, nuit) => {
+        const hasAnomalie =
+          matin.anomalie || apresMidi.anomalie || nuit.anomalie;
+        const hasNormal = matin.normal || apresMidi.normal || nuit.normal;
+
+        if (hasAnomalie) return '⚠️ Anomalie détectée';
+        if (hasNormal) return '✅ Conforme';
+        return '❌ Non contrôlé';
+      };
+
+      const getPeriodStatus = (period) => {
+        if (period.normal) return '✔ Normal';
+        if (period.anomalie) return '⚠ Anomalie';
+        return '⚪ Non renseigné';
+      };
+
+      const tableRows = selectedFiche.pointsControle.map((c, idx) => [
+        (idx + 1).toString(),
+        c.specification || '',
+        c.designation || '',
+        getPeriodStatus(c.matin),
+        getPeriodStatus(c.apresMidi),
+        getPeriodStatus(c.nuit),
+        getStatusIcon(c.matin, c.apresMidi, c.nuit),
+      ]);
+
+      autoTable(doc, {
+        head: [tableColumn],
+        body: tableRows,
+        startY: startY,
+        theme: 'striped',
+        headStyles: {
+          fillColor: [52, 73, 94],
+          textColor: 255,
+          fontSize: 9,
+          fontStyle: 'bold',
+        },
+        styles: {
+          fontSize: 8,
+          cellPadding: 3,
+          valign: 'middle',
+        },
+        columnStyles: {
+          0: { cellWidth: 10, halign: 'center' },
+          1: { cellWidth: 45 },
+          2: { cellWidth: 45 },
+          3: { cellWidth: 20, halign: 'center' },
+          4: { cellWidth: 20, halign: 'center' },
+          5: { cellWidth: 20, halign: 'center' },
+          6: { cellWidth: 20, halign: 'center' },
+        },
+        alternateRowStyles: { fillColor: [250, 250, 250] },
+        rowStyles: (row, data) => {
+          const rowData = tableRows[data.row.index];
+          if (rowData && rowData[6] === '⚠️ Anomalie détectée') {
+            return { fillColor: [255, 240, 240] };
+          }
+          return {};
+        },
+      });
+
+      startY = doc.lastAutoTable.finalY + 15;
+
+      // ================= SYNTHÈSE DES ANOMALIES =================
+      const anomalies = selectedFiche.pointsControle.filter(
+        (c) => c.matin.anomalie || c.apresMidi.anomalie || c.nuit.anomalie
+      );
+
+      if (anomalies.length > 0) {
+        if (startY > doc.internal.pageSize.height - 80) {
+          doc.addPage();
+          startY = 20;
+        }
+
+        doc.setFillColor(231, 76, 60);
+        doc.rect(14, startY, 180, 8, 'F');
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.text('⚠️ SYNTHÈSE DES ANOMALIES DÉTECTÉES', 14, startY + 6);
+
+        doc.setTextColor(0, 0, 0);
+        startY += 15;
+
+        doc.setFillColor(255, 245, 245);
+        doc.rect(14, startY, 180, anomalies.length * 12 + 10, 'F');
+
+        anomalies.forEach((anomalie, idx) => {
+          const periods = [];
+          if (anomalie.matin.anomalie) periods.push('Matin');
+          if (anomalie.apresMidi.anomalie) periods.push('Après-midi');
+          if (anomalie.nuit.anomalie) periods.push('Nuit');
+
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(231, 76, 60);
+          doc.text(
+            `⚠️ ${anomalie.specification || 'Anomalie'}`,
+            20,
+            startY + 6 + idx * 12
+          );
+
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(0, 0, 0);
+          doc.setFontSize(8);
+          doc.text(
+            `Période(s): ${periods.join(', ')} - ${anomalie.matin.anomalieDescription || anomalie.apresMidi.anomalieDescription || anomalie.nuit.anomalieDescription || 'Anomalie constatée'}`,
+            30,
+            startY + 11 + idx * 12
+          );
+        });
+
+        startY += anomalies.length * 12 + 20;
+      }
+
+      // ================= TEMPS D'INSPECTION =================
+      if (startY > doc.internal.pageSize.height - 80) {
+        doc.addPage();
+        startY = 20;
+      }
+
+      doc.setFillColor(52, 152, 219);
+      doc.rect(14, startY, 180, 8, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text("⏱️ TEMPS D'INSPECTION", 14, startY + 6);
+
+      doc.setTextColor(0, 0, 0);
+      startY += 15;
+
+      doc.setFillColor(240, 248, 255);
+      doc.rect(14, startY, 180, 55, 'F');
+
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+
+      let tempStartY = startY + 8;
+
+      ['matin', 'apresMidi', 'nuit'].forEach((p, idx) => {
+        const t = selectedFiche.tempsInspection[p] || {};
+        const periodeLabels = {
+          matin: '🌅 Matin (8h-14h)',
+          apresMidi: '☀️ Après-midi (14h-20h)',
+          nuit: '🌙 Nuit (20h-8h)',
+        };
+
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${periodeLabels[p]} :`, 20, tempStartY + idx * 12);
+        doc.setFont('helvetica', 'normal');
+        doc.text(
+          `${t.debut || '---'} - ${t.fin || '---'} = ${t.tempsAlloue || '0'} min`,
+          80,
+          tempStartY + idx * 12
+        );
+      });
+
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(52, 152, 219);
+      doc.text(
+        `Total : ${selectedFiche.tempsInspection.total || '0'} minutes`,
+        20,
+        tempStartY + 40
+      );
+      doc.setTextColor(0, 0, 0);
+
+      startY += 65;
+
+      // ================= OBSERVATIONS PAR PÉRIODE =================
+      if (startY > doc.internal.pageSize.height - 100) {
+        doc.addPage();
+        startY = 20;
+      }
+
+      doc.setFillColor(241, 196, 15);
+      doc.rect(14, startY, 180, 8, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('📝 OBSERVATIONS PAR PÉRIODE', 14, startY + 6);
+
+      doc.setTextColor(0, 0, 0);
+      startY += 15;
+
+      ['matin', 'apresMidi', 'nuit'].forEach((p, idx) => {
+        const periodeLabels = {
+          matin: '🌅 Matin',
+          apresMidi: '☀️ Après-midi',
+          nuit: '🌙 Nuit',
+        };
+
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${periodeLabels[p]} :`, 14, startY + idx * 10);
+        doc.setFont('helvetica', 'normal');
+        doc.text(
+          selectedFiche.observations?.[p] || 'Aucune observation',
+          50,
+          startY + idx * 10,
+          { maxWidth: 130 }
+        );
+      });
+
+      startY += 40;
+
+      // ================= TECHNICIENS ET SIGNATURES =================
+      if (startY > doc.internal.pageSize.height - 120) {
+        doc.addPage();
+        startY = 20;
+      }
+
+      doc.setFillColor(46, 204, 113);
+      doc.rect(14, startY, 180, 8, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('👨‍🔧 TECHNICIENS ET SIGNATURES', 14, startY + 6);
+
+      doc.setTextColor(0, 0, 0);
+      startY += 15;
+
+      ['matin', 'apresMidi', 'nuit'].forEach((p, idx) => {
+        const periodeLabels = {
+          matin: '🌅 Matin',
+          apresMidi: '☀️ Après-midi',
+          nuit: '🌙 Nuit',
+        };
+
+        const techs = selectedFiche.techniciens?.[p] || [];
+        const techList = Array.isArray(techs) ? techs : [];
+
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${periodeLabels[p]} :`, 14, startY + idx * 12);
+        doc.setFont('helvetica', 'normal');
+
+        if (techList.length > 0) {
+          doc.text(techList.join(', '), 50, startY + idx * 12, {
+            maxWidth: 130,
+          });
+        } else {
+          doc.text('Aucun technicien affecté', 50, startY + idx * 12);
+        }
+      });
+
+      startY += 50;
+
+      // ================= SIGNATURES FINALES =================
+      if (startY > doc.internal.pageSize.height - 80) {
+        doc.addPage();
+        startY = 20;
+      }
+
+      doc.setDrawColor(200, 200, 200);
+      doc.setLineWidth(0.5);
+
+      // Signature technicien principal
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.text('✍️ Signature du technicien principal :', 14, startY);
+      doc.setDrawColor(0, 0, 0);
+      doc.line(14, startY + 6, 100, startY + 6);
+      doc.setFontSize(7);
+      doc.setTextColor(100, 100, 100);
+      doc.text('Date et signature', 45, startY + 10);
+
+      // Signature responsable
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(0, 0, 0);
+      doc.text('✍️ Validation du responsable qualité :', 120, startY);
+      doc.setDrawColor(0, 0, 0);
+      doc.line(120, startY + 6, 190, startY + 6);
+      doc.setFontSize(7);
+      doc.setTextColor(100, 100, 100);
+      doc.text('Date et signature', 145, startY + 10);
+
+      startY += 25;
+
+      // ================= COMMENTAIRES ET RECOMMANDATIONS =================
+      if (selectedFiche.commentaires || selectedFiche.recommandations) {
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(0, 0, 0);
+
+        if (selectedFiche.commentaires) {
+          doc.text('📌 Commentaires généraux :', 14, startY);
+          doc.setFont('helvetica', 'normal');
+          doc.text(selectedFiche.commentaires, 14, startY + 6, {
+            maxWidth: 180,
+          });
+          startY += 20;
+        }
+
+        if (selectedFiche.recommandations) {
+          doc.setFont('helvetica', 'bold');
+          doc.text('🔧 Recommandations :', 14, startY);
+          doc.setFont('helvetica', 'normal');
+          doc.text(selectedFiche.recommandations, 14, startY + 6, {
+            maxWidth: 180,
+          });
+        }
+      }
+
+      // ================= PIED DE PAGE =================
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.5);
+        doc.line(
+          14,
+          doc.internal.pageSize.height - 20,
+          doc.internal.pageSize.width - 14,
+          doc.internal.pageSize.height - 20
+        );
+
+        doc.setFontSize(8);
+        doc.setTextColor(100, 100, 100);
+        doc.text(
+          `Document GMAO - Fiche 2250KVA - Page ${i} / ${pageCount}`,
+          14,
+          doc.internal.pageSize.height - 12
+        );
+        doc.text(
+          new Date().toLocaleString('fr-FR'),
+          doc.internal.pageSize.width - 45,
+          doc.internal.pageSize.height - 12
+        );
+      }
+
+      // ================= SAUVEGARDE =================
+      const dateStr = selectedFiche.date
+        ? new Date(selectedFiche.date).toISOString().split('T')[0]
+        : new Date().toISOString().split('T')[0];
+
+      doc.save(`GMAO_Fiche_2250KVA_${dateStr}.pdf`);
+
+      // ================= export pdf fiche balisage =================
+    } else if (selectedFiche?.groupes) {
+      const doc = new jsPDF();
+
+      // ================= EN-TÊTE PROFESSIONNEL =================
+      doc.setFillColor(241, 196, 15);
+      doc.rect(0, 0, doc.internal.pageSize.width, 25, 'F');
+
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'bold');
+      doc.text("FICHE D'INSPECTION JOURNALIÈRE - BALISAGE", 14, 18);
+
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+
+      // ================= INFORMATIONS GÉNÉRALES =================
+      let startY = 32;
+
+      doc.setFillColor(255, 250, 225);
+      doc.rect(14, startY, 180, 35, 'F');
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(241, 196, 15);
+      doc.text('📋 INFORMATIONS GÉNÉRALES', 14, startY + 6);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(0, 0, 0);
+
+      doc.text(
+        `📅 Date d'inspection : ${selectedFiche.date ? new Date(selectedFiche.date).toLocaleDateString('fr-FR') : 'Non spécifiée'}`,
+        14,
+        startY + 14
+      );
+
+      doc.text(
+        `🔖 N° Fiche : ${selectedFiche.numeroFiche || selectedFiche._id?.slice(-8) || 'BAL-' + Math.random().toString(36).substr(2, 8)}`,
+        110,
+        startY + 14
+      );
+
+      doc.text(
+        `📍 Site / Chantier : ${selectedFiche.site || 'Non spécifié'}`,
+        14,
+        startY + 21
+      );
+
+      doc.text(
+        `🏗️ Type de balisage : ${selectedFiche.typeBalisage || 'Balisage de sécurité'}`,
+        110,
+        startY + 21
+      );
+
+      doc.text(
+        `👤 Inspecteur : ${selectedFiche.inspecteur || 'Non spécifié'}`,
+        14,
+        startY + 28
+      );
+
+      startY = startY + 45;
+
+      // ================= TABLEAU D'INSPECTION BALISAGE =================
+      doc.setFillColor(241, 196, 15);
+      doc.rect(14, startY, 180, 8, 'F');
+
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('🚧 POINTS DE CONTRÔLE - BALISAGE', 14, startY + 6);
+
+      doc.setTextColor(0, 0, 0);
+      startY += 12;
+
+      // Construction dynamique des colonnes en fonction des périodes disponibles
+      const hasMatin = selectedFiche.groupes.some((g) =>
+        g.lignes.some((l) => l.matin)
+      );
+      const hasNuit = selectedFiche.groupes.some((g) =>
+        g.lignes.some((l) => l.nuit)
+      );
+
+      const tableColumn = ['Famille', 'Désignation'];
+
+      if (hasMatin) {
+        tableColumn.push('Matin NF', 'Matin Fonc.', 'Matin Int.', 'Matin Obs');
+      }
+
+      if (hasNuit) {
+        tableColumn.push('Nuit NF', 'Nuit Fonc.', 'Nuit Int.', 'Nuit Obs');
+      }
+
+      tableColumn.push('Statut');
+
+      let tableRows = [];
+
+      selectedFiche.groupes.forEach((g, groupeIdx) => {
+        const lignes = g.lignes || [];
+
+        lignes.forEach((l, ligneIdx) => {
+          const row = [];
+
+          // Famille (première ligne du groupe seulement)
+          if (ligneIdx === 0) {
+            row.push(g.titre || 'Groupe ' + (groupeIdx + 1));
+          } else {
+            row.push('');
+          }
+
+          // Désignation
+          row.push(l.designation || '');
+
+          // Période Matin
+          if (hasMatin) {
+            const matin = l.matin || {};
+            row.push(matin.nf || '');
+            row.push(matin.fonctionnement || '');
+            row.push(matin.interventions || '');
+            row.push(matin.observations || '');
+          }
+
+          // Période Nuit
+          if (hasNuit) {
+            const nuit = l.nuit || {};
+            row.push(nuit.nf || '');
+            row.push(nuit.fonctionnement || '');
+            row.push(nuit.interventions || '');
+            row.push(nuit.observations || '');
+          }
+
+          // Calcul du statut global
+          let statut = '✅ Conforme';
+          let hasAnomalie = false;
+
+          if (hasMatin && l.matin) {
+            if (
+              l.matin.nf === 'HS' ||
+              l.matin.fonctionnement === 'HS' ||
+              l.matin.interventions === 'HS'
+            ) {
+              hasAnomalie = true;
+            }
+          }
+
+          if (hasNuit && l.nuit) {
+            if (
+              l.nuit.nf === 'HS' ||
+              l.nuit.fonctionnement === 'HS' ||
+              l.nuit.interventions === 'HS'
+            ) {
+              hasAnomalie = true;
+            }
+          }
+
+          if (hasAnomalie) {
+            statut = '⚠️ Anomalie';
+          }
+
+          row.push(statut);
+          tableRows.push(row);
+        });
+      });
+
+      // Définition des largeurs de colonnes dynamiques
+      const columnStyles = {
+        0: { cellWidth: 35, fontStyle: 'bold' },
+        1: { cellWidth: 40 },
+      };
+
+      let colIndex = 2;
+      if (hasMatin) {
+        columnStyles[colIndex] = { cellWidth: 15, halign: 'center' };
+        columnStyles[colIndex + 1] = { cellWidth: 18, halign: 'center' };
+        columnStyles[colIndex + 2] = { cellWidth: 18, halign: 'center' };
+        columnStyles[colIndex + 3] = { cellWidth: 25 };
+        colIndex += 4;
+      }
+
+      if (hasNuit) {
+        columnStyles[colIndex] = { cellWidth: 15, halign: 'center' };
+        columnStyles[colIndex + 1] = { cellWidth: 18, halign: 'center' };
+        columnStyles[colIndex + 2] = { cellWidth: 18, halign: 'center' };
+        columnStyles[colIndex + 3] = { cellWidth: 25 };
+        colIndex += 4;
+      }
+
+      columnStyles[colIndex] = { cellWidth: 20, halign: 'center' };
+
+      autoTable(doc, {
+        head: [tableColumn],
+        body: tableRows,
+        startY: startY,
+        theme: 'striped',
+        headStyles: {
+          fillColor: [241, 196, 15],
+          textColor: 0,
+          fontSize: 7,
+          fontStyle: 'bold',
+          halign: 'center',
+        },
+        styles: {
+          fontSize: 7,
+          cellPadding: 2,
+          valign: 'middle',
+        },
+        columnStyles: columnStyles,
+        alternateRowStyles: { fillColor: [255, 250, 225] },
+        rowStyles: (row, data) => {
+          const rowData = tableRows[data.row.index];
+          if (rowData && rowData[rowData.length - 1] === '⚠️ Anomalie') {
+            return { fillColor: [255, 235, 235] };
+          }
+          return {};
+        },
+        didDrawCell: (data) => {
+          // Mise en évidence des cellules "HS"
+          if (
+            data.cell.raw &&
+            (data.cell.raw === 'HS' || data.cell.raw === 'hs')
+          ) {
+            doc.setFillColor(231, 76, 60);
+            doc.rect(
+              data.cell.x,
+              data.cell.y,
+              data.cell.width,
+              data.cell.height,
+              'F'
+            );
+            doc.setTextColor(255, 255, 255);
+            doc.text(
+              data.cell.raw,
+              data.cell.x + data.cell.width / 2,
+              data.cell.y + data.cell.height / 2,
+              { align: 'center', baseline: 'middle' }
+            );
+            doc.setTextColor(0, 0, 0);
+          }
+        },
+      });
+
+      startY = doc.lastAutoTable.finalY + 15;
+
+      // ================= SYNTHÈSE DES ANOMALIES =================
+      const anomaliesList = [];
+
+      selectedFiche.groupes.forEach((g) => {
+        g.lignes.forEach((l) => {
+          const designation = l.designation || 'Point de contrôle';
+          const groupe = g.titre || 'Groupe';
+
+          if (hasMatin && l.matin) {
+            if (l.matin.nf === 'HS')
+              anomaliesList.push({
+                groupe,
+                designation,
+                periode: 'Matin',
+                type: 'NF',
+                observation: l.matin.observations,
+              });
+            if (l.matin.fonctionnement === 'HS')
+              anomaliesList.push({
+                groupe,
+                designation,
+                periode: 'Matin',
+                type: 'Fonctionnement',
+                observation: l.matin.observations,
+              });
+            if (l.matin.interventions === 'HS')
+              anomaliesList.push({
+                groupe,
+                designation,
+                periode: 'Matin',
+                type: 'Interventions',
+                observation: l.matin.observations,
+              });
+          }
+
+          if (hasNuit && l.nuit) {
+            if (l.nuit.nf === 'HS')
+              anomaliesList.push({
+                groupe,
+                designation,
+                periode: 'Nuit',
+                type: 'NF',
+                observation: l.nuit.observations,
+              });
+            if (l.nuit.fonctionnement === 'HS')
+              anomaliesList.push({
+                groupe,
+                designation,
+                periode: 'Nuit',
+                type: 'Fonctionnement',
+                observation: l.nuit.observations,
+              });
+            if (l.nuit.interventions === 'HS')
+              anomaliesList.push({
+                groupe,
+                designation,
+                periode: 'Nuit',
+                type: 'Interventions',
+                observation: l.nuit.observations,
+              });
+          }
+        });
+      });
+
+      if (anomaliesList.length > 0) {
+        if (startY > doc.internal.pageSize.height - 80) {
+          doc.addPage();
+          startY = 20;
+        }
+
+        doc.setFillColor(231, 76, 60);
+        doc.rect(14, startY, 180, 8, 'F');
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.text('⚠️ SYNTHÈSE DES ANOMALIES DÉTECTÉES', 14, startY + 6);
+
+        doc.setTextColor(0, 0, 0);
+        startY += 15;
+
+        doc.setFillColor(255, 245, 245);
+        doc.rect(
+          14,
+          startY,
+          180,
+          Math.min(anomaliesList.length * 12 + 10, 150),
+          'F'
+        );
+
+        anomaliesList.forEach((anomalie, idx) => {
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(231, 76, 60);
+          doc.text(
+            `⚠️ ${anomalie.groupe} - ${anomalie.designation}`,
+            20,
+            startY + 6 + idx * 12
+          );
+
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(0, 0, 0);
+          doc.setFontSize(7);
+          doc.text(
+            `Période: ${anomalie.periode} | Point: ${anomalie.type}`,
+            30,
+            startY + 11 + idx * 12
+          );
+          if (anomalie.observation) {
+            doc.text(
+              `Observation: ${anomalie.observation}`,
+              30,
+              startY + 16 + idx * 12
+            );
+          }
+        });
+
+        startY += anomaliesList.length * 12 + 25;
+      }
+
+      // ================= TECHNICIEN ET SIGNATURES =================
+      if (startY > doc.internal.pageSize.height - 100) {
+        doc.addPage();
+        startY = 20;
+      }
+
+      doc.setFillColor(46, 204, 113);
+      doc.rect(14, startY, 180, 8, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('👨‍🔧 TECHNICIEN ET VALIDATION', 14, startY + 6);
+
+      doc.setTextColor(0, 0, 0);
+      startY += 20;
+
+      doc.setFillColor(245, 245, 245);
+      doc.rect(14, startY, 180, 50, 'F');
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text("Technicien d'inspection :", 20, startY + 8);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.text(selectedFiche.technicien || 'Non spécifié', 80, startY + 8);
+
+      doc.setFont('helvetica', 'bold');
+      doc.text('Matricule :', 20, startY + 18);
+      doc.setFont('helvetica', 'normal');
+      doc.text(selectedFiche.matricule || 'Non spécifié', 80, startY + 18);
+
+      doc.setFont('helvetica', 'bold');
+      doc.text('Équipe :', 20, startY + 28);
+      doc.setFont('helvetica', 'normal');
+      doc.text(selectedFiche.equipe || 'Non spécifiée', 80, startY + 28);
+
+      startY += 60;
+
+      // ================= SIGNATURES =================
+      if (startY > doc.internal.pageSize.height - 80) {
+        doc.addPage();
+        startY = 20;
+      }
+
+      doc.setDrawColor(200, 200, 200);
+      doc.setLineWidth(0.5);
+
+      // Signature technicien
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.text('✍️ Signature du technicien :', 14, startY);
+      doc.setDrawColor(0, 0, 0);
+      doc.line(14, startY + 6, 90, startY + 6);
+      doc.setFontSize(7);
+      doc.setTextColor(100, 100, 100);
+      doc.text('Date et signature', 45, startY + 10);
+
+      // Signature chef d'équipe
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(0, 0, 0);
+      doc.text("✍️ Validation chef d'équipe :", 110, startY);
+      doc.setDrawColor(0, 0, 0);
+      doc.line(110, startY + 6, 190, startY + 6);
+      doc.setFontSize(7);
+      doc.setTextColor(100, 100, 100);
+      doc.text('Nom et signature', 145, startY + 10);
+
+      startY += 30;
+
+      // ================= OBSERVATIONS GÉNÉRALES =================
+      if (selectedFiche.observationsGenerales) {
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(0, 0, 0);
+        doc.text('📝 Observations générales :', 14, startY);
+        doc.setFont('helvetica', 'normal');
+        doc.text(selectedFiche.observationsGenerales, 14, startY + 6, {
+          maxWidth: 180,
+        });
+        startY += 20;
+      }
+
+      // ================= ACTIONS CORRECTIVES =================
+      if (
+        selectedFiche.actionsCorrectives &&
+        selectedFiche.actionsCorrectives.length > 0
+      ) {
+        if (startY > doc.internal.pageSize.height - 60) {
+          doc.addPage();
+          startY = 20;
+        }
+
+        doc.setFillColor(52, 152, 219);
+        doc.rect(14, startY, 180, 8, 'F');
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text('🔧 ACTIONS CORRECTIVES', 14, startY + 6);
+
+        doc.setTextColor(0, 0, 0);
+        startY += 15;
+
+        const actionsColumns = [
+          'N°',
+          'Action',
+          'Responsable',
+          'Délai',
+          'Statut',
+        ];
+        const actionsRows = selectedFiche.actionsCorrectives.map(
+          (action, idx) => [
+            (idx + 1).toString(),
+            action.description || '',
+            action.responsable || '',
+            action.delai || '',
+            action.realisee ? '✅ Réalisée' : '⏳ En cours',
+          ]
+        );
+
+        autoTable(doc, {
+          head: [actionsColumns],
+          body: actionsRows,
+          startY: startY,
+          theme: 'striped',
+          headStyles: {
+            fillColor: [52, 152, 219],
+            textColor: 255,
+            fontSize: 8,
+          },
+          styles: { fontSize: 8, cellPadding: 3 },
+          columnStyles: {
+            0: { cellWidth: 12, halign: 'center' },
+            1: { cellWidth: 85 },
+            2: { cellWidth: 35 },
+            3: { cellWidth: 25 },
+            4: { cellWidth: 23, halign: 'center' },
+          },
+        });
+      }
+
+      // ================= PIED DE PAGE =================
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.5);
+        doc.line(
+          14,
+          doc.internal.pageSize.height - 20,
+          doc.internal.pageSize.width - 14,
+          doc.internal.pageSize.height - 20
+        );
+
+        doc.setFontSize(8);
+        doc.setTextColor(100, 100, 100);
+        doc.text(
+          `Document GMAO - Fiche Balisage - Page ${i} / ${pageCount}`,
+          14,
+          doc.internal.pageSize.height - 12
+        );
+        doc.text(
+          new Date().toLocaleString('fr-FR'),
+          doc.internal.pageSize.width - 45,
+          doc.internal.pageSize.height - 12
+        );
+      }
+
+      // ================= SAUVEGARDE =================
+      const dateStr = selectedFiche.date
+        ? new Date(selectedFiche.date).toISOString().split('T')[0]
+        : new Date().toISOString().split('T')[0];
+
+      doc.save(`GMAO_Fiche_Balisage_${dateStr}.pdf`);
+      // ===================== EXPORT PDF olapion =====================
+    } else if (selectedFiche?.operations) {
+      const doc = new jsPDF();
+
+      // ================= EN-TÊTE PROFESSIONNEL =================
+      doc.setFillColor(52, 152, 219);
+      doc.rect(0, 0, doc.internal.pageSize.width, 25, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'bold');
+      doc.text('FICHE OLAPION - OPÉRATIONS DE CONTRÔLE', 14, 18);
+
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+
+      // ================= INFORMATIONS GÉNÉRALES =================
+      let startY = 32;
+
+      doc.setFillColor(235, 245, 255);
+      doc.rect(14, startY, 180, 45, 'F');
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(52, 152, 219);
+      doc.text('📋 INFORMATIONS GÉNÉRALES', 14, startY + 6);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(0, 0, 0);
+
+      doc.text(
+        `📅 Date du contrôle : ${selectedFiche.date ? new Date(selectedFiche.date).toLocaleDateString('fr-FR') : 'Non spécifiée'}`,
+        14,
+        startY + 14
+      );
+
+      doc.text(
+        `🔖 N° Fiche : ${selectedFiche.numeroFiche || selectedFiche._id?.slice(-8) || 'OLA-' + Math.random().toString(36).substr(2, 8)}`,
+        110,
+        startY + 14
+      );
+
+      doc.text(
+        `📍 Lieu d'installation : ${selectedFiche.lieuInstallation || 'Non spécifié'}`,
+        14,
+        startY + 21
+      );
+
+      doc.text(
+        `🏭 Équipement : ${selectedFiche.equipement || 'Olapion'}`,
+        110,
+        startY + 21
+      );
+
+      doc.text(
+        `🏷️ Désignation : ${selectedFiche.designation || 'Non spécifiée'}`,
+        14,
+        startY + 28
+      );
+
+      doc.text(
+        `📊 Type d'opération : ${selectedFiche.typeOperation || 'Contrôle périodique'}`,
+        110,
+        startY + 28
+      );
+
+      doc.text(
+        `👤 Responsable opération : ${selectedFiche.responsable || 'Non spécifié'}`,
+        14,
+        startY + 35
+      );
+
+      doc.text(
+        `🔧 Référence : ${selectedFiche.reference || 'Non spécifiée'}`,
+        110,
+        startY + 35
+      );
+
+      startY = startY + 55;
+
+      // ================= TABLEAU DES OPÉRATIONS =================
+      doc.setFillColor(52, 152, 219);
+      doc.rect(14, startY, 180, 8, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text(
+        '🔧 OPÉRATIONS DE CONTRÔLE - ÉTAT DE FONCTIONNEMENT',
+        14,
+        startY + 6
+      );
+
+      doc.setTextColor(0, 0, 0);
+      startY += 12;
+
+      const getOperationStatus = (period) => {
+        if (!period)
+          return {
+            text: '⚪ Non renseigné',
+            color: [149, 165, 166],
+            icon: '⚪',
+          };
+        if (period.normal)
+          return { text: '✔ Normal', color: [46, 204, 113], icon: '✅' };
+        if (period.anomalie)
+          return { text: '⚠ Anomalie', color: [231, 76, 60], icon: '⚠️' };
+        if (period.enCours)
+          return { text: '🔄 En cours', color: [241, 196, 15], icon: '🔄' };
+        if (period.nonRealise)
+          return { text: '❌ Non réalisé', color: [149, 165, 166], icon: '❌' };
+        return { text: '⚪ Non renseigné', color: [149, 165, 166], icon: '⚪' };
+      };
+
+      const getPriorityIcon = (priority) => {
+        switch (priority) {
+          case 'urgent':
+            return '🔴 Urgent';
+          case 'eleve':
+            return '🟠 Élevé';
+          case 'moyen':
+            return '🟡 Moyen';
+          case 'faible':
+            return '🟢 Faible';
+          default:
+            return '⚪ Normal';
+        }
+      };
+
+      const tableColumn = [
+        'N°',
+        'Spécification',
+        'Désignation',
+        'Priorité',
+        'Matin',
+        'A-Midi',
+        'Nuit',
+        'Statut',
+      ];
+
+      const tableRows = selectedFiche.operations.map((c, idx) => {
+        const matin = getOperationStatus(c.matin);
+        const apresMidi = getOperationStatus(c.apresMidi);
+        const nuit = getOperationStatus(c.nuit);
+
+        const hasAnomalie =
+          (c.matin && c.matin.anomalie) ||
+          (c.apresMidi && c.apresMidi.anomalie) ||
+          (c.nuit && c.nuit.anomalie);
+        const hasNormal =
+          (c.matin && c.matin.normal) ||
+          (c.apresMidi && c.apresMidi.normal) ||
+          (c.nuit && c.nuit.normal);
+        const hasEnCours =
+          (c.matin && c.matin.enCours) ||
+          (c.apresMidi && c.apresMidi.enCours) ||
+          (c.nuit && c.nuit.enCours);
+
+        let statut = '❌ Non réalisé';
+        if (hasAnomalie) statut = '⚠️ Anomalie détectée';
+        else if (hasEnCours) statut = '🔄 En cours';
+        else if (hasNormal) statut = '✅ Conforme';
+
+        return [
+          (idx + 1).toString(),
+          c.specification || '',
+          c.designation || '',
+          getPriorityIcon(c.priorite),
+          matin.text,
+          apresMidi.text,
+          nuit.text,
+          statut,
+        ];
+      });
+
+      autoTable(doc, {
+        head: [tableColumn],
+        body: tableRows,
+        startY: startY,
+        theme: 'striped',
+        headStyles: {
+          fillColor: [52, 152, 219],
+          textColor: 255,
+          fontSize: 8,
+          fontStyle: 'bold',
+          halign: 'center',
+        },
+        styles: {
+          fontSize: 8,
+          cellPadding: 3,
+          valign: 'middle',
+        },
+        columnStyles: {
+          0: { cellWidth: 10, halign: 'center' },
+          1: { cellWidth: 40 },
+          2: { cellWidth: 40 },
+          3: { cellWidth: 18, halign: 'center' },
+          4: { cellWidth: 18, halign: 'center' },
+          5: { cellWidth: 18, halign: 'center' },
+          6: { cellWidth: 18, halign: 'center' },
+          7: { cellWidth: 22, halign: 'center' },
+        },
+        alternateRowStyles: { fillColor: [245, 250, 255] },
+        rowStyles: (row, data) => {
+          const rowData = tableRows[data.row.index];
+          if (rowData && rowData[7] === '⚠️ Anomalie détectée') {
+            return { fillColor: [255, 240, 240] };
+          }
+          if (rowData && rowData[7] === '🔄 En cours') {
+            return { fillColor: [255, 250, 225] };
+          }
+          return {};
+        },
+      });
+
+      startY = doc.lastAutoTable.finalY + 15;
+
+      // ================= SYNTHÈSE DES ANOMALIES =================
+      const anomalies = selectedFiche.operations.filter(
+        (c) =>
+          (c.matin && c.matin.anomalie) ||
+          (c.apresMidi && c.apresMidi.anomalie) ||
+          (c.nuit && c.nuit.anomalie)
+      );
+
+      if (anomalies.length > 0) {
+        if (startY > doc.internal.pageSize.height - 80) {
+          doc.addPage();
+          startY = 20;
+        }
+
+        doc.setFillColor(231, 76, 60);
+        doc.rect(14, startY, 180, 8, 'F');
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.text('⚠️ SYNTHÈSE DES ANOMALIES DÉTECTÉES', 14, startY + 6);
+
+        doc.setTextColor(0, 0, 0);
+        startY += 15;
+
+        doc.setFillColor(255, 245, 245);
+        const anomalyHeight = Math.min(anomalies.length * 14 + 10, 120);
+        doc.rect(14, startY, 180, anomalyHeight, 'F');
+
+        anomalies.forEach((anomalie, idx) => {
+          const periods = [];
+          let description = '';
+
+          if (anomalie.matin && anomalie.matin.anomalie) {
+            periods.push('Matin');
+            // CORRECTION : Vérifier le type de descriptionAnomalie
+            if (
+              anomalie.matin.descriptionAnomalie &&
+              typeof anomalie.matin.descriptionAnomalie === 'string'
+            ) {
+              description = anomalie.matin.descriptionAnomalie;
+            } else if (
+              anomalie.matin.anomalie &&
+              typeof anomalie.matin.anomalie === 'string'
+            ) {
+              description = anomalie.matin.anomalie;
+            }
+          }
+          if (anomalie.apresMidi && anomalie.apresMidi.anomalie) {
+            periods.push('Après-midi');
+            if (
+              anomalie.apresMidi.descriptionAnomalie &&
+              typeof anomalie.apresMidi.descriptionAnomalie === 'string'
+            ) {
+              description = anomalie.apresMidi.descriptionAnomalie;
+            } else if (
+              anomalie.apresMidi.anomalie &&
+              typeof anomalie.apresMidi.anomalie === 'string'
+            ) {
+              description = anomalie.apresMidi.anomalie;
+            }
+          }
+          if (anomalie.nuit && anomalie.nuit.anomalie) {
+            periods.push('Nuit');
+            if (
+              anomalie.nuit.descriptionAnomalie &&
+              typeof anomalie.nuit.descriptionAnomalie === 'string'
+            ) {
+              description = anomalie.nuit.descriptionAnomalie;
+            } else if (
+              anomalie.nuit.anomalie &&
+              typeof anomalie.nuit.anomalie === 'string'
+            ) {
+              description = anomalie.nuit.anomalie;
+            }
+          }
+
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(231, 76, 60);
+          doc.setFontSize(8);
+          doc.text(
+            `⚠️ ${anomalie.specification || 'Opération'}`,
+            20,
+            startY + 6 + idx * 14
+          );
+
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(0, 0, 0);
+          doc.setFontSize(7);
+          doc.text(
+            `Période(s): ${periods.join(', ')}`,
+            30,
+            startY + 11 + idx * 14
+          );
+          if (description && description.length > 0) {
+            const truncatedDesc =
+              description.length > 80
+                ? description.substring(0, 80) + '...'
+                : description;
+            doc.text(
+              `Description: ${truncatedDesc}`,
+              30,
+              startY + 16 + idx * 14
+            );
+          }
+        });
+
+        startY += anomalies.length * 14 + 25;
+      }
+
+      // ================= OPÉRATIONS EN COURS =================
+      const enCours = selectedFiche.operations.filter(
+        (c) =>
+          (c.matin && c.matin.enCours) ||
+          (c.apresMidi && c.apresMidi.enCours) ||
+          (c.nuit && c.nuit.enCours)
+      );
+
+      if (enCours.length > 0 && startY < doc.internal.pageSize.height - 80) {
+        doc.setFillColor(241, 196, 15);
+        doc.rect(14, startY, 180, 8, 'F');
+
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text('🔄 OPÉRATIONS EN COURS', 14, startY + 6);
+
+        doc.setTextColor(0, 0, 0);
+        startY += 15;
+
+        enCours.forEach((operation, idx) => {
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(8);
+          doc.text(
+            `🔄 ${operation.specification || 'Opération'}`,
+            20,
+            startY + idx * 8
+          );
+          doc.setFont('helvetica', 'normal');
+          if (operation.designation) {
+            doc.text(`- ${operation.designation}`, 35, startY + idx * 8);
+          }
+        });
+
+        startY += enCours.length * 8 + 10;
+      }
+
+      // ================= TEMPS D'OPÉRATION =================
+      if (startY > doc.internal.pageSize.height - 80) {
+        doc.addPage();
+        startY = 20;
+      }
+
+      doc.setFillColor(52, 152, 219);
+      doc.rect(14, startY, 180, 8, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text("⏱️ TEMPS D'OPÉRATION", 14, startY + 6);
+
+      doc.setTextColor(0, 0, 0);
+      startY += 15;
+
+      doc.setFillColor(240, 248, 255);
+      doc.rect(14, startY, 180, 55, 'F');
+
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+
+      let tempStartY = startY + 8;
+
+      ['matin', 'apresMidi', 'nuit'].forEach((p, idx) => {
+        const t = selectedFiche.tempsInspection?.[p] || {};
+        const periodeLabels = {
+          matin: '🌅 Matin (8h-14h)',
+          apresMidi: '☀️ Après-midi (14h-20h)',
+          nuit: '🌙 Nuit (20h-8h)',
+        };
+
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${periodeLabels[p]} :`, 20, tempStartY + idx * 12);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Début: ${t.debut || '---'}`, 80, tempStartY + idx * 12);
+        doc.text(`Fin: ${t.fin || '---'}`, 115, tempStartY + idx * 12);
+        doc.text(
+          `Durée: ${t.tempsAlloue || '0'} min`,
+          150,
+          tempStartY + idx * 12
+        );
+      });
+
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(52, 152, 219);
+      doc.text(
+        `📊 Temps total d'opération : ${selectedFiche.tempsInspection?.total || '0'} minutes`,
+        20,
+        tempStartY + 42
+      );
+      doc.setTextColor(0, 0, 0);
+
+      startY += 70;
+
+      // ================= OBSERVATIONS PAR PÉRIODE =================
+      if (startY > doc.internal.pageSize.height - 100) {
+        doc.addPage();
+        startY = 20;
+      }
+
+      doc.setFillColor(241, 196, 15);
+      doc.rect(14, startY, 180, 8, 'F');
+
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('📝 OBSERVATIONS ET COMMENTAIRES', 14, startY + 6);
+
+      doc.setTextColor(0, 0, 0);
+      startY += 15;
+
+      ['matin', 'apresMidi', 'nuit'].forEach((p, idx) => {
+        const periodeLabels = {
+          matin: '🌅 Période Matin',
+          apresMidi: '☀️ Période Après-midi',
+          nuit: '🌙 Période Nuit',
+        };
+
+        const obs = selectedFiche.observations?.[p] || '';
+
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${periodeLabels[p]} :`, 14, startY + idx * 12);
+        doc.setFont('helvetica', 'normal');
+        const obsText = typeof obs === 'string' ? obs : String(obs || '');
+        doc.text(obsText || 'Aucune observation', 65, startY + idx * 12, {
+          maxWidth: 125,
+        });
+      });
+
+      startY += 45;
+
+      // ================= TECHNICIENS =================
+      if (startY > doc.internal.pageSize.height - 100) {
+        doc.addPage();
+        startY = 20;
+      }
+
+      doc.setFillColor(46, 204, 113);
+      doc.rect(14, startY, 180, 8, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text("👨‍🔧 TECHNICIENS D'INTERVENTION", 14, startY + 6);
+
+      doc.setTextColor(0, 0, 0);
+      startY += 15;
+
+      ['matin', 'apresMidi', 'nuit'].forEach((p, idx) => {
+        const periodeLabels = {
+          matin: '🌅 Matin',
+          apresMidi: '☀️ Après-midi',
+          nuit: '🌙 Nuit',
+        };
+
+        const techs = selectedFiche.techniciens?.[p] || [];
+        const techList = Array.isArray(techs) ? techs : [];
+
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${periodeLabels[p]} :`, 14, startY + idx * 10);
+        doc.setFont('helvetica', 'normal');
+
+        if (techList.length > 0) {
+          doc.text(techList.join(', '), 60, startY + idx * 10, {
+            maxWidth: 130,
+          });
+        } else {
+          doc.text('Aucun technicien affecté', 60, startY + idx * 10);
+        }
+      });
+
+      startY += 45;
+
+      // ================= SIGNATURES =================
+      if (startY > doc.internal.pageSize.height - 100) {
+        doc.addPage();
+        startY = 20;
+      }
+
+      doc.setFillColor(52, 152, 219);
+      doc.rect(14, startY, 180, 8, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('✍️ VALIDATIONS', 14, startY + 6);
+
+      doc.setTextColor(0, 0, 0);
+      startY += 20;
+
+      doc.setDrawColor(200, 200, 200);
+      doc.setLineWidth(0.5);
+
+      // Signature technicien
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Signature du technicien :', 14, startY);
+      doc.setDrawColor(0, 0, 0);
+      doc.line(14, startY + 6, 90, startY + 6);
+      doc.setFontSize(7);
+      doc.setTextColor(100, 100, 100);
+      doc.text('Nom et signature', 45, startY + 10);
+
+      // Signature responsable
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(0, 0, 0);
+      doc.text('Validation responsable technique :', 110, startY);
+      doc.setDrawColor(0, 0, 0);
+      doc.line(110, startY + 6, 190, startY + 6);
+      doc.setFontSize(7);
+      doc.setTextColor(100, 100, 100);
+      doc.text('Nom et signature', 145, startY + 10);
+
+      startY += 30;
+
+      // ================= COMMENTAIRES TECHNIQUES =================
+      if (selectedFiche.commentairesTechniques) {
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(0, 0, 0);
+        doc.text('💡 Commentaires techniques :', 14, startY);
+        doc.setFont('helvetica', 'normal');
+        const commentText =
+          typeof selectedFiche.commentairesTechniques === 'string'
+            ? selectedFiche.commentairesTechniques
+            : String(selectedFiche.commentairesTechniques || '');
+        doc.text(commentText, 14, startY + 6, { maxWidth: 180 });
+        startY += 20;
+      }
+
+      // ================= RESSOURCES UTILISÉES =================
+      if (selectedFiche.ressources && selectedFiche.ressources.length > 0) {
+        if (startY > doc.internal.pageSize.height - 60) {
+          doc.addPage();
+          startY = 20;
+        }
+
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.text('🛠️ Ressources utilisées :', 14, startY);
+        doc.setFont('helvetica', 'normal');
+        const ressourcesText = Array.isArray(selectedFiche.ressources)
+          ? selectedFiche.ressources.join(', ')
+          : String(selectedFiche.ressources || '');
+        doc.text(ressourcesText, 14, startY + 6, { maxWidth: 180 });
+      }
+
+      // ================= PIED DE PAGE =================
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.5);
+        doc.line(
+          14,
+          doc.internal.pageSize.height - 20,
+          doc.internal.pageSize.width - 14,
+          doc.internal.pageSize.height - 20
+        );
+
+        doc.setFontSize(8);
+        doc.setTextColor(100, 100, 100);
+        doc.text(
+          `Document GMAO - Fiche Olapion - Page ${i} / ${pageCount}`,
+          14,
+          doc.internal.pageSize.height - 12
+        );
+        doc.text(
+          new Date().toLocaleString('fr-FR'),
+          doc.internal.pageSize.width - 45,
+          doc.internal.pageSize.height - 12
+        );
+      }
+
+      // ================= SAUVEGARDE =================
+      const dateStr = selectedFiche.date
+        ? new Date(selectedFiche.date).toISOString().split('T')[0]
+        : new Date().toISOString().split('T')[0];
+
+      doc.save(`GMAO_Fiche_Olapion_${dateStr}.pdf`);
+
       // ===================== EXPORT PDF VOIE =====================
     } else if (selectedFiche?.panneaux) {
       doc.text('Fiche Annuelle Voie', 14, 15);
@@ -4239,150 +7113,1266 @@ export default function Notifications() {
                   </button>
                 </div>
               </>
-            ) : selectedFiche?.ficheCorrective?.length > 0 ? (
-              <>
-                <h3>Fiche Corrective</h3>
+            ) : // fcieh corrective
+            selectedFiche?.ficheCorrective?.length > 0 ? (
+              <div className="fiche-detail-container">
+                {/* ================= EN-TÊTE ================= */}
+                <div
+                  className="fiche-header"
+                  style={{
+                    backgroundColor: '#e74c3c',
+                    color: 'white',
+                    padding: '15px',
+                    borderRadius: '8px 8px 0 0',
+                    marginBottom: '20px',
+                  }}
+                >
+                  <h2 style={{ margin: 0, fontSize: '20px' }}>
+                    🔧 FICHE CORRECTIVE - GMAO
+                  </h2>
+                  <p
+                    style={{
+                      margin: '5px 0 0 0',
+                      opacity: 0.9,
+                      fontSize: '12px',
+                    }}
+                  >
+                    Intervention corrective et dépannage
+                  </p>
+                </div>
 
                 {selectedFiche.ficheCorrective.map((fiche, fi) => (
                   <div key={fi} style={{ marginBottom: '30px' }}>
-                    {/* ================= INFOS GÉNÉRALES ================= */}
-                    <p>
-                      📅 Date :{' '}
-                      {fiche.date
-                        ? new Date(fiche.date).toLocaleDateString()
-                        : 'Non renseignée'}
-                    </p>
+                    {/* ================= INFORMATIONS GÉNÉRALES ================= */}
+                    <div
+                      className="fiche-info-section"
+                      style={{
+                        backgroundColor: '#f8f9fa',
+                        padding: '15px',
+                        borderRadius: '8px',
+                        marginBottom: '20px',
+                        border: '1px solid #e9ecef',
+                      }}
+                    >
+                      <h3
+                        style={{
+                          margin: '0 0 10px 0',
+                          color: '#e74c3c',
+                          fontSize: '16px',
+                        }}
+                      >
+                        📋 INFORMATIONS GÉNÉRALES
+                      </h3>
+                      <div
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(2, 1fr)',
+                          gap: '10px',
+                        }}
+                      >
+                        <div>
+                          <span style={{ fontWeight: 'bold', color: '#555' }}>
+                            📅 Date :
+                          </span>{' '}
+                          <span>
+                            {fiche.date
+                              ? new Date(fiche.date).toLocaleDateString('fr-FR')
+                              : 'Non renseignée'}
+                          </span>
+                        </div>
+                        <div>
+                          <span style={{ fontWeight: 'bold', color: '#555' }}>
+                            🔖 N° Fiche :
+                          </span>{' '}
+                          <span>
+                            {selectedFiche._id?.slice(-8) || 'Non spécifié'}
+                          </span>
+                        </div>
+                        <div>
+                          <span style={{ fontWeight: 'bold', color: '#555' }}>
+                            🛠️ Désignation :
+                          </span>{' '}
+                          <span>{fiche.designation || 'Non renseignée'}</span>
+                        </div>
+                        <div>
+                          <span style={{ fontWeight: 'bold', color: '#555' }}>
+                            📍 Lieu :
+                          </span>{' '}
+                          <span>
+                            {fiche.lieuInstallation || 'Non renseigné'}
+                          </span>
+                        </div>
+                        <div>
+                          <span style={{ fontWeight: 'bold', color: '#555' }}>
+                            📅 Date détection :
+                          </span>{' '}
+                          <span>
+                            {fiche.dateDetection
+                              ? new Date(
+                                  fiche.dateDetection
+                                ).toLocaleDateString('fr-FR')
+                              : 'Non renseignée'}
+                          </span>
+                        </div>
+                        <div>
+                          <span style={{ fontWeight: 'bold', color: '#555' }}>
+                            📊 Priorité :
+                          </span>{' '}
+                          <span
+                            style={{
+                              display: 'inline-block',
+                              padding: '2px 8px',
+                              borderRadius: '12px',
+                              fontSize: '12px',
+                              fontWeight: 'bold',
+                              backgroundColor:
+                                fiche.priorite === 'urgent'
+                                  ? '#f8d7da'
+                                  : '#fff3cd',
+                              color:
+                                fiche.priorite === 'urgent'
+                                  ? '#721c24'
+                                  : '#856404',
+                            }}
+                          >
+                            {fiche.priorite === 'urgent'
+                              ? '🔴 Urgent'
+                              : fiche.priorite === 'eleve'
+                                ? '🟠 Élevé'
+                                : fiche.priorite === 'moyen'
+                                  ? '🟡 Moyen'
+                                  : '🟢 Normal'}
+                          </span>
+                        </div>
+                        <div>
+                          <span style={{ fontWeight: 'bold', color: '#555' }}>
+                            📢 Réclamation par :
+                          </span>{' '}
+                          <span>{fiche.reclamationPar || 'Non renseigné'}</span>
+                        </div>
+                        <div>
+                          <span style={{ fontWeight: 'bold', color: '#555' }}>
+                            👤 Personne contactée :
+                          </span>{' '}
+                          <span>
+                            {fiche.personneContactee || 'Non renseignée'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
 
-                    <p>
-                      🛠️ Désignation : {fiche.designation || 'Non renseignée'}
-                    </p>
-                    <p>📍 Lieu : {fiche.lieuInstallation || 'Non renseigné'}</p>
-                    <p>
-                      📅 Date détection :{' '}
-                      {fiche.dateDetection
-                        ? new Date(fiche.dateDetection).toLocaleDateString()
-                        : 'Non renseignée'}
-                    </p>
-
-                    <p>
-                      📢 Réclamation par :{' '}
-                      {fiche.reclamationPar || 'Non renseigné'}
-                    </p>
-                    <p>
-                      👤 Personne contactée :{' '}
-                      {fiche.personneContactee || 'Non renseignée'}
-                    </p>
-
-                    <p>⏱️ Début : {fiche.debutIntervention || '-'}</p>
-                    <p>⏱️ Remise en service : {fiche.remiseEnService || '-'}</p>
-                    <p>⌛ Temps alloué : {fiche.tempsAlloue || '-'}</p>
-                    <p>
-                      📝 Observations :{' '}
-                      {fiche.observationsGenerales || 'Aucune'}
-                    </p>
-
-                    <p>
-                      👨‍🔧 Technicien :{' '}
-                      {fiche.techniciensOperateurs?.[0]?.nom || 'Non renseigné'}
-                    </p>
+                    {/* ================= TEMPS D'INTERVENTION ================= */}
+                    <div
+                      style={{
+                        backgroundColor: '#e8f4fd',
+                        padding: '15px',
+                        borderRadius: '8px',
+                        marginBottom: '20px',
+                        borderLeft: '4px solid #3498db',
+                      }}
+                    >
+                      <h4
+                        style={{
+                          margin: '0 0 10px 0',
+                          color: '#2980b9',
+                          fontSize: '14px',
+                        }}
+                      >
+                        ⏱️ TEMPS D'INTERVENTION
+                      </h4>
+                      <div
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(3, 1fr)',
+                          gap: '10px',
+                        }}
+                      >
+                        <div>
+                          <span style={{ fontWeight: 'bold' }}>🕐 Début :</span>{' '}
+                          <span>{fiche.debutIntervention || '-'}</span>
+                        </div>
+                        <div>
+                          <span style={{ fontWeight: 'bold' }}>
+                            🕒 Remise en service :
+                          </span>{' '}
+                          <span>{fiche.remiseEnService || '-'}</span>
+                        </div>
+                        <div>
+                          <span style={{ fontWeight: 'bold' }}>
+                            ⌛ Temps alloué :
+                          </span>{' '}
+                          <span>{fiche.tempsAlloue || '-'}</span>
+                        </div>
+                      </div>
+                    </div>
 
                     {/* ================= DIAGNOSTIC ================= */}
-                    <h4 style={{ marginTop: '20px' }}>Diagnostic</h4>
-                    {fiche.diagnostic?.length > 0 ? (
-                      <table
+                    <div style={{ marginBottom: '20px' }}>
+                      <h4
                         style={{
-                          borderCollapse: 'collapse',
-                          width: '100%',
-                          marginTop: '10px',
+                          margin: '0 0 10px 0',
+                          color: '#e74c3c',
+                          fontSize: '14px',
+                          borderBottom: '2px solid #e74c3c',
+                          paddingBottom: '5px',
+                          display: 'inline-block',
                         }}
                       >
-                        <thead>
-                          <tr style={{ backgroundColor: '#eee' }}>
-                            <th style={th}>Panne</th>
-                            <th style={th}>Effet</th>
-                            <th style={th}>Gravité</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {fiche.diagnostic.map((d, i) => (
-                            <tr key={i}>
-                              <td style={td}>{d.panneCause || '-'}</td>
-                              <td style={td}>{d.effet || '-'}</td>
-                              <td style={td}>{d.gravite || '-'}</td>
+                        🔍 DIAGNOSTIC
+                      </h4>
+
+                      {fiche.diagnostic?.length > 0 ? (
+                        <table
+                          style={{
+                            borderCollapse: 'collapse',
+                            width: '100%',
+                            marginTop: '10px',
+                          }}
+                        >
+                          <thead>
+                            <tr
+                              style={{
+                                backgroundColor: '#f8f9fa',
+                                borderBottom: '2px solid #dee2e6',
+                              }}
+                            >
+                              <th
+                                style={{
+                                  padding: '10px',
+                                  textAlign: 'left',
+                                  fontWeight: 'bold',
+                                  width: '40%',
+                                }}
+                              >
+                                Panne / Cause
+                              </th>
+                              <th
+                                style={{
+                                  padding: '10px',
+                                  textAlign: 'left',
+                                  fontWeight: 'bold',
+                                  width: '40%',
+                                }}
+                              >
+                                Effet constaté
+                              </th>
+                              <th
+                                style={{
+                                  padding: '10px',
+                                  textAlign: 'center',
+                                  fontWeight: 'bold',
+                                  width: '20%',
+                                }}
+                              >
+                                Gravité
+                              </th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    ) : (
-                      <p>Aucun diagnostic disponible</p>
+                          </thead>
+                          <tbody>
+                            {fiche.diagnostic.map((d, i) => (
+                              <tr
+                                key={i}
+                                style={{ borderBottom: '1px solid #e9ecef' }}
+                              >
+                                <td
+                                  style={{
+                                    padding: '10px',
+                                    backgroundColor:
+                                      i % 2 === 0 ? '#fff' : '#fafafa',
+                                  }}
+                                >
+                                  {d.panneCause || '-'}
+                                </td>
+                                <td
+                                  style={{
+                                    padding: '10px',
+                                    backgroundColor:
+                                      i % 2 === 0 ? '#fff' : '#fafafa',
+                                  }}
+                                >
+                                  {d.effet || '-'}
+                                </td>
+                                <td
+                                  style={{
+                                    padding: '10px',
+                                    textAlign: 'center',
+                                    backgroundColor:
+                                      i % 2 === 0 ? '#fff' : '#fafafa',
+                                  }}
+                                >
+                                  <span
+                                    style={{
+                                      display: 'inline-block',
+                                      padding: '2px 8px',
+                                      borderRadius: '12px',
+                                      fontSize: '12px',
+                                      backgroundColor:
+                                        d.gravite === 'critique'
+                                          ? '#f8d7da'
+                                          : d.gravite === 'majeure'
+                                            ? '#fff3cd'
+                                            : '#d4edda',
+                                      color:
+                                        d.gravite === 'critique'
+                                          ? '#721c24'
+                                          : d.gravite === 'majeure'
+                                            ? '#856404'
+                                            : '#155724',
+                                    }}
+                                  >
+                                    {d.gravite || '-'}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      ) : (
+                        <div
+                          style={{
+                            padding: '20px',
+                            textAlign: 'center',
+                            backgroundColor: '#f8f9fa',
+                            borderRadius: '8px',
+                            color: '#6c757d',
+                            marginTop: '10px',
+                          }}
+                        >
+                          Aucun diagnostic disponible
+                        </div>
+                      )}
+                    </div>
+
+                    {/* ================= DÉPANNAGE / RÉPARATION ================= */}
+                    <div style={{ marginBottom: '20px' }}>
+                      <h4
+                        style={{
+                          margin: '0 0 10px 0',
+                          color: '#27ae60',
+                          fontSize: '14px',
+                          borderBottom: '2px solid #27ae60',
+                          paddingBottom: '5px',
+                          display: 'inline-block',
+                        }}
+                      >
+                        🛠️ DÉPANNAGE & RÉPARATION
+                      </h4>
+
+                      {fiche.depannageReparation?.length > 0 ? (
+                        <table
+                          style={{
+                            borderCollapse: 'collapse',
+                            width: '100%',
+                            marginTop: '10px',
+                          }}
+                        >
+                          <thead>
+                            <tr
+                              style={{
+                                backgroundColor: '#f8f9fa',
+                                borderBottom: '2px solid #dee2e6',
+                              }}
+                            >
+                              <th
+                                style={{
+                                  padding: '10px',
+                                  textAlign: 'left',
+                                  fontWeight: 'bold',
+                                }}
+                              >
+                                Pièces de rechange
+                              </th>
+                              <th
+                                style={{
+                                  padding: '10px',
+                                  textAlign: 'center',
+                                  fontWeight: 'bold',
+                                  width: '100px',
+                                }}
+                              >
+                                Quantité
+                              </th>
+                              <th
+                                style={{
+                                  padding: '10px',
+                                  textAlign: 'right',
+                                  fontWeight: 'bold',
+                                  width: '120px',
+                                }}
+                              >
+                                Coût unitaire
+                              </th>
+                              <th
+                                style={{
+                                  padding: '10px',
+                                  textAlign: 'right',
+                                  fontWeight: 'bold',
+                                  width: '120px',
+                                }}
+                              >
+                                Total
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {fiche.depannageReparation.map((d, i) => (
+                              <tr
+                                key={i}
+                                style={{ borderBottom: '1px solid #e9ecef' }}
+                              >
+                                <td
+                                  style={{
+                                    padding: '10px',
+                                    backgroundColor:
+                                      i % 2 === 0 ? '#fff' : '#fafafa',
+                                  }}
+                                >
+                                  {d.piecesDeRechange || '-'}
+                                </td>
+                                <td
+                                  style={{
+                                    padding: '10px',
+                                    textAlign: 'center',
+                                    backgroundColor:
+                                      i % 2 === 0 ? '#fff' : '#fafafa',
+                                  }}
+                                >
+                                  {d.quantite || '1'}
+                                </td>
+                                <td
+                                  style={{
+                                    padding: '10px',
+                                    textAlign: 'right',
+                                    backgroundColor:
+                                      i % 2 === 0 ? '#fff' : '#fafafa',
+                                  }}
+                                >
+                                  {d.coutUnitaire ? `${d.coutUnitaire} €` : '-'}
+                                </td>
+                                <td
+                                  style={{
+                                    padding: '10px',
+                                    textAlign: 'right',
+                                    backgroundColor:
+                                      i % 2 === 0 ? '#fff' : '#fafafa',
+                                  }}
+                                >
+                                  {d.total ? `${d.total} €` : '-'}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      ) : (
+                        <div
+                          style={{
+                            padding: '20px',
+                            textAlign: 'center',
+                            backgroundColor: '#f8f9fa',
+                            borderRadius: '8px',
+                            color: '#6c757d',
+                            marginTop: '10px',
+                          }}
+                        >
+                          Aucun dépannage / réparation enregistré
+                        </div>
+                      )}
+                    </div>
+
+                    {/* ================= OBSERVATIONS ================= */}
+                    {fiche.observationsGenerales && (
+                      <div
+                        style={{
+                          backgroundColor: '#fff3cd',
+                          borderLeft: '4px solid #ffc107',
+                          padding: '15px',
+                          borderRadius: '8px',
+                          marginBottom: '20px',
+                        }}
+                      >
+                        <h5
+                          style={{
+                            margin: '0 0 8px 0',
+                            color: '#856404',
+                            fontSize: '14px',
+                          }}
+                        >
+                          📝 Observations générales
+                        </h5>
+                        <p style={{ margin: 0, color: '#856404' }}>
+                          {fiche.observationsGenerales}
+                        </p>
+                      </div>
                     )}
 
-                    {/* ================= DEPANNAGE ================= */}
-                    <h4 style={{ marginTop: '20px' }}>
-                      Dépannage / Réparation
-                    </h4>
-                    {fiche.depannageReparation?.length > 0 ? (
-                      <table
+                    {/* ================= TECHNICIEN ================= */}
+                    <div
+                      style={{
+                        backgroundColor: '#e8f5e9',
+                        padding: '15px',
+                        borderRadius: '8px',
+                        marginBottom: '20px',
+                        borderLeft: '4px solid #27ae60',
+                      }}
+                    >
+                      <h4
                         style={{
-                          borderCollapse: 'collapse',
-                          width: '100%',
-                          marginTop: '10px',
+                          margin: '0 0 10px 0',
+                          color: '#27ae60',
+                          fontSize: '14px',
                         }}
                       >
-                        <thead>
-                          <tr style={{ backgroundColor: '#eee' }}>
-                            <th style={th}>Pièces de rechange</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {fiche.depannageReparation.map((d, i) => (
-                            <tr key={i}>
-                              <td style={td}>{d.piecesDeRechange || '-'}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    ) : (
-                      <p>Aucun dépannage / réparation disponible</p>
-                    )}
+                        👨‍🔧 TECHNICIEN INTERVENANT
+                      </h4>
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '20px',
+                        }}
+                      >
+                        <div>
+                          <span style={{ fontWeight: 'bold' }}>Nom :</span>{' '}
+                          <span>
+                            {fiche.techniciensOperateurs?.[0]?.nom ||
+                              'Non renseigné'}
+                          </span>
+                        </div>
+                        {fiche.techniciensOperateurs?.[0]?.matricule && (
+                          <div>
+                            <span style={{ fontWeight: 'bold' }}>
+                              Matricule :
+                            </span>{' '}
+                            <span>
+                              {fiche.techniciensOperateurs[0].matricule}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
 
                     {/* ================= SIGNATURE ================= */}
                     {fiche.signature && (
-                      <div style={{ marginTop: '20px' }}>
-                        <h4>Signature</h4>
+                      <div
+                        style={{
+                          backgroundColor: '#f8f9fa',
+                          padding: '15px',
+                          borderRadius: '8px',
+                          marginBottom: '20px',
+                          textAlign: 'center',
+                        }}
+                      >
+                        <h4
+                          style={{
+                            margin: '0 0 10px 0',
+                            color: '#555',
+                            fontSize: '14px',
+                          }}
+                        >
+                          ✍️ SIGNATURE DU TECHNICIEN
+                        </h4>
                         <img
                           src={fiche.signature}
-                          alt="signature"
-                          style={{ border: '1px solid #000', width: '200px' }}
+                          alt="Signature"
+                          style={{
+                            border: '1px solid #dee2e6',
+                            borderRadius: '8px',
+                            maxWidth: '300px',
+                            maxHeight: '100px',
+                            padding: '10px',
+                            backgroundColor: '#fff',
+                          }}
                         />
                       </div>
                     )}
 
                     {/* ================= ACTIONS ================= */}
                     <div
+                      className="fiche-actions"
                       style={{
-                        marginTop: '20px',
                         display: 'flex',
-                        gap: '10px',
+                        gap: '12px',
+                        justifyContent: 'flex-end',
+                        paddingTop: '20px',
+                        borderTop: '1px solid #e9ecef',
+                        marginTop: '10px',
                       }}
                     >
                       <button
                         onClick={() =>
                           validerFiche(selectedFiche._id, selectedFiche.notifId)
                         }
+                        disabled={selectedFiche.statut === 'validé'}
+                        style={{
+                          padding: '10px 20px',
+                          backgroundColor:
+                            selectedFiche.statut === 'validé'
+                              ? '#6c757d'
+                              : '#28a745',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor:
+                            selectedFiche.statut === 'validé'
+                              ? 'not-allowed'
+                              : 'pointer',
+                          fontSize: '14px',
+                          fontWeight: 'bold',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                        }}
                       >
-                        ✅ Valider
+                        ✅{' '}
+                        {selectedFiche.statut === 'validé'
+                          ? 'Déjà validé'
+                          : 'Valider la fiche'}
                       </button>
-                      <button onClick={() => setSelectedFiche(null)}>
-                        ❌ Fermer
-                      </button>
-                      <button onClick={() => exportPDF(selectedFiche)}>
+                      <button
+                        onClick={() => exportPDF(selectedFiche)}
+                        style={{
+                          padding: '10px 20px',
+                          backgroundColor: '#3498db',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                          fontWeight: 'bold',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                        }}
+                      >
                         📄 Exporter PDF
+                      </button>
+                      <button
+                        onClick={() => setSelectedFiche(null)}
+                        style={{
+                          padding: '10px 20px',
+                          backgroundColor: '#dc3545',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                          fontWeight: 'bold',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                        }}
+                      >
+                        ❌ Fermer
                       </button>
                     </div>
                   </div>
                 ))}
-              </>
+              </div>
+            ) : selectedFiche?.controles ? (
+              <div className="fiche-detail-container">
+                {/* ================= EN-TÊTE ================= */}
+                <div
+                  className="fiche-header"
+                  style={{
+                    backgroundColor: '#9b59b6',
+                    color: 'white',
+                    padding: '15px',
+                    borderRadius: '8px 8px 0 0',
+                    marginBottom: '20px',
+                  }}
+                >
+                  <h2 style={{ margin: 0, fontSize: '20px' }}>
+                    ⚡ FICHE NO-BREAK - GMAO
+                  </h2>
+                  <p
+                    style={{
+                      margin: '5px 0 0 0',
+                      opacity: 0.9,
+                      fontSize: '12px',
+                    }}
+                  >
+                    Contrôle onduleur et mesures électriques
+                  </p>
+                </div>
+
+                {/* ================= INFORMATIONS GÉNÉRALES ================= */}
+                <div
+                  className="fiche-info-section"
+                  style={{
+                    backgroundColor: '#f8f9fa',
+                    padding: '15px',
+                    borderRadius: '8px',
+                    marginBottom: '20px',
+                    border: '1px solid #e9ecef',
+                  }}
+                >
+                  <h3
+                    style={{
+                      margin: '0 0 10px 0',
+                      color: '#9b59b6',
+                      fontSize: '16px',
+                    }}
+                  >
+                    📋 INFORMATIONS GÉNÉRALES
+                  </h3>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(2, 1fr)',
+                      gap: '10px',
+                    }}
+                  >
+                    <div>
+                      <span style={{ fontWeight: 'bold', color: '#555' }}>
+                        📅 Date :
+                      </span>{' '}
+                      <span>
+                        {selectedFiche.date
+                          ? new Date(selectedFiche.date).toLocaleDateString(
+                              'fr-FR'
+                            )
+                          : 'Non spécifiée'}
+                      </span>
+                    </div>
+                    <div>
+                      <span style={{ fontWeight: 'bold', color: '#555' }}>
+                        🔖 N° Fiche :
+                      </span>{' '}
+                      <span>
+                        {selectedFiche._id?.slice(-8) || 'Non spécifié'}
+                      </span>
+                    </div>
+                    <div>
+                      <span style={{ fontWeight: 'bold', color: '#555' }}>
+                        🏷️ Désignation :
+                      </span>{' '}
+                      <span>
+                        {selectedFiche.designation || 'Non spécifiée'}
+                      </span>
+                    </div>
+                    <div>
+                      <span style={{ fontWeight: 'bold', color: '#555' }}>
+                        📍 Lieu :
+                      </span>{' '}
+                      <span>
+                        {selectedFiche.lieuInstallation || 'Non spécifié'}
+                      </span>
+                    </div>
+                    <div>
+                      <span style={{ fontWeight: 'bold', color: '#555' }}>
+                        🔋 Type d'onduleur :
+                      </span>{' '}
+                      <span>
+                        {selectedFiche.typeOnduleur || 'Non spécifié'}
+                      </span>
+                    </div>
+                    <div>
+                      <span style={{ fontWeight: 'bold', color: '#555' }}>
+                        📊 Statut :
+                      </span>{' '}
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          fontSize: '12px',
+                          fontWeight: 'bold',
+                          backgroundColor:
+                            selectedFiche.statut === 'validé'
+                              ? '#d4edda'
+                              : '#fff3cd',
+                          color:
+                            selectedFiche.statut === 'validé'
+                              ? '#155724'
+                              : '#856404',
+                        }}
+                      >
+                        {selectedFiche.statut === 'validé'
+                          ? '✅ Validé'
+                          : '⏳ En attente'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ================= TABLEAU DES CONTRÔLES ================= */}
+                <div style={{ marginBottom: '20px', overflowX: 'auto' }}>
+                  <h4
+                    style={{
+                      margin: '0 0 10px 0',
+                      color: '#9b59b6',
+                      fontSize: '14px',
+                      borderBottom: '2px solid #9b59b6',
+                      paddingBottom: '5px',
+                      display: 'inline-block',
+                    }}
+                  >
+                    🔍 POINTS DE CONTRÔLE
+                  </h4>
+
+                  <table
+                    style={{
+                      borderCollapse: 'collapse',
+                      width: '100%',
+                      marginTop: '10px',
+                      fontSize: '12px',
+                    }}
+                  >
+                    <thead>
+                      <tr
+                        style={{
+                          backgroundColor: '#f8f9fa',
+                          borderBottom: '2px solid #dee2e6',
+                        }}
+                      >
+                        <th
+                          style={{
+                            padding: '8px',
+                            textAlign: 'left',
+                            fontWeight: 'bold',
+                          }}
+                        >
+                          Spécification
+                        </th>
+                        <th
+                          style={{
+                            padding: '8px',
+                            textAlign: 'left',
+                            fontWeight: 'bold',
+                          }}
+                        >
+                          Désignation
+                        </th>
+                        <th
+                          style={{
+                            padding: '8px',
+                            textAlign: 'center',
+                            fontWeight: 'bold',
+                            backgroundColor: '#f39c12',
+                          }}
+                        >
+                          Matin
+                        </th>
+                        <th
+                          style={{
+                            padding: '8px',
+                            textAlign: 'center',
+                            fontWeight: 'bold',
+                            backgroundColor: '#f39c12',
+                          }}
+                        >
+                          État
+                        </th>
+                        <th
+                          style={{
+                            padding: '8px',
+                            textAlign: 'center',
+                            fontWeight: 'bold',
+                            backgroundColor: '#e67e22',
+                          }}
+                        >
+                          A-Midi
+                        </th>
+                        <th
+                          style={{
+                            padding: '8px',
+                            textAlign: 'center',
+                            fontWeight: 'bold',
+                            backgroundColor: '#e67e22',
+                          }}
+                        >
+                          État
+                        </th>
+                        <th
+                          style={{
+                            padding: '8px',
+                            textAlign: 'center',
+                            fontWeight: 'bold',
+                            backgroundColor: '#2c3e50',
+                          }}
+                        >
+                          Nuit
+                        </th>
+                        <th
+                          style={{
+                            padding: '8px',
+                            textAlign: 'center',
+                            fontWeight: 'bold',
+                            backgroundColor: '#2c3e50',
+                          }}
+                        >
+                          État
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedFiche.controles.map((c, i) => (
+                        <tr
+                          key={i}
+                          style={{ borderBottom: '1px solid #e9ecef' }}
+                        >
+                          <td
+                            style={{
+                              padding: '8px',
+                              backgroundColor: i % 2 === 0 ? '#fff' : '#fafafa',
+                            }}
+                          >
+                            {c.specification || '-'}
+                          </td>
+                          <td
+                            style={{
+                              padding: '8px',
+                              backgroundColor: i % 2 === 0 ? '#fff' : '#fafafa',
+                            }}
+                          >
+                            {c.designation || '-'}
+                          </td>
+                          <td
+                            style={{
+                              padding: '8px',
+                              textAlign: 'center',
+                              backgroundColor: i % 2 === 0 ? '#fff' : '#fafafa',
+                            }}
+                          >
+                            {c.matin?.normal
+                              ? '✔'
+                              : c.matin?.anomalie
+                                ? '⚠'
+                                : '⚪'}
+                          </td>
+                          <td
+                            style={{
+                              padding: '8px',
+                              textAlign: 'center',
+                              backgroundColor: i % 2 === 0 ? '#fff' : '#fafafa',
+                            }}
+                          >
+                            <span
+                              style={{
+                                color: c.matin?.normal
+                                  ? '#28a745'
+                                  : c.matin?.anomalie
+                                    ? '#dc3545'
+                                    : '#6c757d',
+                                fontWeight: 'bold',
+                              }}
+                            >
+                              {c.matin?.normal
+                                ? 'Normal'
+                                : c.matin?.anomalie
+                                  ? 'Anomalie'
+                                  : '-'}
+                            </span>
+                          </td>
+                          <td
+                            style={{
+                              padding: '8px',
+                              textAlign: 'center',
+                              backgroundColor: i % 2 === 0 ? '#fff' : '#fafafa',
+                            }}
+                          >
+                            {c.apresMidi?.normal
+                              ? '✔'
+                              : c.apresMidi?.anomalie
+                                ? '⚠'
+                                : '⚪'}
+                          </td>
+                          <td
+                            style={{
+                              padding: '8px',
+                              textAlign: 'center',
+                              backgroundColor: i % 2 === 0 ? '#fff' : '#fafafa',
+                            }}
+                          >
+                            <span
+                              style={{
+                                color: c.apresMidi?.normal
+                                  ? '#28a745'
+                                  : c.apresMidi?.anomalie
+                                    ? '#dc3545'
+                                    : '#6c757d',
+                                fontWeight: 'bold',
+                              }}
+                            >
+                              {c.apresMidi?.normal
+                                ? 'Normal'
+                                : c.apresMidi?.anomalie
+                                  ? 'Anomalie'
+                                  : '-'}
+                            </span>
+                          </td>
+                          <td
+                            style={{
+                              padding: '8px',
+                              textAlign: 'center',
+                              backgroundColor: i % 2 === 0 ? '#fff' : '#fafafa',
+                            }}
+                          >
+                            {c.nuit?.normal
+                              ? '✔'
+                              : c.nuit?.anomalie
+                                ? '⚠'
+                                : '⚪'}
+                          </td>
+                          <td
+                            style={{
+                              padding: '8px',
+                              textAlign: 'center',
+                              backgroundColor: i % 2 === 0 ? '#fff' : '#fafafa',
+                            }}
+                          >
+                            <span
+                              style={{
+                                color: c.nuit?.normal
+                                  ? '#28a745'
+                                  : c.nuit?.anomalie
+                                    ? '#dc3545'
+                                    : '#6c757d',
+                                fontWeight: 'bold',
+                              }}
+                            >
+                              {c.nuit?.normal
+                                ? 'Normal'
+                                : c.nuit?.anomalie
+                                  ? 'Anomalie'
+                                  : '-'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* ================= TEMPS D'INSPECTION ================= */}
+                <div
+                  style={{
+                    backgroundColor: '#e8f4fd',
+                    padding: '15px',
+                    borderRadius: '8px',
+                    marginBottom: '20px',
+                  }}
+                >
+                  <h4
+                    style={{
+                      margin: '0 0 10px 0',
+                      color: '#2980b9',
+                      fontSize: '14px',
+                    }}
+                  >
+                    ⏱️ TEMPS D'INSPECTION
+                  </h4>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(3, 1fr)',
+                      gap: '10px',
+                    }}
+                  >
+                    {['matin', 'apresMidi', 'nuit'].map((p) => (
+                      <div
+                        key={p}
+                        style={{
+                          backgroundColor: 'white',
+                          padding: '10px',
+                          borderRadius: '6px',
+                          border: '1px solid #dee2e6',
+                        }}
+                      >
+                        <strong style={{ textTransform: 'capitalize' }}>
+                          {p === 'apresMidi' ? 'Après-midi' : p}
+                        </strong>
+                        <div style={{ fontSize: '12px', marginTop: '5px' }}>
+                          {selectedFiche.tempsInspection?.[p]?.debut || '--'} →{' '}
+                          {selectedFiche.tempsInspection?.[p]?.fin || '--'}
+                          <br />
+                          Durée:{' '}
+                          {selectedFiche.tempsInspection?.[p]?.tempsAlloue ||
+                            '0'}{' '}
+                          min
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div
+                    style={{
+                      marginTop: '10px',
+                      textAlign: 'right',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    Total: {selectedFiche.tempsInspection?.total || '0'} minutes
+                  </div>
+                </div>
+
+                {/* ================= OBSERVATIONS ================= */}
+                <div style={{ marginBottom: '20px' }}>
+                  <h4
+                    style={{
+                      margin: '0 0 10px 0',
+                      color: '#f39c12',
+                      fontSize: '14px',
+                      borderBottom: '2px solid #f39c12',
+                      paddingBottom: '5px',
+                      display: 'inline-block',
+                    }}
+                  >
+                    📝 OBSERVATIONS PAR PÉRIODE
+                  </h4>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(3, 1fr)',
+                      gap: '10px',
+                      marginTop: '10px',
+                    }}
+                  >
+                    {['matin', 'apresMidi', 'nuit'].map((p) => (
+                      <div
+                        key={p}
+                        style={{
+                          backgroundColor: '#fff3cd',
+                          padding: '10px',
+                          borderRadius: '6px',
+                          border: '1px solid #ffc107',
+                        }}
+                      >
+                        <strong style={{ textTransform: 'capitalize' }}>
+                          {p === 'apresMidi' ? 'Après-midi' : p}
+                        </strong>
+                        <div
+                          style={{
+                            fontSize: '12px',
+                            marginTop: '5px',
+                            color: '#856404',
+                          }}
+                        >
+                          {selectedFiche.observations?.[p] ||
+                            'Aucune observation'}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* ================= TECHNICIENS ================= */}
+                <div
+                  style={{
+                    backgroundColor: '#e8f5e9',
+                    padding: '15px',
+                    borderRadius: '8px',
+                    marginBottom: '20px',
+                  }}
+                >
+                  <h4
+                    style={{
+                      margin: '0 0 10px 0',
+                      color: '#27ae60',
+                      fontSize: '14px',
+                    }}
+                  >
+                    👨‍🔧 TECHNICIENS D'INTERVENTION
+                  </h4>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(3, 1fr)',
+                      gap: '10px',
+                    }}
+                  >
+                    {['matin', 'apresMidi', 'nuit'].map((p) => (
+                      <div key={p}>
+                        <strong style={{ textTransform: 'capitalize' }}>
+                          {p === 'apresMidi' ? 'Après-midi' : p}
+                        </strong>
+                        <div style={{ fontSize: '12px' }}>
+                          {(selectedFiche.techniciens?.[p] || []).join(', ') ||
+                            'Aucun technicien'}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* ================= ACTIONS ================= */}
+                <div
+                  className="fiche-actions"
+                  style={{
+                    display: 'flex',
+                    gap: '12px',
+                    justifyContent: 'flex-end',
+                    paddingTop: '20px',
+                    borderTop: '1px solid #e9ecef',
+                  }}
+                >
+                  <button
+                    onClick={() =>
+                      validerFiche(selectedFiche._id, selectedFiche.notifId)
+                    }
+                    disabled={selectedFiche.statut === 'validé'}
+                    style={{
+                      padding: '10px 20px',
+                      backgroundColor:
+                        selectedFiche.statut === 'validé'
+                          ? '#6c757d'
+                          : '#28a745',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor:
+                        selectedFiche.statut === 'validé'
+                          ? 'not-allowed'
+                          : 'pointer',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
+                  >
+                    ✅{' '}
+                    {selectedFiche.statut === 'validé'
+                      ? 'Déjà validé'
+                      : 'Valider la fiche'}
+                  </button>
+                  <button
+                    onClick={() => exportPDF(selectedFiche)}
+                    style={{
+                      padding: '10px 20px',
+                      backgroundColor: '#9b59b6',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
+                  >
+                    📄 Exporter PDF
+                  </button>
+                  <button
+                    onClick={() => setSelectedFiche(null)}
+                    style={{
+                      padding: '10px 20px',
+                      backgroundColor: '#dc3545',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
+                  >
+                    ❌ Fermer
+                  </button>
+                </div>
+              </div>
             ) : // fiche nobreak
 
             selectedFiche?.controles ? (
@@ -4512,250 +8502,1845 @@ export default function Notifications() {
                   </button>
                 </div>
               </>
-            ) : selectedFiche?.pointsControle ? (
-              <>
-                <h3>Fiche 2250KVA</h3>
-
-                {/* ================= INFOS GENERALES ================= */}
-                <p>
-                  📅 Date :{' '}
-                  {selectedFiche.date
-                    ? new Date(selectedFiche.date).toLocaleDateString()
-                    : ''}
-                </p>
-                <p>📌 Désignation : {selectedFiche.designation}</p>
-                <p>📍 Lieu : {selectedFiche.lieuInstallation}</p>
-
-                {/* ================= TABLEAU ================= */}
-                <h4>Points de contrôle</h4>
-
-                <table style={{ borderCollapse: 'collapse', width: '100%' }}>
-                  <thead>
-                    <tr style={{ backgroundColor: '#eee' }}>
-                      <th style={th}>Spécification</th>
-                      <th style={th}>Désignation</th>
-
-                      <th colSpan="2" style={th}>
-                        Matin
-                      </th>
-                      <th colSpan="2" style={th}>
-                        Après-midi
-                      </th>
-                      <th colSpan="2" style={th}>
-                        Nuit
-                      </th>
-                    </tr>
-
-                    <tr style={{ backgroundColor: '#eee' }}>
-                      <th></th>
-                      <th></th>
-
-                      <th style={th}>Normal</th>
-                      <th style={th}>Anomalie</th>
-
-                      <th style={th}>Normal</th>
-                      <th style={th}>Anomalie</th>
-
-                      <th style={th}>Normal</th>
-                      <th style={th}>Anomalie</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {selectedFiche.pointsControle.map((c, i) => (
-                      <tr key={i}>
-                        <td style={td}>{c.specification}</td>
-                        <td style={td}>{c.designation}</td>
-
-                        {/* MATIN */}
-                        <td style={td}>{c.matin?.normal ? '✔' : ''}</td>
-                        <td style={td}>{c.matin?.anomalie ? '❌' : ''}</td>
-
-                        {/* APRES MIDI */}
-                        <td style={td}>{c.apresMidi?.normal ? '✔' : ''}</td>
-                        <td style={td}>{c.apresMidi?.anomalie ? '❌' : ''}</td>
-
-                        {/* NUIT */}
-                        <td style={td}>{c.nuit?.normal ? '✔' : ''}</td>
-                        <td style={td}>{c.nuit?.anomalie ? '❌' : ''}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-
-                {/* ================= TEMPS ================= */}
-                <h4 style={{ marginTop: '20px' }}>Temps Inspection</h4>
-
-                {['matin', 'apresMidi', 'nuit'].map((p) => (
-                  <p key={p}>
-                    ⏱ {p} : {selectedFiche.tempsInspection?.[p]?.debut} →{' '}
-                    {selectedFiche.tempsInspection?.[p]?.fin} (
-                    {selectedFiche.tempsInspection?.[p]?.tempsAlloue})
+            ) : // fiche 2250KVA
+            selectedFiche?.pointsControle ? (
+              <div className="fiche-detail-container">
+                {/* ================= EN-TÊTE ================= */}
+                <div
+                  className="fiche-header"
+                  style={{
+                    backgroundColor: '#34495e',
+                    color: 'white',
+                    padding: '15px',
+                    borderRadius: '8px 8px 0 0',
+                    marginBottom: '20px',
+                  }}
+                >
+                  <h2 style={{ margin: 0, fontSize: '20px' }}>
+                    ⚡ FICHE 2250KVA - GROUPE ÉLECTROGÈNE
+                  </h2>
+                  <p
+                    style={{
+                      margin: '5px 0 0 0',
+                      opacity: 0.9,
+                      fontSize: '12px',
+                    }}
+                  >
+                    Contrôle technique et surveillance
                   </p>
-                ))}
+                </div>
 
-                <p>🔢 Total : {selectedFiche.tempsInspection?.total}</p>
+                {/* ================= INFORMATIONS GÉNÉRALES ================= */}
+                <div
+                  className="fiche-info-section"
+                  style={{
+                    backgroundColor: '#f8f9fa',
+                    padding: '15px',
+                    borderRadius: '8px',
+                    marginBottom: '20px',
+                    border: '1px solid #e9ecef',
+                  }}
+                >
+                  <h3
+                    style={{
+                      margin: '0 0 10px 0',
+                      color: '#34495e',
+                      fontSize: '16px',
+                    }}
+                  >
+                    📋 INFORMATIONS GÉNÉRALES
+                  </h3>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(2, 1fr)',
+                      gap: '10px',
+                    }}
+                  >
+                    <div>
+                      <span style={{ fontWeight: 'bold', color: '#555' }}>
+                        📅 Date :
+                      </span>{' '}
+                      <span>
+                        {selectedFiche.date
+                          ? new Date(selectedFiche.date).toLocaleDateString(
+                              'fr-FR'
+                            )
+                          : 'Non spécifiée'}
+                      </span>
+                    </div>
+                    <div>
+                      <span style={{ fontWeight: 'bold', color: '#555' }}>
+                        🔖 N° Fiche :
+                      </span>{' '}
+                      <span>
+                        {selectedFiche._id?.slice(-8) || 'Non spécifié'}
+                      </span>
+                    </div>
+                    <div>
+                      <span style={{ fontWeight: 'bold', color: '#555' }}>
+                        🏷️ Désignation :
+                      </span>{' '}
+                      <span>
+                        {selectedFiche.designation || 'Non spécifiée'}
+                      </span>
+                    </div>
+                    <div>
+                      <span style={{ fontWeight: 'bold', color: '#555' }}>
+                        📍 Lieu :
+                      </span>{' '}
+                      <span>
+                        {selectedFiche.lieuInstallation || 'Non spécifié'}
+                      </span>
+                    </div>
+                    <div>
+                      <span style={{ fontWeight: 'bold', color: '#555' }}>
+                        🔋 Puissance :
+                      </span>{' '}
+                      <span>{selectedFiche.puissance || '2250 KVA'}</span>
+                    </div>
+                    <div>
+                      <span style={{ fontWeight: 'bold', color: '#555' }}>
+                        📊 Statut :
+                      </span>{' '}
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          fontSize: '12px',
+                          fontWeight: 'bold',
+                          backgroundColor:
+                            selectedFiche.statut === 'validé'
+                              ? '#d4edda'
+                              : '#fff3cd',
+                          color:
+                            selectedFiche.statut === 'validé'
+                              ? '#155724'
+                              : '#856404',
+                        }}
+                      >
+                        {selectedFiche.statut === 'validé'
+                          ? '✅ Validé'
+                          : '⏳ En attente'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ================= TABLEAU DES POINTS DE CONTRÔLE ================= */}
+                <div style={{ marginBottom: '20px', overflowX: 'auto' }}>
+                  <h4
+                    style={{
+                      margin: '0 0 10px 0',
+                      color: '#34495e',
+                      fontSize: '14px',
+                      borderBottom: '2px solid #34495e',
+                      paddingBottom: '5px',
+                      display: 'inline-block',
+                    }}
+                  >
+                    🔍 POINTS DE CONTRÔLE TECHNIQUE
+                  </h4>
+
+                  <table
+                    style={{
+                      borderCollapse: 'collapse',
+                      width: '100%',
+                      marginTop: '10px',
+                      fontSize: '12px',
+                    }}
+                  >
+                    <thead>
+                      <tr
+                        style={{
+                          backgroundColor: '#f8f9fa',
+                          borderBottom: '2px solid #dee2e6',
+                        }}
+                      >
+                        <th
+                          style={{
+                            padding: '10px',
+                            textAlign: 'left',
+                            fontWeight: 'bold',
+                            width: '25%',
+                          }}
+                        >
+                          Spécification
+                        </th>
+                        <th
+                          style={{
+                            padding: '10px',
+                            textAlign: 'left',
+                            fontWeight: 'bold',
+                            width: '25%',
+                          }}
+                        >
+                          Désignation
+                        </th>
+                        <th
+                          style={{
+                            padding: '10px',
+                            textAlign: 'center',
+                            fontWeight: 'bold',
+                            backgroundColor: '#f39c12',
+                            color: 'white',
+                          }}
+                          colSpan="2"
+                        >
+                          🌅 Matin
+                        </th>
+                        <th
+                          style={{
+                            padding: '10px',
+                            textAlign: 'center',
+                            fontWeight: 'bold',
+                            backgroundColor: '#e67e22',
+                            color: 'white',
+                          }}
+                          colSpan="2"
+                        >
+                          🌇 Après-midi
+                        </th>
+                        <th
+                          style={{
+                            padding: '10px',
+                            textAlign: 'center',
+                            fontWeight: 'bold',
+                            backgroundColor: '#2c3e50',
+                            color: 'white',
+                          }}
+                          colSpan="2"
+                        >
+                          🌙 Nuit
+                        </th>
+                      </tr>
+                      <tr
+                        style={{
+                          backgroundColor: '#f8f9fa',
+                          borderBottom: '2px solid #dee2e6',
+                        }}
+                      >
+                        <th style={{ padding: '8px' }}></th>
+                        <th style={{ padding: '8px' }}></th>
+                        <th
+                          style={{
+                            padding: '8px',
+                            textAlign: 'center',
+                            width: '30px',
+                          }}
+                        >
+                          Normal
+                        </th>
+                        <th
+                          style={{
+                            padding: '8px',
+                            textAlign: 'center',
+                            width: '30px',
+                          }}
+                        >
+                          Anomalie
+                        </th>
+                        <th
+                          style={{
+                            padding: '8px',
+                            textAlign: 'center',
+                            width: '30px',
+                          }}
+                        >
+                          Normal
+                        </th>
+                        <th
+                          style={{
+                            padding: '8px',
+                            textAlign: 'center',
+                            width: '30px',
+                          }}
+                        >
+                          Anomalie
+                        </th>
+                        <th
+                          style={{
+                            padding: '8px',
+                            textAlign: 'center',
+                            width: '30px',
+                          }}
+                        >
+                          Normal
+                        </th>
+                        <th
+                          style={{
+                            padding: '8px',
+                            textAlign: 'center',
+                            width: '30px',
+                          }}
+                        >
+                          Anomalie
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedFiche.pointsControle.map((c, i) => {
+                        const hasAnomalie =
+                          c.matin?.anomalie ||
+                          c.apresMidi?.anomalie ||
+                          c.nuit?.anomalie;
+                        return (
+                          <tr
+                            key={i}
+                            style={{
+                              borderBottom: '1px solid #e9ecef',
+                              backgroundColor: hasAnomalie
+                                ? '#fff5f5'
+                                : i % 2 === 0
+                                  ? '#fff'
+                                  : '#fafafa',
+                            }}
+                          >
+                            <td
+                              style={{
+                                padding: '10px',
+                                fontWeight: c.specification ? 'bold' : 'normal',
+                              }}
+                            >
+                              {c.specification || '-'}
+                            </td>
+                            <td style={{ padding: '10px' }}>
+                              {c.designation || '-'}
+                            </td>
+                            {/* MATIN */}
+                            <td
+                              style={{ padding: '10px', textAlign: 'center' }}
+                            >
+                              {c.matin?.normal ? (
+                                <span
+                                  style={{ color: '#28a745', fontSize: '18px' }}
+                                >
+                                  ✔
+                                </span>
+                              ) : (
+                                <span style={{ color: '#adb5bd' }}>—</span>
+                              )}
+                            </td>
+                            <td
+                              style={{ padding: '10px', textAlign: 'center' }}
+                            >
+                              {c.matin?.anomalie ? (
+                                <span
+                                  style={{ color: '#dc3545', fontSize: '18px' }}
+                                >
+                                  ⚠
+                                </span>
+                              ) : (
+                                <span style={{ color: '#adb5bd' }}>—</span>
+                              )}
+                            </td>
+                            {/* APRÈS-MIDI */}
+                            <td
+                              style={{ padding: '10px', textAlign: 'center' }}
+                            >
+                              {c.apresMidi?.normal ? (
+                                <span
+                                  style={{ color: '#28a745', fontSize: '18px' }}
+                                >
+                                  ✔
+                                </span>
+                              ) : (
+                                <span style={{ color: '#adb5bd' }}>—</span>
+                              )}
+                            </td>
+                            <td
+                              style={{ padding: '10px', textAlign: 'center' }}
+                            >
+                              {c.apresMidi?.anomalie ? (
+                                <span
+                                  style={{ color: '#dc3545', fontSize: '18px' }}
+                                >
+                                  ⚠
+                                </span>
+                              ) : (
+                                <span style={{ color: '#adb5bd' }}>—</span>
+                              )}
+                            </td>
+                            {/* NUIT */}
+                            <td
+                              style={{ padding: '10px', textAlign: 'center' }}
+                            >
+                              {c.nuit?.normal ? (
+                                <span
+                                  style={{ color: '#28a745', fontSize: '18px' }}
+                                >
+                                  ✔
+                                </span>
+                              ) : (
+                                <span style={{ color: '#adb5bd' }}>—</span>
+                              )}
+                            </td>
+                            <td
+                              style={{ padding: '10px', textAlign: 'center' }}
+                            >
+                              {c.nuit?.anomalie ? (
+                                <span
+                                  style={{ color: '#dc3545', fontSize: '18px' }}
+                                >
+                                  ⚠
+                                </span>
+                              ) : (
+                                <span style={{ color: '#adb5bd' }}>—</span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* ================= SYNTHÈSE DES ANOMALIES ================= */}
+                {(() => {
+                  const anomalies = selectedFiche.pointsControle.filter(
+                    (c) =>
+                      c.matin?.anomalie ||
+                      c.apresMidi?.anomalie ||
+                      c.nuit?.anomalie
+                  );
+
+                  if (anomalies.length === 0) return null;
+
+                  return (
+                    <div
+                      style={{
+                        backgroundColor: '#f8d7da',
+                        borderLeft: '4px solid #dc3545',
+                        padding: '15px',
+                        borderRadius: '8px',
+                        marginBottom: '20px',
+                      }}
+                    >
+                      <h4
+                        style={{
+                          margin: '0 0 10px 0',
+                          color: '#721c24',
+                          fontSize: '14px',
+                        }}
+                      >
+                        ⚠️ SYNTHÈSE DES ANOMALIES DÉTECTÉES ({anomalies.length})
+                      </h4>
+                      {anomalies.map((anomalie, idx) => {
+                        const periods = [];
+                        if (anomalie.matin?.anomalie) periods.push('Matin');
+                        if (anomalie.apresMidi?.anomalie)
+                          periods.push('Après-midi');
+                        if (anomalie.nuit?.anomalie) periods.push('Nuit');
+
+                        return (
+                          <div
+                            key={idx}
+                            style={{
+                              marginBottom: '8px',
+                              padding: '8px',
+                              backgroundColor: 'white',
+                              borderRadius: '4px',
+                            }}
+                          >
+                            <strong style={{ color: '#dc3545' }}>
+                              ⚠️ {anomalie.specification || 'Point de contrôle'}
+                            </strong>
+                            <div
+                              style={{
+                                fontSize: '12px',
+                                color: '#555',
+                                marginTop: '4px',
+                              }}
+                            >
+                              Période(s): {periods.join(', ')}
+                              {anomalie.matin?.descriptionAnomalie && (
+                                <div>
+                                  Description:{' '}
+                                  {anomalie.matin.descriptionAnomalie}
+                                </div>
+                              )}
+                              {anomalie.apresMidi?.descriptionAnomalie && (
+                                <div>
+                                  Description:{' '}
+                                  {anomalie.apresMidi.descriptionAnomalie}
+                                </div>
+                              )}
+                              {anomalie.nuit?.descriptionAnomalie && (
+                                <div>
+                                  Description:{' '}
+                                  {anomalie.nuit.descriptionAnomalie}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+
+                {/* ================= TEMPS D'INSPECTION ================= */}
+                <div
+                  style={{
+                    backgroundColor: '#e8f4fd',
+                    padding: '15px',
+                    borderRadius: '8px',
+                    marginBottom: '20px',
+                  }}
+                >
+                  <h4
+                    style={{
+                      margin: '0 0 10px 0',
+                      color: '#2980b9',
+                      fontSize: '14px',
+                    }}
+                  >
+                    ⏱️ TEMPS D'INSPECTION
+                  </h4>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(3, 1fr)',
+                      gap: '10px',
+                    }}
+                  >
+                    {['matin', 'apresMidi', 'nuit'].map((p) => {
+                      const periodeLabels = {
+                        matin: '🌅 Matin',
+                        apresMidi: '🌇 Après-midi',
+                        nuit: '🌙 Nuit',
+                      };
+                      const t = selectedFiche.tempsInspection?.[p] || {};
+                      return (
+                        <div
+                          key={p}
+                          style={{
+                            backgroundColor: 'white',
+                            padding: '10px',
+                            borderRadius: '6px',
+                            border: '1px solid #dee2e6',
+                          }}
+                        >
+                          <strong>{periodeLabels[p]}</strong>
+                          <div style={{ fontSize: '12px', marginTop: '5px' }}>
+                            {t.debut || '--'} → {t.fin || '--'}
+                            <br />
+                            Durée: {t.tempsAlloue || '0'} min
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div
+                    style={{
+                      marginTop: '10px',
+                      textAlign: 'right',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    📊 Temps total:{' '}
+                    {selectedFiche.tempsInspection?.total || '0'} minutes
+                  </div>
+                </div>
 
                 {/* ================= OBSERVATIONS ================= */}
-                <h4>Observations</h4>
-                {['matin', 'apresMidi', 'nuit'].map((p) => (
-                  <p key={p}>
-                    📝 {p} : {selectedFiche.observations?.[p]}
-                  </p>
-                ))}
+                <div style={{ marginBottom: '20px' }}>
+                  <h4
+                    style={{
+                      margin: '0 0 10px 0',
+                      color: '#f39c12',
+                      fontSize: '14px',
+                      borderBottom: '2px solid #f39c12',
+                      paddingBottom: '5px',
+                      display: 'inline-block',
+                    }}
+                  >
+                    📝 OBSERVATIONS PAR PÉRIODE
+                  </h4>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(3, 1fr)',
+                      gap: '10px',
+                      marginTop: '10px',
+                    }}
+                  >
+                    {['matin', 'apresMidi', 'nuit'].map((p) => {
+                      const periodeLabels = {
+                        matin: '🌅 Matin',
+                        apresMidi: '🌇 Après-midi',
+                        nuit: '🌙 Nuit',
+                      };
+                      return (
+                        <div
+                          key={p}
+                          style={{
+                            backgroundColor: '#fff3cd',
+                            padding: '10px',
+                            borderRadius: '6px',
+                            border: '1px solid #ffc107',
+                          }}
+                        >
+                          <strong>{periodeLabels[p]}</strong>
+                          <div
+                            style={{
+                              fontSize: '12px',
+                              marginTop: '5px',
+                              color: '#856404',
+                            }}
+                          >
+                            {selectedFiche.observations?.[p] ||
+                              'Aucune observation'}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
 
                 {/* ================= TECHNICIENS ================= */}
-                <h4>Techniciens</h4>
-                {['matin', 'apresMidi', 'nuit'].map((p) => (
-                  <p key={p}>
-                    👨‍🔧 {p} : {(selectedFiche.techniciens?.[p] || []).join(', ')}
-                  </p>
-                ))}
+                <div
+                  style={{
+                    backgroundColor: '#e8f5e9',
+                    padding: '15px',
+                    borderRadius: '8px',
+                    marginBottom: '20px',
+                  }}
+                >
+                  <h4
+                    style={{
+                      margin: '0 0 10px 0',
+                      color: '#27ae60',
+                      fontSize: '14px',
+                    }}
+                  >
+                    👨‍🔧 TECHNICIENS D'INTERVENTION
+                  </h4>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(3, 1fr)',
+                      gap: '10px',
+                    }}
+                  >
+                    {['matin', 'apresMidi', 'nuit'].map((p) => {
+                      const periodeLabels = {
+                        matin: '🌅 Matin',
+                        apresMidi: '🌇 Après-midi',
+                        nuit: '🌙 Nuit',
+                      };
+                      const techs = selectedFiche.techniciens?.[p] || [];
+                      const techList = Array.isArray(techs) ? techs : [];
+                      return (
+                        <div key={p}>
+                          <strong>{periodeLabels[p]}</strong>
+                          <div style={{ fontSize: '12px', marginTop: '5px' }}>
+                            {techList.length > 0
+                              ? techList.join(', ')
+                              : 'Aucun technicien'}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* ================= SIGNATURES ================= */}
+                <div
+                  style={{
+                    backgroundColor: '#f8f9fa',
+                    padding: '15px',
+                    borderRadius: '8px',
+                    marginBottom: '20px',
+                  }}
+                >
+                  <h4
+                    style={{
+                      margin: '0 0 15px 0',
+                      color: '#34495e',
+                      fontSize: '14px',
+                    }}
+                  >
+                    ✍️ VALIDATIONS
+                  </h4>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      gap: '20px',
+                    }}
+                  >
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>
+                        Signature du technicien
+                      </div>
+                      <div
+                        style={{
+                          borderBottom: '1px solid #000',
+                          padding: '10px 0',
+                          minHeight: '40px',
+                        }}
+                      >
+                        {selectedFiche.signatureTechnicien ? (
+                          <img
+                            src={selectedFiche.signatureTechnicien}
+                            alt="Signature technicien"
+                            style={{ maxWidth: '150px', maxHeight: '50px' }}
+                          />
+                        ) : (
+                          <span
+                            style={{ color: '#6c757d', fontStyle: 'italic' }}
+                          >
+                            Non signé
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>
+                        Validation responsable
+                      </div>
+                      <div
+                        style={{
+                          borderBottom: '1px solid #000',
+                          padding: '10px 0',
+                          minHeight: '40px',
+                        }}
+                      >
+                        <span style={{ color: '#6c757d', fontStyle: 'italic' }}>
+                          Espace réservé
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
                 {/* ================= ACTIONS ================= */}
                 <div
-                  style={{ marginTop: '20px', display: 'flex', gap: '10px' }}
+                  className="fiche-actions"
+                  style={{
+                    display: 'flex',
+                    gap: '12px',
+                    justifyContent: 'flex-end',
+                    paddingTop: '20px',
+                    borderTop: '1px solid #e9ecef',
+                  }}
                 >
                   <button
                     onClick={() =>
                       validerFiche(selectedFiche._id, selectedFiche.notifId)
                     }
+                    disabled={selectedFiche.statut === 'validé'}
+                    style={{
+                      padding: '10px 20px',
+                      backgroundColor:
+                        selectedFiche.statut === 'validé'
+                          ? '#6c757d'
+                          : '#28a745',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor:
+                        selectedFiche.statut === 'validé'
+                          ? 'not-allowed'
+                          : 'pointer',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'all 0.3s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (selectedFiche.statut !== 'validé') {
+                        e.target.style.backgroundColor = '#218838';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (selectedFiche.statut !== 'validé') {
+                        e.target.style.backgroundColor = '#28a745';
+                      }
+                    }}
                   >
-                    ✅ Valider
+                    ✅{' '}
+                    {selectedFiche.statut === 'validé'
+                      ? 'Déjà validé'
+                      : 'Valider la fiche'}
                   </button>
-
-                  <button onClick={() => setSelectedFiche(null)}>
-                    ❌ Fermer
-                  </button>
-
-                  <button onClick={() => exportPDF(selectedFiche)}>
+                  <button
+                    onClick={() => exportPDF(selectedFiche)}
+                    style={{
+                      padding: '10px 20px',
+                      backgroundColor: '#34495e',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'all 0.3s ease',
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.target.style.backgroundColor = '#2c3e50')
+                    }
+                    onMouseLeave={(e) =>
+                      (e.target.style.backgroundColor = '#34495e')
+                    }
+                  >
                     📄 Exporter PDF
                   </button>
+                  <button
+                    onClick={() => setSelectedFiche(null)}
+                    style={{
+                      padding: '10px 20px',
+                      backgroundColor: '#dc3545',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'all 0.3s ease',
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.target.style.backgroundColor = '#c82333')
+                    }
+                    onMouseLeave={(e) =>
+                      (e.target.style.backgroundColor = '#dc3545')
+                    }
+                  >
+                    ❌ Fermer
+                  </button>
                 </div>
-              </>
-            ) : //fiche  olapion
-            selectedFiche?.operations ? (
-              <>
-                <h3>Fiche Olapion</h3>
-
-                {/* ================= INFOS ================= */}
-                <p>
-                  📅 Date :{' '}
-                  {selectedFiche.date
-                    ? new Date(selectedFiche.date).toLocaleDateString()
-                    : ''}
-                </p>
-
-                <p>📌 Désignation : {selectedFiche.designation}</p>
-                <p>📍 Lieu : {selectedFiche.lieuInstallation}</p>
-
-                {/* ================= TABLEAU ================= */}
-                <h4>Points de contrôle</h4>
-
-                <table style={{ borderCollapse: 'collapse', width: '100%' }}>
-                  <thead>
-                    <tr style={{ backgroundColor: '#eee' }}>
-                      <th style={th}>Spécification</th>
-                      <th style={th}>Désignation</th>
-
-                      <th colSpan="2" style={th}>
-                        Matin
-                      </th>
-                      <th colSpan="2" style={th}>
-                        Après-midi
-                      </th>
-                      <th colSpan="2" style={th}>
-                        Nuit
-                      </th>
-                    </tr>
-
-                    <tr style={{ backgroundColor: '#eee' }}>
-                      <th></th>
-                      <th></th>
-
-                      <th style={th}>Normal</th>
-                      <th style={th}>Anomalie</th>
-
-                      <th style={th}>Normal</th>
-                      <th style={th}>Anomalie</th>
-
-                      <th style={th}>Normal</th>
-                      <th style={th}>Anomalie</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {selectedFiche.operations.map((c, i) => (
-                      <tr key={i}>
-                        <td style={td}>{c.specification}</td>
-                        <td style={td}>{c.designation}</td>
-
-                        {/* MATIN */}
-                        <td style={td}>{c.matin?.normal ? '✔' : ''}</td>
-                        <td style={td}>{c.matin?.anomalie ? '❌' : ''}</td>
-
-                        {/* APRES MIDI */}
-                        <td style={td}>{c.apresMidi?.normal ? '✔' : ''}</td>
-                        <td style={td}>{c.apresMidi?.anomalie ? '❌' : ''}</td>
-
-                        {/* NUIT */}
-                        <td style={td}>{c.nuit?.normal ? '✔' : ''}</td>
-                        <td style={td}>{c.nuit?.anomalie ? '❌' : ''}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-
-                {/* ================= TEMPS ================= */}
-                <h4 style={{ marginTop: '20px' }}>Temps Inspection</h4>
-
-                {['matin', 'apresMidi', 'nuit'].map((p) => (
-                  <p key={p}>
-                    ⏱ {p} : {selectedFiche.tempsInspection?.[p]?.debut} →{' '}
-                    {selectedFiche.tempsInspection?.[p]?.fin} (
-                    {selectedFiche.tempsInspection?.[p]?.tempsAlloue})
+              </div>
+            ) : selectedFiche?.operations ? (
+              <div className="fiche-detail-container">
+                {/* ================= EN-TÊTE ================= */}
+                <div
+                  className="fiche-header"
+                  style={{
+                    backgroundColor: '#3498db',
+                    color: 'white',
+                    padding: '15px',
+                    borderRadius: '8px 8px 0 0',
+                    marginBottom: '20px',
+                  }}
+                >
+                  <h2 style={{ margin: 0, fontSize: '20px' }}>
+                    🔧 FICHE OLAPION - OPÉRATIONS DE CONTRÔLE
+                  </h2>
+                  <p
+                    style={{
+                      margin: '5px 0 0 0',
+                      opacity: 0.9,
+                      fontSize: '12px',
+                    }}
+                  >
+                    Contrôle technique et maintenance préventive
                   </p>
-                ))}
+                </div>
 
-                <p>🔢 Total : {selectedFiche.tempsInspection?.total}</p>
+                {/* ================= INFORMATIONS GÉNÉRALES ================= */}
+                <div
+                  className="fiche-info-section"
+                  style={{
+                    backgroundColor: '#f8f9fa',
+                    padding: '15px',
+                    borderRadius: '8px',
+                    marginBottom: '20px',
+                    border: '1px solid #e9ecef',
+                  }}
+                >
+                  <h3
+                    style={{
+                      margin: '0 0 10px 0',
+                      color: '#3498db',
+                      fontSize: '16px',
+                    }}
+                  >
+                    📋 INFORMATIONS GÉNÉRALES
+                  </h3>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(2, 1fr)',
+                      gap: '10px',
+                    }}
+                  >
+                    <div>
+                      <span style={{ fontWeight: 'bold', color: '#555' }}>
+                        📅 Date :
+                      </span>{' '}
+                      <span>
+                        {selectedFiche.date
+                          ? new Date(selectedFiche.date).toLocaleDateString(
+                              'fr-FR'
+                            )
+                          : 'Non spécifiée'}
+                      </span>
+                    </div>
+                    <div>
+                      <span style={{ fontWeight: 'bold', color: '#555' }}>
+                        🔖 N° Fiche :
+                      </span>{' '}
+                      <span>
+                        {selectedFiche._id?.slice(-8) || 'Non spécifié'}
+                      </span>
+                    </div>
+                    <div>
+                      <span style={{ fontWeight: 'bold', color: '#555' }}>
+                        🏷️ Désignation :
+                      </span>{' '}
+                      <span>
+                        {selectedFiche.designation || 'Non spécifiée'}
+                      </span>
+                    </div>
+                    <div>
+                      <span style={{ fontWeight: 'bold', color: '#555' }}>
+                        📍 Lieu :
+                      </span>{' '}
+                      <span>
+                        {selectedFiche.lieuInstallation || 'Non spécifié'}
+                      </span>
+                    </div>
+                    <div>
+                      <span style={{ fontWeight: 'bold', color: '#555' }}>
+                        📊 Type d'opération :
+                      </span>{' '}
+                      <span>
+                        {selectedFiche.typeOperation || 'Contrôle périodique'}
+                      </span>
+                    </div>
+                    <div>
+                      <span style={{ fontWeight: 'bold', color: '#555' }}>
+                        📊 Statut :
+                      </span>{' '}
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          fontSize: '12px',
+                          fontWeight: 'bold',
+                          backgroundColor:
+                            selectedFiche.statut === 'validé'
+                              ? '#d4edda'
+                              : '#fff3cd',
+                          color:
+                            selectedFiche.statut === 'validé'
+                              ? '#155724'
+                              : '#856404',
+                        }}
+                      >
+                        {selectedFiche.statut === 'validé'
+                          ? '✅ Validé'
+                          : '⏳ En attente'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ================= TABLEAU DES OPÉRATIONS ================= */}
+                <div style={{ marginBottom: '20px', overflowX: 'auto' }}>
+                  <h4
+                    style={{
+                      margin: '0 0 10px 0',
+                      color: '#3498db',
+                      fontSize: '14px',
+                      borderBottom: '2px solid #3498db',
+                      paddingBottom: '5px',
+                      display: 'inline-block',
+                    }}
+                  >
+                    🔧 OPÉRATIONS DE CONTRÔLE
+                  </h4>
+
+                  <table
+                    style={{
+                      borderCollapse: 'collapse',
+                      width: '100%',
+                      marginTop: '10px',
+                      fontSize: '12px',
+                    }}
+                  >
+                    <thead>
+                      <tr
+                        style={{
+                          backgroundColor: '#f8f9fa',
+                          borderBottom: '2px solid #dee2e6',
+                        }}
+                      >
+                        <th
+                          style={{
+                            padding: '10px',
+                            textAlign: 'left',
+                            fontWeight: 'bold',
+                            width: '25%',
+                          }}
+                        >
+                          Spécification
+                        </th>
+                        <th
+                          style={{
+                            padding: '10px',
+                            textAlign: 'left',
+                            fontWeight: 'bold',
+                            width: '25%',
+                          }}
+                        >
+                          Désignation
+                        </th>
+                        <th
+                          style={{
+                            padding: '10px',
+                            textAlign: 'center',
+                            fontWeight: 'bold',
+                            backgroundColor: '#f39c12',
+                            color: 'white',
+                          }}
+                          colSpan="2"
+                        >
+                          🌅 Matin
+                        </th>
+                        <th
+                          style={{
+                            padding: '10px',
+                            textAlign: 'center',
+                            fontWeight: 'bold',
+                            backgroundColor: '#e67e22',
+                            color: 'white',
+                          }}
+                          colSpan="2"
+                        >
+                          🌇 Après-midi
+                        </th>
+                        <th
+                          style={{
+                            padding: '10px',
+                            textAlign: 'center',
+                            fontWeight: 'bold',
+                            backgroundColor: '#2c3e50',
+                            color: 'white',
+                          }}
+                          colSpan="2"
+                        >
+                          🌙 Nuit
+                        </th>
+                        <th
+                          style={{
+                            padding: '10px',
+                            textAlign: 'center',
+                            fontWeight: 'bold',
+                            backgroundColor: '#6c757d',
+                            color: 'white',
+                          }}
+                        >
+                          Statut
+                        </th>
+                      </tr>
+                      <tr
+                        style={{
+                          backgroundColor: '#f8f9fa',
+                          borderBottom: '2px solid #dee2e6',
+                        }}
+                      >
+                        <th style={{ padding: '8px' }}></th>
+                        <th style={{ padding: '8px' }}></th>
+                        <th
+                          style={{
+                            padding: '8px',
+                            textAlign: 'center',
+                            width: '30px',
+                          }}
+                        >
+                          Normal
+                        </th>
+                        <th
+                          style={{
+                            padding: '8px',
+                            textAlign: 'center',
+                            width: '30px',
+                          }}
+                        >
+                          Anomalie
+                        </th>
+                        <th
+                          style={{
+                            padding: '8px',
+                            textAlign: 'center',
+                            width: '30px',
+                          }}
+                        >
+                          Normal
+                        </th>
+                        <th
+                          style={{
+                            padding: '8px',
+                            textAlign: 'center',
+                            width: '30px',
+                          }}
+                        >
+                          Anomalie
+                        </th>
+                        <th
+                          style={{
+                            padding: '8px',
+                            textAlign: 'center',
+                            width: '30px',
+                          }}
+                        >
+                          Normal
+                        </th>
+                        <th
+                          style={{
+                            padding: '8px',
+                            textAlign: 'center',
+                            width: '30px',
+                          }}
+                        >
+                          Anomalie
+                        </th>
+                        <th
+                          style={{
+                            padding: '8px',
+                            textAlign: 'center',
+                            width: '50px',
+                          }}
+                        ></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedFiche.operations.map((c, i) => {
+                        const hasAnomalie =
+                          c.matin?.anomalie ||
+                          c.apresMidi?.anomalie ||
+                          c.nuit?.anomalie;
+                        const hasEnCours =
+                          c.matin?.enCours ||
+                          c.apresMidi?.enCours ||
+                          c.nuit?.enCours;
+                        const hasNormal =
+                          c.matin?.normal ||
+                          c.apresMidi?.normal ||
+                          c.nuit?.normal;
+
+                        let statut = '';
+                        let statutColor = '';
+                        if (hasAnomalie) {
+                          statut = '⚠️ Anomalie';
+                          statutColor = '#dc3545';
+                        } else if (hasEnCours) {
+                          statut = '🔄 En cours';
+                          statutColor = '#f39c12';
+                        } else if (hasNormal) {
+                          statut = '✅ Conforme';
+                          statutColor = '#28a745';
+                        } else {
+                          statut = '❌ Non réalisé';
+                          statutColor = '#6c757d';
+                        }
+
+                        return (
+                          <tr
+                            key={i}
+                            style={{
+                              borderBottom: '1px solid #e9ecef',
+                              backgroundColor: hasAnomalie
+                                ? '#fff5f5'
+                                : i % 2 === 0
+                                  ? '#fff'
+                                  : '#fafafa',
+                            }}
+                          >
+                            <td
+                              style={{
+                                padding: '10px',
+                                fontWeight: c.specification ? 'bold' : 'normal',
+                              }}
+                            >
+                              {c.specification || '-'}
+                            </td>
+                            <td style={{ padding: '10px' }}>
+                              {c.designation || '-'}
+                            </td>
+                            {/* MATIN */}
+                            <td
+                              style={{ padding: '10px', textAlign: 'center' }}
+                            >
+                              {c.matin?.normal ? (
+                                <span
+                                  style={{ color: '#28a745', fontSize: '18px' }}
+                                >
+                                  ✔
+                                </span>
+                              ) : c.matin?.enCours ? (
+                                <span
+                                  style={{ color: '#f39c12', fontSize: '18px' }}
+                                >
+                                  🔄
+                                </span>
+                              ) : (
+                                <span style={{ color: '#adb5bd' }}>—</span>
+                              )}
+                            </td>
+                            <td
+                              style={{ padding: '10px', textAlign: 'center' }}
+                            >
+                              {c.matin?.anomalie ? (
+                                <span
+                                  style={{ color: '#dc3545', fontSize: '18px' }}
+                                >
+                                  ⚠
+                                </span>
+                              ) : (
+                                <span style={{ color: '#adb5bd' }}>—</span>
+                              )}
+                            </td>
+                            {/* APRÈS-MIDI */}
+                            <td
+                              style={{ padding: '10px', textAlign: 'center' }}
+                            >
+                              {c.apresMidi?.normal ? (
+                                <span
+                                  style={{ color: '#28a745', fontSize: '18px' }}
+                                >
+                                  ✔
+                                </span>
+                              ) : c.apresMidi?.enCours ? (
+                                <span
+                                  style={{ color: '#f39c12', fontSize: '18px' }}
+                                >
+                                  🔄
+                                </span>
+                              ) : (
+                                <span style={{ color: '#adb5bd' }}>—</span>
+                              )}
+                            </td>
+                            <td
+                              style={{ padding: '10px', textAlign: 'center' }}
+                            >
+                              {c.apresMidi?.anomalie ? (
+                                <span
+                                  style={{ color: '#dc3545', fontSize: '18px' }}
+                                >
+                                  ⚠
+                                </span>
+                              ) : (
+                                <span style={{ color: '#adb5bd' }}>—</span>
+                              )}
+                            </td>
+                            {/* NUIT */}
+                            <td
+                              style={{ padding: '10px', textAlign: 'center' }}
+                            >
+                              {c.nuit?.normal ? (
+                                <span
+                                  style={{ color: '#28a745', fontSize: '18px' }}
+                                >
+                                  ✔
+                                </span>
+                              ) : c.nuit?.enCours ? (
+                                <span
+                                  style={{ color: '#f39c12', fontSize: '18px' }}
+                                >
+                                  🔄
+                                </span>
+                              ) : (
+                                <span style={{ color: '#adb5bd' }}>—</span>
+                              )}
+                            </td>
+                            <td
+                              style={{ padding: '10px', textAlign: 'center' }}
+                            >
+                              {c.nuit?.anomalie ? (
+                                <span
+                                  style={{ color: '#dc3545', fontSize: '18px' }}
+                                >
+                                  ⚠
+                                </span>
+                              ) : (
+                                <span style={{ color: '#adb5bd' }}>—</span>
+                              )}
+                            </td>
+                            <td
+                              style={{ padding: '10px', textAlign: 'center' }}
+                            >
+                              <span
+                                style={{
+                                  display: 'inline-block',
+                                  padding: '2px 6px',
+                                  borderRadius: '12px',
+                                  fontSize: '10px',
+                                  fontWeight: 'bold',
+                                  backgroundColor: statutColor + '20',
+                                  color: statutColor,
+                                }}
+                              >
+                                {statut}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* ================= SYNTHÈSE DES ANOMALIES ================= */}
+                {(() => {
+                  const anomalies = selectedFiche.operations.filter(
+                    (c) =>
+                      c.matin?.anomalie ||
+                      c.apresMidi?.anomalie ||
+                      c.nuit?.anomalie
+                  );
+
+                  if (anomalies.length === 0) return null;
+
+                  return (
+                    <div
+                      style={{
+                        backgroundColor: '#f8d7da',
+                        borderLeft: '4px solid #dc3545',
+                        padding: '15px',
+                        borderRadius: '8px',
+                        marginBottom: '20px',
+                      }}
+                    >
+                      <h4
+                        style={{
+                          margin: '0 0 10px 0',
+                          color: '#721c24',
+                          fontSize: '14px',
+                        }}
+                      >
+                        ⚠️ SYNTHÈSE DES ANOMALIES DÉTECTÉES ({anomalies.length})
+                      </h4>
+                      {anomalies.map((anomalie, idx) => {
+                        const periods = [];
+                        let description = '';
+
+                        if (anomalie.matin?.anomalie) {
+                          periods.push('Matin');
+                          description =
+                            anomalie.matin.descriptionAnomalie ||
+                            anomalie.matin.anomalie ||
+                            '';
+                        }
+                        if (anomalie.apresMidi?.anomalie) {
+                          periods.push('Après-midi');
+                          description =
+                            anomalie.apresMidi.descriptionAnomalie ||
+                            anomalie.apresMidi.anomalie ||
+                            '';
+                        }
+                        if (anomalie.nuit?.anomalie) {
+                          periods.push('Nuit');
+                          description =
+                            anomalie.nuit.descriptionAnomalie ||
+                            anomalie.nuit.anomalie ||
+                            '';
+                        }
+
+                        return (
+                          <div
+                            key={idx}
+                            style={{
+                              marginBottom: '8px',
+                              padding: '8px',
+                              backgroundColor: 'white',
+                              borderRadius: '4px',
+                            }}
+                          >
+                            <strong style={{ color: '#dc3545' }}>
+                              ⚠️ {anomalie.specification || 'Opération'}
+                            </strong>
+                            <div
+                              style={{
+                                fontSize: '12px',
+                                color: '#555',
+                                marginTop: '4px',
+                              }}
+                            >
+                              <div>Période(s): {periods.join(', ')}</div>
+                              {description && description !== 'true' && (
+                                <div>Description: {description}</div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+
+                {/* ================= OPÉRATIONS EN COURS ================= */}
+                {(() => {
+                  const enCours = selectedFiche.operations.filter(
+                    (c) =>
+                      c.matin?.enCours ||
+                      c.apresMidi?.enCours ||
+                      c.nuit?.enCours
+                  );
+
+                  if (enCours.length === 0) return null;
+
+                  return (
+                    <div
+                      style={{
+                        backgroundColor: '#fff3cd',
+                        borderLeft: '4px solid #ffc107',
+                        padding: '15px',
+                        borderRadius: '8px',
+                        marginBottom: '20px',
+                      }}
+                    >
+                      <h4
+                        style={{
+                          margin: '0 0 10px 0',
+                          color: '#856404',
+                          fontSize: '14px',
+                        }}
+                      >
+                        🔄 OPÉRATIONS EN COURS ({enCours.length})
+                      </h4>
+                      {enCours.map((operation, idx) => {
+                        const periods = [];
+                        if (operation.matin?.enCours) periods.push('Matin');
+                        if (operation.apresMidi?.enCours)
+                          periods.push('Après-midi');
+                        if (operation.nuit?.enCours) periods.push('Nuit');
+
+                        return (
+                          <div
+                            key={idx}
+                            style={{
+                              marginBottom: '8px',
+                              padding: '8px',
+                              backgroundColor: 'white',
+                              borderRadius: '4px',
+                            }}
+                          >
+                            <strong style={{ color: '#856404' }}>
+                              🔄 {operation.specification || 'Opération'}
+                            </strong>
+                            <div
+                              style={{
+                                fontSize: '12px',
+                                color: '#555',
+                                marginTop: '4px',
+                              }}
+                            >
+                              Période(s): {periods.join(', ')}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+
+                {/* ================= TEMPS D'OPÉRATION ================= */}
+                <div
+                  style={{
+                    backgroundColor: '#e8f4fd',
+                    padding: '15px',
+                    borderRadius: '8px',
+                    marginBottom: '20px',
+                  }}
+                >
+                  <h4
+                    style={{
+                      margin: '0 0 10px 0',
+                      color: '#2980b9',
+                      fontSize: '14px',
+                    }}
+                  >
+                    ⏱️ TEMPS D'OPÉRATION
+                  </h4>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(3, 1fr)',
+                      gap: '10px',
+                    }}
+                  >
+                    {['matin', 'apresMidi', 'nuit'].map((p) => {
+                      const periodeLabels = {
+                        matin: '🌅 Matin',
+                        apresMidi: '🌇 Après-midi',
+                        nuit: '🌙 Nuit',
+                      };
+                      const t = selectedFiche.tempsInspection?.[p] || {};
+                      return (
+                        <div
+                          key={p}
+                          style={{
+                            backgroundColor: 'white',
+                            padding: '10px',
+                            borderRadius: '6px',
+                            border: '1px solid #dee2e6',
+                          }}
+                        >
+                          <strong>{periodeLabels[p]}</strong>
+                          <div style={{ fontSize: '12px', marginTop: '5px' }}>
+                            {t.debut || '--'} → {t.fin || '--'}
+                            <br />
+                            Durée: {t.tempsAlloue || '0'} min
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div
+                    style={{
+                      marginTop: '10px',
+                      textAlign: 'right',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    📊 Temps total:{' '}
+                    {selectedFiche.tempsInspection?.total || '0'} minutes
+                  </div>
+                </div>
 
                 {/* ================= OBSERVATIONS ================= */}
-                <h4>Observations</h4>
-                {['matin', 'apresMidi', 'nuit'].map((p) => (
-                  <p key={p}>
-                    📝 {p} : {selectedFiche.observations?.[p]}
-                  </p>
-                ))}
+                <div style={{ marginBottom: '20px' }}>
+                  <h4
+                    style={{
+                      margin: '0 0 10px 0',
+                      color: '#f39c12',
+                      fontSize: '14px',
+                      borderBottom: '2px solid #f39c12',
+                      paddingBottom: '5px',
+                      display: 'inline-block',
+                    }}
+                  >
+                    📝 OBSERVATIONS PAR PÉRIODE
+                  </h4>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(3, 1fr)',
+                      gap: '10px',
+                      marginTop: '10px',
+                    }}
+                  >
+                    {['matin', 'apresMidi', 'nuit'].map((p) => {
+                      const periodeLabels = {
+                        matin: '🌅 Matin',
+                        apresMidi: '🌇 Après-midi',
+                        nuit: '🌙 Nuit',
+                      };
+                      return (
+                        <div
+                          key={p}
+                          style={{
+                            backgroundColor: '#fff3cd',
+                            padding: '10px',
+                            borderRadius: '6px',
+                            border: '1px solid #ffc107',
+                          }}
+                        >
+                          <strong>{periodeLabels[p]}</strong>
+                          <div
+                            style={{
+                              fontSize: '12px',
+                              marginTop: '5px',
+                              color: '#856404',
+                            }}
+                          >
+                            {selectedFiche.observations?.[p] ||
+                              'Aucune observation'}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
 
                 {/* ================= TECHNICIENS ================= */}
-                <h4>Techniciens</h4>
-                {['matin', 'apresMidi', 'nuit'].map((p) => (
-                  <p key={p}>
-                    👨‍🔧 {p} : {(selectedFiche.techniciens?.[p] || []).join(', ')}
-                  </p>
-                ))}
+                <div
+                  style={{
+                    backgroundColor: '#e8f5e9',
+                    padding: '15px',
+                    borderRadius: '8px',
+                    marginBottom: '20px',
+                  }}
+                >
+                  <h4
+                    style={{
+                      margin: '0 0 10px 0',
+                      color: '#27ae60',
+                      fontSize: '14px',
+                    }}
+                  >
+                    👨‍🔧 TECHNICIENS D'INTERVENTION
+                  </h4>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(3, 1fr)',
+                      gap: '10px',
+                    }}
+                  >
+                    {['matin', 'apresMidi', 'nuit'].map((p) => {
+                      const periodeLabels = {
+                        matin: '🌅 Matin',
+                        apresMidi: '🌇 Après-midi',
+                        nuit: '🌙 Nuit',
+                      };
+                      const techs = selectedFiche.techniciens?.[p] || [];
+                      const techList = Array.isArray(techs) ? techs : [];
+                      return (
+                        <div key={p}>
+                          <strong>{periodeLabels[p]}</strong>
+                          <div style={{ fontSize: '12px', marginTop: '5px' }}>
+                            {techList.length > 0
+                              ? techList.join(', ')
+                              : 'Aucun technicien'}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* ================= RESSOURCES UTILISÉES ================= */}
+                {selectedFiche.ressources &&
+                  selectedFiche.ressources.length > 0 && (
+                    <div
+                      style={{
+                        backgroundColor: '#f8f9fa',
+                        padding: '15px',
+                        borderRadius: '8px',
+                        marginBottom: '20px',
+                      }}
+                    >
+                      <h4
+                        style={{
+                          margin: '0 0 10px 0',
+                          color: '#6c757d',
+                          fontSize: '14px',
+                        }}
+                      >
+                        🛠️ RESSOURCES UTILISÉES
+                      </h4>
+                      <div style={{ fontSize: '12px' }}>
+                        {Array.isArray(selectedFiche.ressources)
+                          ? selectedFiche.ressources.join(', ')
+                          : selectedFiche.ressources}
+                      </div>
+                    </div>
+                  )}
+
+                {/* ================= COMMENTAIRES TECHNIQUES ================= */}
+                {selectedFiche.commentairesTechniques && (
+                  <div
+                    style={{
+                      backgroundColor: '#e8f4fd',
+                      padding: '15px',
+                      borderRadius: '8px',
+                      marginBottom: '20px',
+                      borderLeft: '4px solid #3498db',
+                    }}
+                  >
+                    <h4
+                      style={{
+                        margin: '0 0 8px 0',
+                        color: '#2980b9',
+                        fontSize: '14px',
+                      }}
+                    >
+                      💡 COMMENTAIRES TECHNIQUES
+                    </h4>
+                    <p style={{ margin: 0, fontSize: '12px', color: '#555' }}>
+                      {selectedFiche.commentairesTechniques}
+                    </p>
+                  </div>
+                )}
+
+                {/* ================= SIGNATURES ================= */}
+                <div
+                  style={{
+                    backgroundColor: '#f8f9fa',
+                    padding: '15px',
+                    borderRadius: '8px',
+                    marginBottom: '20px',
+                  }}
+                >
+                  <h4
+                    style={{
+                      margin: '0 0 15px 0',
+                      color: '#3498db',
+                      fontSize: '14px',
+                    }}
+                  >
+                    ✍️ VALIDATIONS
+                  </h4>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      gap: '20px',
+                    }}
+                  >
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>
+                        Signature du technicien
+                      </div>
+                      <div
+                        style={{
+                          borderBottom: '1px solid #000',
+                          padding: '10px 0',
+                          minHeight: '40px',
+                        }}
+                      >
+                        {selectedFiche.signatureTechnicien ? (
+                          <img
+                            src={selectedFiche.signatureTechnicien}
+                            alt="Signature technicien"
+                            style={{ maxWidth: '150px', maxHeight: '50px' }}
+                          />
+                        ) : (
+                          <span
+                            style={{ color: '#6c757d', fontStyle: 'italic' }}
+                          >
+                            Non signé
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>
+                        Validation responsable
+                      </div>
+                      <div
+                        style={{
+                          borderBottom: '1px solid #000',
+                          padding: '10px 0',
+                          minHeight: '40px',
+                        }}
+                      >
+                        <span style={{ color: '#6c757d', fontStyle: 'italic' }}>
+                          Espace réservé
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
                 {/* ================= ACTIONS ================= */}
                 <div
-                  style={{ marginTop: '20px', display: 'flex', gap: '10px' }}
+                  className="fiche-actions"
+                  style={{
+                    display: 'flex',
+                    gap: '12px',
+                    justifyContent: 'flex-end',
+                    paddingTop: '20px',
+                    borderTop: '1px solid #e9ecef',
+                  }}
                 >
                   <button
                     onClick={() =>
                       validerFiche(selectedFiche._id, selectedFiche.notifId)
                     }
+                    disabled={selectedFiche.statut === 'validé'}
+                    style={{
+                      padding: '10px 20px',
+                      backgroundColor:
+                        selectedFiche.statut === 'validé'
+                          ? '#6c757d'
+                          : '#28a745',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor:
+                        selectedFiche.statut === 'validé'
+                          ? 'not-allowed'
+                          : 'pointer',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'all 0.3s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (selectedFiche.statut !== 'validé') {
+                        e.target.style.backgroundColor = '#218838';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (selectedFiche.statut !== 'validé') {
+                        e.target.style.backgroundColor = '#28a745';
+                      }
+                    }}
                   >
-                    ✅ Valider
+                    ✅{' '}
+                    {selectedFiche.statut === 'validé'
+                      ? 'Déjà validé'
+                      : 'Valider la fiche'}
                   </button>
-
-                  <button onClick={() => setSelectedFiche(null)}>
-                    ❌ Fermer
-                  </button>
-
-                  <button onClick={() => exportPDF(selectedFiche)}>
+                  <button
+                    onClick={() => exportPDF(selectedFiche)}
+                    style={{
+                      padding: '10px 20px',
+                      backgroundColor: '#3498db',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'all 0.3s ease',
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.target.style.backgroundColor = '#2980b9')
+                    }
+                    onMouseLeave={(e) =>
+                      (e.target.style.backgroundColor = '#3498db')
+                    }
+                  >
                     📄 Exporter PDF
                   </button>
+                  <button
+                    onClick={() => setSelectedFiche(null)}
+                    style={{
+                      padding: '10px 20px',
+                      backgroundColor: '#dc3545',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'all 0.3s ease',
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.target.style.backgroundColor = '#c82333')
+                    }
+                    onMouseLeave={(e) =>
+                      (e.target.style.backgroundColor = '#dc3545')
+                    }
+                  >
+                    ❌ Fermer
+                  </button>
                 </div>
-              </>
+              </div>
             ) : selectedFiche?.groupes ? (
               <>
                 <h3>📡 Fiche Balisage</h3>
@@ -5047,101 +10632,575 @@ export default function Notifications() {
                 </div>
               </>
             ) : selectedFiche?.blocsBrigade ? (
-              <>
-                <h3>🛠️ Fiche Brigade</h3>
+              <div className="fiche-detail-container">
+                {/* ================= EN-TÊTE ================= */}
+                <div
+                  className="fiche-header"
+                  style={{
+                    backgroundColor: '#3498db',
+                    color: 'white',
+                    padding: '15px',
+                    borderRadius: '8px 8px 0 0',
+                    marginBottom: '20px',
+                  }}
+                >
+                  <h2 style={{ margin: 0, fontSize: '20px' }}>
+                    🛠️ FICHE BRIGADE - GMAO
+                  </h2>
+                  <p
+                    style={{
+                      margin: '5px 0 0 0',
+                      opacity: 0.9,
+                      fontSize: '12px',
+                    }}
+                  >
+                    Document d'intervention journalière
+                  </p>
+                </div>
 
-                {/* ================= INFOS ================= */}
-                <p>
-                  📅 Date :{' '}
-                  {selectedFiche.date
-                    ? new Date(selectedFiche.date).toLocaleDateString()
-                    : ''}
-                </p>
-
-                <p>📌 Statut : {selectedFiche.statut}</p>
+                {/* ================= INFORMATIONS GÉNÉRALES ================= */}
+                <div
+                  className="fiche-info-section"
+                  style={{
+                    backgroundColor: '#f8f9fa',
+                    padding: '15px',
+                    borderRadius: '8px',
+                    marginBottom: '20px',
+                    border: '1px solid #e9ecef',
+                  }}
+                >
+                  <h3
+                    style={{
+                      margin: '0 0 10px 0',
+                      color: '#3498db',
+                      fontSize: '16px',
+                    }}
+                  >
+                    📋 INFORMATIONS GÉNÉRALES
+                  </h3>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(2, 1fr)',
+                      gap: '10px',
+                    }}
+                  >
+                    <div>
+                      <span style={{ fontWeight: 'bold', color: '#555' }}>
+                        📅 Date :
+                      </span>{' '}
+                      <span>
+                        {selectedFiche.date
+                          ? new Date(selectedFiche.date).toLocaleDateString(
+                              'fr-FR'
+                            )
+                          : 'Non spécifiée'}
+                      </span>
+                    </div>
+                    <div>
+                      <span style={{ fontWeight: 'bold', color: '#555' }}>
+                        🔖 N° Fiche :
+                      </span>{' '}
+                      <span>
+                        {selectedFiche._id?.slice(-8) || 'Non spécifié'}
+                      </span>
+                    </div>
+                    <div>
+                      <span style={{ fontWeight: 'bold', color: '#555' }}>
+                        📌 Statut :
+                      </span>{' '}
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          fontSize: '12px',
+                          fontWeight: 'bold',
+                          backgroundColor:
+                            selectedFiche.statut === 'validé'
+                              ? '#d4edda'
+                              : '#fff3cd',
+                          color:
+                            selectedFiche.statut === 'validé'
+                              ? '#155724'
+                              : '#856404',
+                        }}
+                      >
+                        {selectedFiche.statut === 'validé'
+                          ? '✅ Validé'
+                          : '⏳ En attente'}
+                      </span>
+                    </div>
+                    <div>
+                      <span style={{ fontWeight: 'bold', color: '#555' }}>
+                        👤 Opérateur :
+                      </span>{' '}
+                      <span>{selectedFiche.operateur || 'Système GMAO'}</span>
+                    </div>
+                  </div>
+                </div>
 
                 {/* ================= BLOCS ================= */}
-                {['matin', 'apresMidi', 'nuit'].map((bloc, idx) => (
-                  <div key={idx} style={{ marginTop: '20px' }}>
-                    <h4>
-                      {bloc === 'matin' && '🌅 Matin'}
-                      {bloc === 'apresMidi' && '🌇 Après-midi'}
-                      {bloc === 'nuit' && '🌙 Nuit'}
-                    </h4>
+                {['matin', 'apresMidi', 'nuit'].map((bloc, idx) => {
+                  const blocLabels = {
+                    matin: {
+                      name: '🌅 Matin',
+                      hours: '8h - 14h',
+                      color: '#f39c12',
+                    },
+                    apresMidi: {
+                      name: '🌇 Après-midi',
+                      hours: '14h - 20h',
+                      color: '#e67e22',
+                    },
+                    nuit: {
+                      name: '🌙 Nuit',
+                      hours: '20h - 8h',
+                      color: '#2c3e50',
+                    },
+                  };
 
-                    {/* ===== TABLE CONSIGNES ===== */}
-                    <table
-                      style={{ borderCollapse: 'collapse', width: '100%' }}
+                  const blocData = selectedFiche.blocsBrigade?.[bloc] || [];
+                  const techsData = selectedFiche.techniciens?.[bloc] || [];
+
+                  return (
+                    <div
+                      key={idx}
+                      className="fiche-bloc"
+                      style={{
+                        marginBottom: '25px',
+                        border: '1px solid #e9ecef',
+                        borderRadius: '8px',
+                        overflow: 'hidden',
+                      }}
                     >
-                      <thead>
-                        <tr style={{ backgroundColor: '#eee' }}>
-                          <th style={th}>Consigne</th>
-                          <th style={th}>Inspection</th>
-                        </tr>
-                      </thead>
+                      {/* Entête du bloc */}
+                      <div
+                        style={{
+                          backgroundColor: blocLabels[bloc].color,
+                          color: 'white',
+                          padding: '10px 15px',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <h4 style={{ margin: 0, fontSize: '16px' }}>
+                          {blocLabels[bloc].name}
+                        </h4>
+                        <span style={{ fontSize: '12px', opacity: 0.9 }}>
+                          {blocLabels[bloc].hours}
+                        </span>
+                      </div>
 
-                      <tbody>
-                        {(selectedFiche.blocsBrigade?.[bloc] || []).map(
-                          (row, i) => (
-                            <tr key={i}>
-                              <td style={td}>{row.consigne || '-'}</td>
-                              <td style={td}>{row.inspection || '-'}</td>
-                            </tr>
-                          )
+                      <div style={{ padding: '15px' }}>
+                        {/* ===== TABLE CONSIGNES ET INSPECTIONS ===== */}
+                        <h5
+                          style={{
+                            margin: '0 0 10px 0',
+                            color: '#555',
+                            fontSize: '14px',
+                          }}
+                        >
+                          📝 Consignes et Inspections
+                        </h5>
+
+                        {blocData.length > 0 ? (
+                          <table
+                            style={{
+                              borderCollapse: 'collapse',
+                              width: '100%',
+                              marginBottom: '20px',
+                            }}
+                          >
+                            <thead>
+                              <tr
+                                style={{
+                                  backgroundColor: '#f8f9fa',
+                                  borderBottom: '2px solid #dee2e6',
+                                }}
+                              >
+                                <th
+                                  style={{
+                                    padding: '10px',
+                                    textAlign: 'left',
+                                    fontWeight: 'bold',
+                                    color: '#495057',
+                                    width: '50%',
+                                  }}
+                                >
+                                  Consigne
+                                </th>
+                                <th
+                                  style={{
+                                    padding: '10px',
+                                    textAlign: 'left',
+                                    fontWeight: 'bold',
+                                    color: '#495057',
+                                    width: '50%',
+                                  }}
+                                >
+                                  Inspection
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {blocData.map((row, i) => (
+                                <tr
+                                  key={i}
+                                  style={{ borderBottom: '1px solid #e9ecef' }}
+                                >
+                                  <td
+                                    style={{
+                                      padding: '10px',
+                                      verticalAlign: 'top',
+                                      backgroundColor:
+                                        i % 2 === 0 ? '#fff' : '#fafafa',
+                                    }}
+                                  >
+                                    {row.consigne && row.consigne.trim() ? (
+                                      <div style={{ whiteSpace: 'pre-wrap' }}>
+                                        {row.consigne}
+                                      </div>
+                                    ) : (
+                                      <span
+                                        style={{
+                                          color: '#adb5bd',
+                                          fontStyle: 'italic',
+                                        }}
+                                      >
+                                        — Aucune consigne —
+                                      </span>
+                                    )}
+                                  </td>
+                                  <td
+                                    style={{
+                                      padding: '10px',
+                                      verticalAlign: 'top',
+                                      backgroundColor:
+                                        i % 2 === 0 ? '#fff' : '#fafafa',
+                                    }}
+                                  >
+                                    {row.inspection && row.inspection.trim() ? (
+                                      <div style={{ whiteSpace: 'pre-wrap' }}>
+                                        {row.inspection}
+                                      </div>
+                                    ) : (
+                                      <span
+                                        style={{
+                                          color: '#adb5bd',
+                                          fontStyle: 'italic',
+                                        }}
+                                      >
+                                        — Aucune inspection —
+                                      </span>
+                                    )}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        ) : (
+                          <div
+                            style={{
+                              padding: '20px',
+                              textAlign: 'center',
+                              backgroundColor: '#f8f9fa',
+                              borderRadius: '8px',
+                              marginBottom: '20px',
+                              color: '#6c757d',
+                            }}
+                          >
+                            Aucune consigne ou inspection enregistrée pour cette
+                            période
+                          </div>
                         )}
-                      </tbody>
-                    </table>
 
-                    {/* ===== TECHNICIENS ===== */}
-                    <h5 style={{ marginTop: '10px' }}>👨‍🔧 Techniciens</h5>
+                        {/* ===== TECHNICIENS ET SIGNATURES ===== */}
+                        <h5
+                          style={{
+                            margin: '20px 0 10px 0',
+                            color: '#555',
+                            fontSize: '14px',
+                          }}
+                        >
+                          👨‍🔧 Techniciens et Signatures
+                        </h5>
 
-                    <table
-                      style={{ borderCollapse: 'collapse', width: '100%' }}
+                        {techsData.length > 0 ? (
+                          <table
+                            style={{
+                              borderCollapse: 'collapse',
+                              width: '100%',
+                            }}
+                          >
+                            <thead>
+                              <tr
+                                style={{
+                                  backgroundColor: '#f8f9fa',
+                                  borderBottom: '2px solid #dee2e6',
+                                }}
+                              >
+                                <th
+                                  style={{
+                                    padding: '10px',
+                                    textAlign: 'left',
+                                    fontWeight: 'bold',
+                                    color: '#495057',
+                                    width: '30%',
+                                  }}
+                                >
+                                  Nom du technicien
+                                </th>
+                                <th
+                                  style={{
+                                    padding: '10px',
+                                    textAlign: 'left',
+                                    fontWeight: 'bold',
+                                    color: '#495057',
+                                    width: '70%',
+                                  }}
+                                >
+                                  Signature
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {techsData.map((tech, i) => (
+                                <tr
+                                  key={i}
+                                  style={{ borderBottom: '1px solid #e9ecef' }}
+                                >
+                                  <td
+                                    style={{
+                                      padding: '10px',
+                                      verticalAlign: 'middle',
+                                      backgroundColor:
+                                        i % 2 === 0 ? '#fff' : '#fafafa',
+                                      fontWeight: tech.nom
+                                        ? 'normal'
+                                        : 'normal',
+                                    }}
+                                  >
+                                    {tech.nom && tech.nom.trim() ? (
+                                      tech.nom
+                                    ) : (
+                                      <span
+                                        style={{
+                                          color: '#adb5bd',
+                                          fontStyle: 'italic',
+                                        }}
+                                      >
+                                        Technicien non nommé
+                                      </span>
+                                    )}
+                                  </td>
+                                  <td
+                                    style={{
+                                      padding: '10px',
+                                      verticalAlign: 'middle',
+                                      backgroundColor:
+                                        i % 2 === 0 ? '#fff' : '#fafafa',
+                                    }}
+                                  >
+                                    {tech.signature ? (
+                                      <div>
+                                        <img
+                                          src={tech.signature}
+                                          alt="Signature"
+                                          style={{
+                                            maxWidth: '150px',
+                                            maxHeight: '50px',
+                                            border: '1px solid #dee2e6',
+                                            borderRadius: '4px',
+                                            padding: '5px',
+                                            backgroundColor: '#fff',
+                                          }}
+                                        />
+                                        <span
+                                          style={{
+                                            marginLeft: '10px',
+                                            fontSize: '12px',
+                                            color: '#28a745',
+                                            fontWeight: 'bold',
+                                          }}
+                                        >
+                                          ✓ Signé
+                                        </span>
+                                      </div>
+                                    ) : (
+                                      <span
+                                        style={{
+                                          color: '#dc3545',
+                                          fontStyle: 'italic',
+                                        }}
+                                      >
+                                        ❌ Non signé
+                                      </span>
+                                    )}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        ) : (
+                          <div
+                            style={{
+                              padding: '20px',
+                              textAlign: 'center',
+                              backgroundColor: '#f8f9fa',
+                              borderRadius: '8px',
+                              color: '#6c757d',
+                            }}
+                          >
+                            Aucun technicien affecté pour cette période
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* ================= OBSERVATIONS GÉNÉRALES ================= */}
+                {selectedFiche.observationsGenerales && (
+                  <div
+                    className="fiche-observations"
+                    style={{
+                      backgroundColor: '#fff3cd',
+                      borderLeft: '4px solid #ffc107',
+                      padding: '15px',
+                      borderRadius: '8px',
+                      marginBottom: '20px',
+                    }}
+                  >
+                    <h5
+                      style={{
+                        margin: '0 0 8px 0',
+                        color: '#856404',
+                        fontSize: '14px',
+                      }}
                     >
-                      <thead>
-                        <tr style={{ backgroundColor: '#eee' }}>
-                          <th style={th}>Nom</th>
-                          <th style={th}>Signature</th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-                        {(selectedFiche.techniciens?.[bloc] || []).map(
-                          (tech, i) => (
-                            <tr key={i}>
-                              <td style={td}>{tech.nom || '-'}</td>
-                              <td style={td}>
-                                {tech.signature ? (
-                                  <img src={tech.signature} width="100" />
-                                ) : (
-                                  '—'
-                                )}
-                              </td>
-                            </tr>
-                          )
-                        )}
-                      </tbody>
-                    </table>
+                      📝 Observations générales
+                    </h5>
+                    <p
+                      style={{
+                        margin: 0,
+                        color: '#856404',
+                        whiteSpace: 'pre-wrap',
+                      }}
+                    >
+                      {selectedFiche.observationsGenerales}
+                    </p>
                   </div>
-                ))}
+                )}
 
                 {/* ================= ACTIONS ================= */}
                 <div
-                  style={{ marginTop: '20px', display: 'flex', gap: '10px' }}
+                  className="fiche-actions"
+                  style={{
+                    display: 'flex',
+                    gap: '12px',
+                    justifyContent: 'flex-end',
+                    paddingTop: '20px',
+                    borderTop: '1px solid #e9ecef',
+                    marginTop: '10px',
+                  }}
                 >
                   <button
                     onClick={() =>
                       validerFiche(selectedFiche._id, selectedFiche.notifId)
                     }
+                    disabled={selectedFiche.statut === 'validé'}
+                    style={{
+                      padding: '10px 20px',
+                      backgroundColor:
+                        selectedFiche.statut === 'validé'
+                          ? '#6c757d'
+                          : '#28a745',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor:
+                        selectedFiche.statut === 'validé'
+                          ? 'not-allowed'
+                          : 'pointer',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'all 0.3s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (selectedFiche.statut !== 'validé') {
+                        e.target.style.backgroundColor = '#218838';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (selectedFiche.statut !== 'validé') {
+                        e.target.style.backgroundColor = '#28a745';
+                      }
+                    }}
                   >
-                    ✅ Valider
+                    ✅{' '}
+                    {selectedFiche.statut === 'validé'
+                      ? 'Déjà validé'
+                      : 'Valider la fiche'}
                   </button>
 
-                  <button onClick={() => setSelectedFiche(null)}>
+                  <button
+                    onClick={() => exportPDF(selectedFiche)}
+                    style={{
+                      padding: '10px 20px',
+                      backgroundColor: '#3498db',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'all 0.3s ease',
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.target.style.backgroundColor = '#2980b9')
+                    }
+                    onMouseLeave={(e) =>
+                      (e.target.style.backgroundColor = '#3498db')
+                    }
+                  >
+                    📄 Exporter en PDF
+                  </button>
+
+                  <button
+                    onClick={() => setSelectedFiche(null)}
+                    style={{
+                      padding: '10px 20px',
+                      backgroundColor: '#dc3545',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'all 0.3s ease',
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.target.style.backgroundColor = '#c82333')
+                    }
+                    onMouseLeave={(e) =>
+                      (e.target.style.backgroundColor = '#dc3545')
+                    }
+                  >
                     ❌ Fermer
                   </button>
                 </div>
-              </>
+              </div>
             ) : selectedFiche.installations?.length > 0 ? (
               <>
                 <h3>Fiche Feux Obstacles</h3>

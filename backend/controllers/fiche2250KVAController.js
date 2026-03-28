@@ -78,7 +78,7 @@ exports.validerFiche2250KVA = async(req, res) => {
 
         if (notifId) await Notification.findByIdAndUpdate(notifId, { read: true });
 
-        res.json({ message: "Fiche validée ✅" });
+        res.json({ message: "Fiche validée ✅", fiche });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

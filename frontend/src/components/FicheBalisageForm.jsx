@@ -230,17 +230,15 @@ const handleSubmit = async (e) => {
 // RENDER
 // =======================
   return (
-    <form onSubmit={handleSubmit} style={{ width: "95%", margin: "auto" }}>
+    <form onSubmit={handleSubmit} style={{ width: '95%', margin: 'auto' }}>
       <h2>Fiche d'inspection journaliere de Balisage</h2>
 
       <label>Date</label>
       <input
         type="date"
         value={fiche.date.toISOString().substring(0, 10)}
-        onChange={(e) => handleChange("date", new Date(e.target.value))}
+        onChange={(e) => handleChange('date', new Date(e.target.value))}
       />
-
-     
 
       <br />
 
@@ -278,49 +276,49 @@ const handleSubmit = async (e) => {
               {g.lignes.map((l, li) => (
                 <tr key={li}>
                   <td>{l.designation}</td>
-{["nf", "fonctionnement", "interventions"].map((f) => (
-  <td key={f}>
-    <input
-  type="text"
-  value={l.matin?.[f] || ""}
-  onChange={(e) =>
-    handleInput(gi, li, "matin", f, e.target.value)
-  }
-  disabled={phase === "nuit"}   // 🔥 IMPORTANT
-/>
-  </td>
-))}
+                  {['nf', 'fonctionnement', 'interventions'].map((f) => (
+                    <td key={f}>
+                      <input
+                        type="text"
+                        value={l.matin?.[f] || ''}
+                        onChange={(e) =>
+                          handleInput(gi, li, 'matin', f, e.target.value)
+                        }
+                        disabled={phase === 'nuit'} // 🔥 IMPORTANT
+                      />
+                    </td>
+                  ))}
 
                   <td>
                     <input
-  value={l.matin?.observations || ""}
-  onChange={(e) =>
-    handleObservation(gi, li, "matin", e.target.value)
-  }
-  disabled={phase === "nuit"}   // 🔥 IMPORTANT
-/>
+                      value={l.matin?.observations || ''}
+                      onChange={(e) =>
+                        handleObservation(gi, li, 'matin', e.target.value)
+                      }
+                      disabled={phase === 'nuit'} // 🔥 IMPORTANT
+                    />
                   </td>
-{["nf", "fonctionnement", "interventions"].map((f) => (
-  <td key={f}>
-    <input
-  type="text"
-  value={l.nuit?.[f] || ""}
-  onChange={(e) =>
-    handleInput(gi, li, "nuit", f, e.target.value)
-  }
-  disabled={phase === "matin"}   // 🔥 IMPORTANT
-/>
-  </td>
-))}
+                  {['nf', 'fonctionnement', 'interventions'].map((f) => (
+                    <td key={f}>
+                      <input
+                        type="text"
+                        value={l.nuit?.[f] || ''}
+                        onChange={(e) =>
+                          handleInput(gi, li, 'nuit', f, e.target.value)
+                        }
+                        disabled={phase === 'matin'} // 🔥 IMPORTANT
+                      />
+                    </td>
+                  ))}
 
                   <td>
-                   <input
-  value={l.nuit?.observations || ""}
-  onChange={(e) =>
-    handleObservation(gi, li, "nuit", e.target.value)
-  }
-  disabled={phase === "matin"}   // 🔥 IMPORTANT
-/>
+                    <input
+                      value={l.nuit?.observations || ''}
+                      onChange={(e) =>
+                        handleObservation(gi, li, 'nuit', e.target.value)
+                      }
+                      disabled={phase === 'matin'} // 🔥 IMPORTANT
+                    />
                   </td>
                 </tr>
               ))}
@@ -328,20 +326,20 @@ const handleSubmit = async (e) => {
           ))}
         </tbody>
       </table>
-<br />
+      <br />
 
-<label><b>Technicien :</b></label>
-<br />
+      <label>
+        <b>Technicien :</b>
+      </label>
+      <br />
 
-<input
-  type="text"
-  placeholder="Nom du technicien"
-  value={fiche.technicien || ""}
-  onChange={(e) =>
-    setFiche({ ...fiche, technicien: e.target.value })
-  }
-  style={{ width: "300px", marginTop: "5px" }}
-/>
+      <input
+        type="text"
+        placeholder="Nom du technicien"
+        value={fiche.technicien || ''}
+        onChange={(e) => setFiche({ ...fiche, technicien: e.target.value })}
+        style={{ width: '300px', marginTop: '5px' }}
+      />
       <br />
 
       <button type="submit">Enregistrer</button>
@@ -349,8 +347,21 @@ const handleSubmit = async (e) => {
         Envoyer
       </button>
       <button type="button" onClick={() => window.location.reload()}>
-  Retour
-</button>
+        Retour
+      </button>
+      <div
+        style={{
+          marginTop: '40px',
+          paddingTop: '20px',
+          borderTop: '2px solid #ddd',
+          textAlign: 'center',
+          fontSize: '12px',
+          color: '#666',
+          fontStyle: 'italic',
+        }}
+      >
+        <p style={{ margin: '0' }}>Doc N°:TAVTUN/NBE.TD.BAL.FM.001</p>
+      </div>
     </form>
   );
 }

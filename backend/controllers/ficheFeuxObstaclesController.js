@@ -1,5 +1,6 @@
 const FicheFeuxObstacles = require("../models/FicheFeuxObstacles");
 const Notification = require("../models/Notification");
+const HistoriqueAction = require('../models/HistoriqueAction');
 
 // récupérer la fiche
 exports.getFicheFeuxObstacles = async(req, res) => {
@@ -81,6 +82,44 @@ exports.getFicheDGSById = async(req, res) => {
         const fiche = await FicheFeuxObstacles.findById(req.params.id);
         if (!fiche) return res.status(404).json({ message: "Fiche non trouvée" });
         res.json(fiche);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+// 🔹 Valider fiche Feux Obstacles
+exports.validerFicheFeuxObstacles = async(req, res) => {
+    try {
+        const { ficheId, notifId } = req.body;
+
+        // 🔍 chercher la fiche
+        const fiche = await FicheFeuxObstacles.findById(ficheId);
+        if (!fiche) {
+            return res.status(404).json({ message: "Fiche non trouvée" });
+        }
+
+        // ✅ changer le statut
+        fiche.statut = "validée";
+        await fiche.save();
+
+        // 📝 ajouter dans l'historique
+        const historique = new HistoriqueAction({
+            type: "fiche_feux_obstacles",
+            message: "Fiche Feux Obstacles validée",
+            dataId: fiche._id,
+            date: new Date()
+        });
+        await historique.save();
+
+        // 🔔 marquer la notification comme lue
+        if (notifId) {
+            await Notification.findByIdAndUpdate(notifId, { read: true });
+        }
+
+        res.json({
+            message: "Fiche validée ✅",
+            fiche
+        });
+
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

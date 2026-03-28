@@ -392,75 +392,75 @@ const handleSubmit = async (e) => {
         </div>
 
         {/* ===== DEPANNAGE ===== */}
-   <div className="card full-width">
-  <h3>Dépannage</h3>
+        <div className="card full-width">
+          <h3>Dépannage</h3>
 
-  {fc.depannageReparation.map((d, i) => (
-    <div key={i} className="grid-2">
-      {/* Pièces */}
-      <input
-        className="input"
-        placeholder="Pièces"
-        value={d.piecesDeRechange}
-onChange={(e) => {
-  const value = e.target.value;
+          {fc.depannageReparation.map((d, i) => (
+            <div key={i} className="grid-2">
+              {/* Pièces */}
+              <input
+                className="input"
+                placeholder="Pièces"
+                value={d.piecesDeRechange}
+                onChange={(e) => {
+                  const value = e.target.value;
 
-  const newDep = [...fc.depannageReparation];
-  newDep[i].piecesDeRechange = value;
+                  const newDep = [...fc.depannageReparation];
+                  newDep[i].piecesDeRechange = value;
 
-  updateField('depannageReparation', newDep);
+                  updateField('depannageReparation', newDep);
 
-  handleSearch(value, i); 
-}}
-      />
-{filtered[i]?.length > 0 && (
-  <div className="search-results">
-    {filtered[i].map((item) => (
-      <div
-        key={item._id}
-        className="search-item"
-        onClick={() => {
-          const newDep = [...fc.depannageReparation];
-          newDep[i].piecesDeRechange = item.designation;
+                  handleSearch(value, i);
+                }}
+              />
+              {filtered[i]?.length > 0 && (
+                <div className="search-results">
+                  {filtered[i].map((item) => (
+                    <div
+                      key={item._id}
+                      className="search-item"
+                      onClick={() => {
+                        const newDep = [...fc.depannageReparation];
+                        newDep[i].piecesDeRechange = item.designation;
 
-          updateField('depannageReparation', newDep);
-          setFiltered(prev => ({ ...prev, [i]: [] }));
-        }}
-      >
-        <span className="designation">{item.designation}</span>
-        <span className="stock">Stock: {item.quantite}</span>
-      </div>
-    ))}
-  </div>
-)}
+                        updateField('depannageReparation', newDep);
+                        setFiltered((prev) => ({ ...prev, [i]: [] }));
+                      }}
+                    >
+                      <span className="designation">{item.designation}</span>
+                      <span className="stock">Stock: {item.quantite}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
 
-      {/* Quantité */}
-      <input
-        className="input"
-        type="number"
-        placeholder="Quantité"
-        value={d.quantite}
-        onChange={(e) => {
-          const newDep = [...fc.depannageReparation];
-          newDep[i].quantite = e.target.value;
-          updateField('depannageReparation', newDep);
-        }}
-      />
-    </div>
-  ))}
+              {/* Quantité */}
+              <input
+                className="input"
+                type="number"
+                placeholder="Quantité"
+                value={d.quantite}
+                onChange={(e) => {
+                  const newDep = [...fc.depannageReparation];
+                  newDep[i].quantite = e.target.value;
+                  updateField('depannageReparation', newDep);
+                }}
+              />
+            </div>
+          ))}
 
-  <span
-    className="add-btn"
-    onClick={() =>
-      updateField('depannageReparation', [
-        ...fc.depannageReparation,
-        { piecesDeRechange: '', quantite: '' }, // ✅ IMPORTANT
-      ])
-    }
-  >
-    ➕
-  </span>
-</div>
+          <span
+            className="add-btn"
+            onClick={() =>
+              updateField('depannageReparation', [
+                ...fc.depannageReparation,
+                { piecesDeRechange: '', quantite: '' }, // ✅ IMPORTANT
+              ])
+            }
+          >
+            ➕
+          </span>
+        </div>
 
         {/* ===== FINAL ===== */}
         <div className="card grid-4 full-width">
@@ -478,7 +478,8 @@ onChange={(e) => {
             />
             {fc.debutIntervention && fc.remiseEnService && (
               <div className="temps-alloue-calculation">
-                <span>Calcul:</span> {fc.debutIntervention} - {fc.remiseEnService}
+                <span>Calcul:</span> {fc.debutIntervention} -{' '}
+                {fc.remiseEnService}
               </div>
             )}
             <div className="temps-alloue-tooltip">
@@ -524,6 +525,19 @@ onChange={(e) => {
           <button type="button" onClick={handleEnvoyer}>
             Envoyer
           </button>
+        </div>
+        <div
+          style={{
+            marginTop: '40px',
+            paddingTop: '20px',
+            borderTop: '2px solid #ddd',
+            textAlign: 'center',
+            fontSize: '12px',
+            color: '#666',
+            fontStyle: 'italic',
+          }}
+        >
+          <p style={{ margin: '0' }}>Doc N°:TAVTUN/NBE.TD.BAL.FM.034</p>
         </div>
       </form>
     </div>

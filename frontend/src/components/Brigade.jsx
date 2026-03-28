@@ -233,7 +233,7 @@ export default function Brigade() {
       alert('❌ Erreur lors de l’envoi.');
     }
   };
-
+ 
   // ---------------- UI ----------------
   return (
     <div className="brigade-container">

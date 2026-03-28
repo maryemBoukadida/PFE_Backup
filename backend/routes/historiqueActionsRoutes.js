@@ -23,7 +23,10 @@ const models = {
     fiche_semes_dgs: require('../models/ficheSemesDgs'),
     fiche_brigade: require('../models/Brigade'),
     fiche_balisage: require('../models/FicheBalisage'),
-    fiche_corrective: require('../models/ficheCorrective')
+    fiche_corrective: require('../models/ficheCorrective'),
+    fiche_nobreak: require('../models/FicheNoBreak'),
+    fiche_papi_avant: require('../models/ficheAnnPaMa'),
+    fiche_ann_obs: require('../models/ficheAnnObs'),
 };
 
 // GET toutes les actions
