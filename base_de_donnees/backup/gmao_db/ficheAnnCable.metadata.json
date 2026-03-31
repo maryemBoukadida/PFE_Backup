@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"}],"uuid":"26499da74ced410583aefe09263582ee","collectionName":"ficheAnnCable","type":"collection"}
