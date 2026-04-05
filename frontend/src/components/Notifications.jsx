@@ -10741,21 +10741,16 @@ export default function Notifications() {
                 </div>
 
                 {/* ================= BLOCS ================= */}
-                {['matin', 'apresMidi', 'nuit'].map((bloc, idx) => {
+                {['jour', 'nuit'].map((bloc, idx) => {
                   const blocLabels = {
-                    matin: {
-                      name: '🌅 Matin',
-                      hours: '8h - 14h',
+                    jour: {
+                      name: '☀️ Shift Jour',
+                      hours: '08h - 20h',
                       color: '#f39c12',
                     },
-                    apresMidi: {
-                      name: '🌇 Après-midi',
-                      hours: '14h - 20h',
-                      color: '#e67e22',
-                    },
                     nuit: {
-                      name: '🌙 Nuit',
-                      hours: '20h - 8h',
+                      name: '🌙 Shift Nuit',
+                      hours: '20h - 08h',
                       color: '#2c3e50',
                     },
                   };
@@ -10806,100 +10801,466 @@ export default function Notifications() {
                         </h5>
 
                         {blocData.length > 0 ? (
-                          <table
-                            style={{
-                              borderCollapse: 'collapse',
-                              width: '100%',
-                              marginBottom: '20px',
-                            }}
-                          >
-                            <thead>
-                              <tr
-                                style={{
-                                  backgroundColor: '#f8f9fa',
-                                  borderBottom: '2px solid #dee2e6',
-                                }}
-                              >
-                                <th
-                                  style={{
-                                    padding: '10px',
-                                    textAlign: 'left',
-                                    fontWeight: 'bold',
-                                    color: '#495057',
-                                    width: '50%',
-                                  }}
-                                >
-                                  Consigne
-                                </th>
-                                <th
-                                  style={{
-                                    padding: '10px',
-                                    textAlign: 'left',
-                                    fontWeight: 'bold',
-                                    color: '#495057',
-                                    width: '50%',
-                                  }}
-                                >
-                                  Inspection
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {blocData.map((row, i) => (
+                          <div style={{ overflowX: 'auto' }}>
+                            <table
+                              style={{
+                                borderCollapse: 'collapse',
+                                width: '100%',
+                                marginBottom: '20px',
+                                fontSize: '13px',
+                              }}
+                            >
+                              <thead>
                                 <tr
-                                  key={i}
-                                  style={{ borderBottom: '1px solid #e9ecef' }}
+                                  style={{
+                                    backgroundColor: '#f8f9fa',
+                                    borderBottom: '2px solid #dee2e6',
+                                  }}
                                 >
-                                  <td
+                                  <th
                                     style={{
-                                      padding: '10px',
-                                      verticalAlign: 'top',
-                                      backgroundColor:
-                                        i % 2 === 0 ? '#fff' : '#fafafa',
+                                      padding: '8px',
+                                      textAlign: 'left',
+                                      fontWeight: 'bold',
+                                      color: '#495057',
                                     }}
                                   >
-                                    {row.consigne && row.consigne.trim() ? (
-                                      <div style={{ whiteSpace: 'pre-wrap' }}>
-                                        {row.consigne}
-                                      </div>
-                                    ) : (
-                                      <span
-                                        style={{
-                                          color: '#adb5bd',
-                                          fontStyle: 'italic',
-                                        }}
-                                      >
-                                        — Aucune consigne —
-                                      </span>
-                                    )}
-                                  </td>
-                                  <td
+                                    Type intervention
+                                  </th>
+                                  <th
                                     style={{
-                                      padding: '10px',
-                                      verticalAlign: 'top',
-                                      backgroundColor:
-                                        i % 2 === 0 ? '#fff' : '#fafafa',
+                                      padding: '8px',
+                                      textAlign: 'left',
+                                      fontWeight: 'bold',
+                                      color: '#495057',
                                     }}
                                   >
-                                    {row.inspection && row.inspection.trim() ? (
-                                      <div style={{ whiteSpace: 'pre-wrap' }}>
-                                        {row.inspection}
-                                      </div>
-                                    ) : (
-                                      <span
-                                        style={{
-                                          color: '#adb5bd',
-                                          fontStyle: 'italic',
-                                        }}
-                                      >
-                                        — Aucune inspection —
-                                      </span>
-                                    )}
-                                  </td>
+                                    Nature travaux
+                                  </th>
+                                  <th
+                                    style={{
+                                      padding: '8px',
+                                      textAlign: 'left',
+                                      fontWeight: 'bold',
+                                      color: '#495057',
+                                    }}
+                                  >
+                                    Lieu
+                                  </th>
+                                  <th
+                                    style={{
+                                      padding: '8px',
+                                      textAlign: 'left',
+                                      fontWeight: 'bold',
+                                      color: '#495057',
+                                    }}
+                                  >
+                                    Nature maintenance
+                                  </th>
+                                  <th
+                                    style={{
+                                      padding: '8px',
+                                      textAlign: 'left',
+                                      fontWeight: 'bold',
+                                      color: '#495057',
+                                    }}
+                                  >
+                                    Maintenance préventive
+                                  </th>
+                                  <th
+                                    style={{
+                                      padding: '8px',
+                                      textAlign: 'left',
+                                      fontWeight: 'bold',
+                                      color: '#495057',
+                                    }}
+                                  >
+                                    Action effectuée
+                                  </th>
+                                  <th
+                                    style={{
+                                      padding: '8px',
+                                      textAlign: 'left',
+                                      fontWeight: 'bold',
+                                      color: '#495057',
+                                    }}
+                                  >
+                                    Technicien
+                                  </th>
+                                  <th
+                                    style={{
+                                      padding: '8px',
+                                      textAlign: 'left',
+                                      fontWeight: 'bold',
+                                      color: '#495057',
+                                    }}
+                                  >
+                                    Panne
+                                  </th>
+                                  <th
+                                    style={{
+                                      padding: '8px',
+                                      textAlign: 'left',
+                                      fontWeight: 'bold',
+                                      color: '#495057',
+                                    }}
+                                  >
+                                    Cause
+                                  </th>
+                                  <th
+                                    style={{
+                                      padding: '8px',
+                                      textAlign: 'left',
+                                      fontWeight: 'bold',
+                                      color: '#495057',
+                                    }}
+                                  >
+                                    Date détection
+                                  </th>
+                                  <th
+                                    style={{
+                                      padding: '8px',
+                                      textAlign: 'left',
+                                      fontWeight: 'bold',
+                                      color: '#495057',
+                                    }}
+                                  >
+                                    Date réparation
+                                  </th>
+                                  <th
+                                    style={{
+                                      padding: '8px',
+                                      textAlign: 'left',
+                                      fontWeight: 'bold',
+                                      color: '#495057',
+                                    }}
+                                  >
+                                    Durée (min)
+                                  </th>
+                                  <th
+                                    style={{
+                                      padding: '8px',
+                                      textAlign: 'left',
+                                      fontWeight: 'bold',
+                                      color: '#495057',
+                                    }}
+                                  >
+                                    Pièces remplacées
+                                  </th>
+                                  <th
+                                    style={{
+                                      padding: '8px',
+                                      textAlign: 'left',
+                                      fontWeight: 'bold',
+                                      color: '#495057',
+                                    }}
+                                  >
+                                    Quantité
+                                  </th>
                                 </tr>
-                              ))}
-                            </tbody>
-                          </table>
+                              </thead>
+                              <tbody>
+                                {blocData.map((row, i) => (
+                                  <tr
+                                    key={i}
+                                    style={{
+                                      borderBottom: '1px solid #e9ecef',
+                                    }}
+                                  >
+                                    <td
+                                      style={{
+                                        padding: '8px',
+                                        verticalAlign: 'top',
+                                        backgroundColor:
+                                          i % 2 === 0 ? '#fff' : '#fafafa',
+                                      }}
+                                    >
+                                      {row.typeIntervention || (
+                                        <span
+                                          style={{
+                                            color: '#adb5bd',
+                                            fontStyle: 'italic',
+                                          }}
+                                        >
+                                          —
+                                        </span>
+                                      )}
+                                    </td>
+                                    <td
+                                      style={{
+                                        padding: '8px',
+                                        verticalAlign: 'top',
+                                        backgroundColor:
+                                          i % 2 === 0 ? '#fff' : '#fafafa',
+                                      }}
+                                    >
+                                      {row.natureTravaux || (
+                                        <span
+                                          style={{
+                                            color: '#adb5bd',
+                                            fontStyle: 'italic',
+                                          }}
+                                        >
+                                          —
+                                        </span>
+                                      )}
+                                    </td>
+                                    <td
+                                      style={{
+                                        padding: '8px',
+                                        verticalAlign: 'top',
+                                        backgroundColor:
+                                          i % 2 === 0 ? '#fff' : '#fafafa',
+                                      }}
+                                    >
+                                      {row.lieu || (
+                                        <span
+                                          style={{
+                                            color: '#adb5bd',
+                                            fontStyle: 'italic',
+                                          }}
+                                        >
+                                          —
+                                        </span>
+                                      )}
+                                    </td>
+                                    <td
+                                      style={{
+                                        padding: '8px',
+                                        verticalAlign: 'top',
+                                        backgroundColor:
+                                          i % 2 === 0 ? '#fff' : '#fafafa',
+                                      }}
+                                    >
+                                      {row.natureMaintenance || (
+                                        <span
+                                          style={{
+                                            color: '#adb5bd',
+                                            fontStyle: 'italic',
+                                          }}
+                                        >
+                                          —
+                                        </span>
+                                      )}
+                                    </td>
+                                    <td
+                                      style={{
+                                        padding: '8px',
+                                        verticalAlign: 'top',
+                                        backgroundColor:
+                                          i % 2 === 0 ? '#fff' : '#fafafa',
+                                      }}
+                                    >
+                                      {row.naturePreventive || (
+                                        <span
+                                          style={{
+                                            color: '#adb5bd',
+                                            fontStyle: 'italic',
+                                          }}
+                                        >
+                                          —
+                                        </span>
+                                      )}
+                                    </td>
+                                    <td
+                                      style={{
+                                        padding: '8px',
+                                        verticalAlign: 'top',
+                                        backgroundColor:
+                                          i % 2 === 0 ? '#fff' : '#fafafa',
+                                      }}
+                                    >
+                                      {row.action || (
+                                        <span
+                                          style={{
+                                            color: '#adb5bd',
+                                            fontStyle: 'italic',
+                                          }}
+                                        >
+                                          —
+                                        </span>
+                                      )}
+                                    </td>
+                                    <td
+                                      style={{
+                                        padding: '8px',
+                                        verticalAlign: 'top',
+                                        backgroundColor:
+                                          i % 2 === 0 ? '#fff' : '#fafafa',
+                                      }}
+                                    >
+                                      {row.technicien || (
+                                        <span
+                                          style={{
+                                            color: '#adb5bd',
+                                            fontStyle: 'italic',
+                                          }}
+                                        >
+                                          —
+                                        </span>
+                                      )}
+                                    </td>
+                                    <td
+                                      style={{
+                                        padding: '8px',
+                                        verticalAlign: 'top',
+                                        backgroundColor:
+                                          i % 2 === 0 ? '#fff' : '#fafafa',
+                                      }}
+                                    >
+                                      {row.panne || (
+                                        <span
+                                          style={{
+                                            color: '#adb5bd',
+                                            fontStyle: 'italic',
+                                          }}
+                                        >
+                                          —
+                                        </span>
+                                      )}
+                                    </td>
+                                    <td
+                                      style={{
+                                        padding: '8px',
+                                        verticalAlign: 'top',
+                                        backgroundColor:
+                                          i % 2 === 0 ? '#fff' : '#fafafa',
+                                      }}
+                                    >
+                                      {row.cause || (
+                                        <span
+                                          style={{
+                                            color: '#adb5bd',
+                                            fontStyle: 'italic',
+                                          }}
+                                        >
+                                          —
+                                        </span>
+                                      )}
+                                    </td>
+                                    <td
+                                      style={{
+                                        padding: '8px',
+                                        verticalAlign: 'top',
+                                        backgroundColor:
+                                          i % 2 === 0 ? '#fff' : '#fafafa',
+                                      }}
+                                    >
+                                      {row.dateDetection ? (
+                                        new Date(
+                                          row.dateDetection
+                                        ).toLocaleDateString('fr-FR')
+                                      ) : (
+                                        <span
+                                          style={{
+                                            color: '#adb5bd',
+                                            fontStyle: 'italic',
+                                          }}
+                                        >
+                                          —
+                                        </span>
+                                      )}
+                                    </td>
+                                    <td
+                                      style={{
+                                        padding: '8px',
+                                        verticalAlign: 'top',
+                                        backgroundColor:
+                                          i % 2 === 0 ? '#fff' : '#fafafa',
+                                      }}
+                                    >
+                                      {row.dateReparation ? (
+                                        new Date(
+                                          row.dateReparation
+                                        ).toLocaleDateString('fr-FR')
+                                      ) : (
+                                        <span
+                                          style={{
+                                            color: '#adb5bd',
+                                            fontStyle: 'italic',
+                                          }}
+                                        >
+                                          —
+                                        </span>
+                                      )}
+                                    </td>
+                                    <td
+                                      style={{
+                                        padding: '8px',
+                                        verticalAlign: 'top',
+                                        backgroundColor:
+                                          i % 2 === 0 ? '#fff' : '#fafafa',
+                                        fontWeight: 'bold',
+                                        color: row.DureeEnMinute
+                                          ? '#2c3e50'
+                                          : '#adb5bd',
+                                      }}
+                                    >
+                                      {row.DureeEnMinute ? (
+                                        <span
+                                          style={{
+                                            backgroundColor: '#e8f4f8',
+                                            padding: '2px 6px',
+                                            borderRadius: '12px',
+                                            fontSize: '12px',
+                                          }}
+                                        >
+                                          ⏱️ {row.DureeEnMinute} min
+                                        </span>
+                                      ) : (
+                                        <span
+                                          style={{
+                                            color: '#adb5bd',
+                                            fontStyle: 'italic',
+                                          }}
+                                        >
+                                          —
+                                        </span>
+                                      )}
+                                    </td>
+                                    <td
+                                      style={{
+                                        padding: '8px',
+                                        verticalAlign: 'top',
+                                        backgroundColor:
+                                          i % 2 === 0 ? '#fff' : '#fafafa',
+                                      }}
+                                    >
+                                      {row.pieces || (
+                                        <span
+                                          style={{
+                                            color: '#adb5bd',
+                                            fontStyle: 'italic',
+                                          }}
+                                        >
+                                          —
+                                        </span>
+                                      )}
+                                    </td>
+                                    <td
+                                      style={{
+                                        padding: '8px',
+                                        verticalAlign: 'top',
+                                        backgroundColor:
+                                          i % 2 === 0 ? '#fff' : '#fafafa',
+                                      }}
+                                    >
+                                      {row.quantite || (
+                                        <span
+                                          style={{
+                                            color: '#adb5bd',
+                                            fontStyle: 'italic',
+                                          }}
+                                        >
+                                          —
+                                        </span>
+                                      )}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
                         ) : (
                           <div
                             style={{
@@ -10910,10 +11271,7 @@ export default function Notifications() {
                               marginBottom: '20px',
                               color: '#6c757d',
                             }}
-                          >
-                            Aucune consigne ou inspection enregistrée pour cette
-                            période
-                          </div>
+                          ></div>
                         )}
 
                         {/* ===== TECHNICIENS ET SIGNATURES ===== */}
@@ -10923,9 +11281,7 @@ export default function Notifications() {
                             color: '#555',
                             fontSize: '14px',
                           }}
-                        >
-                          👨‍🔧 Techniciens et Signatures
-                        </h5>
+                        ></h5>
 
                         {techsData.length > 0 ? (
                           <table
@@ -10977,9 +11333,6 @@ export default function Notifications() {
                                       verticalAlign: 'middle',
                                       backgroundColor:
                                         i % 2 === 0 ? '#fff' : '#fafafa',
-                                      fontWeight: tech.nom
-                                        ? 'normal'
-                                        : 'normal',
                                     }}
                                   >
                                     {tech.nom && tech.nom.trim() ? (
@@ -11052,9 +11405,7 @@ export default function Notifications() {
                               borderRadius: '8px',
                               color: '#6c757d',
                             }}
-                          >
-                            Aucun technicien affecté pour cette période
-                          </div>
+                          ></div>
                         )}
                       </div>
                     </div>

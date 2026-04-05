@@ -8,8 +8,9 @@ import Inventaire from './Inventaire.jsx';
 import Notifications from './Notifications.jsx';
 import HistoriqueActions from './HistoriqueActions';
 import DTI from './DTI';
+import Rapport from './Rapport';
 import { FaBell } from 'react-icons/fa';
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
 import {
   getEquipements,
@@ -39,7 +40,7 @@ export default function EquipementsComponent() {
   const [inventaires, setInventaires] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
-  const [activeInventaireTab, setActiveInventaireTab] = useState("equipement");
+  const [activeInventaireTab, setActiveInventaireTab] = useState('equipement');
   const [openInventaire, setOpenInventaire] = useState(false);
   const navigate = useNavigate();
   const BACKEND_URL = 'http://localhost:5000';
@@ -102,7 +103,7 @@ export default function EquipementsComponent() {
       console.error('Erreur lors du marquage de la notification:', err);
     }
   };
-/*
+  /*
   // Gérer le clic sur une notification
   const handleNotificationClick = async (notif) => {
     try {
@@ -135,49 +136,46 @@ export default function EquipementsComponent() {
     }
   };
 */
-const handleNotificationClick = async (notif) => {
-  try {
-    // ✅ Ouvrir la fiche
-    if (notif.url) {
-      window.open(notif.url, "_blank");
-    }
-
-    // ✅ Marquer comme lue UNE SEULE FOIS
-    if (!notif.read) {
-      let url = "";
-
-      // 🔥 Choisir la bonne API selon le type
-      if (notif.type === "corrective") {
-        url = `${BACKEND_URL}/api/fiche-corrective/notifications/${notif._id}`;
-      } else if (notif.type === "tgbt") {
-        url = `${BACKEND_URL}/api/fiche_ann_tgbt/notifications/${notif._id}`;
+  const handleNotificationClick = async (notif) => {
+    try {
+      // ✅ Ouvrir la fiche
+      if (notif.url) {
+        window.open(notif.url, '_blank');
       }
 
-      // 🔥 Appel API seulement si url existe
-      if (url) {
-        await fetch(url, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ read: true }),
-        });
+      // ✅ Marquer comme lue UNE SEULE FOIS
+      if (!notif.read) {
+        let url = '';
+
+        // 🔥 Choisir la bonne API selon le type
+        if (notif.type === 'corrective') {
+          url = `${BACKEND_URL}/api/fiche-corrective/notifications/${notif._id}`;
+        } else if (notif.type === 'tgbt') {
+          url = `${BACKEND_URL}/api/fiche_ann_tgbt/notifications/${notif._id}`;
+        }
+
+        // 🔥 Appel API seulement si url existe
+        if (url) {
+          await fetch(url, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ read: true }),
+          });
+        }
+
+        // ✅ Mise à jour locale (UNE SEULE FOIS)
+        setNotifications((prev) =>
+          prev.map((n) => (n._id === notif._id ? { ...n, read: true } : n))
+        );
       }
 
-      // ✅ Mise à jour locale (UNE SEULE FOIS)
-      setNotifications((prev) =>
-        prev.map((n) =>
-          n._id === notif._id ? { ...n, read: true } : n
-        )
-      );
+      // ✅ UI
+      setShowNotifDropdown(false);
+      setActiveMenu('notification');
+    } catch (err) {
+      console.error('Erreur lors du traitement :', err);
     }
-
-    // ✅ UI
-    setShowNotifDropdown(false);
-    setActiveMenu("notification");
-
-  } catch (err) {
-    console.error("Erreur lors du traitement :", err);
-  }
-};
+  };
   // Marquer toutes les notifications comme lues quand on ouvre la page notifications
   const handleNotifIconClick = () => {
     setActiveMenu('notification');
@@ -326,30 +324,36 @@ const handleNotificationClick = async (notif) => {
           >
             📌 DTI
           </div>
-<div
-  className="submenu-item"
-  onClick={() => setOpenInventaire(!openInventaire)}
->
-  🗂️ Gestion Inventaire
-</div>
+          <div
+            className="submenu-item"
+            onClick={() => setOpenInventaire(!openInventaire)}
+          >
+            🗂️ Gestion Inventaire
+          </div>
 
-{openInventaire && (
-  <div className="submenu-level2">
-    <div
-      className="submenu-item"
-      onClick={() => navigate("/gestion-inventaire/equipements")}
-    >
-      ⚙️ Gestion Équipements
-    </div>
+          {openInventaire && (
+            <div className="submenu-level2">
+              <div
+                className="submenu-item"
+                onClick={() => navigate('/gestion-inventaire/equipements')}
+              >
+                ⚙️ Gestion Équipements
+              </div>
 
-    <div
-      className="submenu-item"
-      onClick={() => navigate("/gestion-inventaire/stocks")}
-    >
-      📦 Gestion Stock
-    </div>
-  </div>
-)}
+              <div
+                className="submenu-item"
+                onClick={() => navigate('/gestion-inventaire/stocks')}
+              >
+                📦 Gestion Stock
+              </div>
+            </div>
+          )}
+          <div
+            className={`submenu-item ${activeMenu === 'rapport' ? 'active' : ''}`}
+            onClick={() => setActiveMenu('rapport')}
+          >
+            📊 Rapport
+          </div>
         </div>
       </div>
 
@@ -424,6 +428,8 @@ const handleNotificationClick = async (notif) => {
             <HistoriqueActions />
           ) : activeMenu === 'dti' ? (
             <DTI />
+          ) : activeMenu === 'rapport' ? (
+            <Rapport />
           ) : (
             <>
               {/* Toolbar */}

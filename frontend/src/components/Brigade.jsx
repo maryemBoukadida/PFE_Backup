@@ -5,8 +5,48 @@ import { FaSave } from 'react-icons/fa';
 import {
   enregistrerFicheBrigade,
   envoyerFicheBrigade,
+  getAllInventaires
 } from './apiservices/api';
+// Fonction pour extraire toutes les désignations des différents inventaires
+function getAllDesignations(data) {
+  const allArrays = [
+    data.PG_gmao || [],
+    data.balisage_gmao || [],
+    data.autre || []
+  ];
 
+  // Fusionner et ne garder que le champ 'designation'
+  const allDesignations = allArrays
+    .flat() // fusionne tous les tableaux
+    .map(item => item.designation)
+    .filter(Boolean); // supprime les undefined/null
+
+  // Supprimer les doublons
+  return [...new Set(allDesignations)];
+}
+// Fonction pour récupérer tous les types et fusionner
+async function fetchAllInventaires() {
+  const types = ['PG', 'BALISAGE', 'AGL']; // tous les types existants
+  const results = [];
+
+  for (const type of types) {
+    try {
+      const data = await getAllInventaires(type);
+      results.push(data);
+    } catch (err) {
+      console.error(`Erreur chargement inventaire ${type}:`, err);
+    }
+  }
+
+  // Fusionner tous les tableaux en un seul objet comme ton API originale
+  const merged = {
+    PG_gmao: results[0] || [],
+    balisage_gmao: results[1] || [],
+    autre: results[2] || []
+  };
+
+  return merged;
+}
 // Composant enfant pour gérer un technicien et sa signature
 function TechRow({
   tech,
@@ -107,49 +147,74 @@ export default function Brigade() {
   const today = new Date().toLocaleDateString();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [ficheId, setFicheId] = useState(null);
+  const [equipements, setEquipements] = useState([]);
 
   useEffect(() => {
+    
     const interval = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(interval);
   }, []);
+useEffect(() => {
+  async function fetchEquipements() {
+    try {
+      const allData = await fetchAllInventaires(); // utilise la fonction fusionnée
+      const designations = getAllDesignations(allData); // récupère uniquement les noms
+      setEquipements(designations); // mets à jour l'état
+    } catch (err) {
+      console.error('Erreur chargement équipements:', err);
+    }
+  }
 
+  fetchEquipements();
+}, []);
   const getCurrentHour = () => currentTime.getHours();
   const getActiveBloc = () => {
     const h = getCurrentHour();
-    if (h >= 8 && h < 14) return 'matin';
-    if (h >= 14 && h < 20) return 'apresMidi';
+    if (h >= 8 && h < 20) return 'jour';
     return 'nuit';
   };
   const activeBloc = getActiveBloc();
 
-  const blocsOrder = ['matin', 'apresMidi', 'nuit'];
+  const blocsOrder = ['jour', 'nuit'];
+
   const titles = {
-    matin: 'Bloc 1 : Matin (8h-14h)',
-    apresMidi: 'Bloc 2 : Après-midi (14h-20h)',
-    nuit: 'Bloc 3 : Nuit (20h-8h)',
+    jour: 'Shift Jour (08h - 20h)',
+    nuit: 'Shift Nuit (20h - 08h)',
   };
 
   const [currentPage, setCurrentPage] = useState(0);
 
-  const createEmptyRow = () => ({ consigne: '', inspection: '' });
+  const createEmptyRow = () => ({
+    typeIntervention: '',
+    natureTravaux: '',
+    lieu: '',
+    natureMaintenance: '',
+    naturePreventive: '',
+    action: '',
+    technicien: '',
+    panne: '',
+    cause: '',
+    dateDetection: '',
+    dateReparation: '',
+    DureeEnMinute: '',
+    pieces: '',
+    quantite: '',
+  });
   const createTech = () => ({ nom: '', signature: '' });
 
   const [blocs, setBlocs] = useState({
-    matin: [createEmptyRow()],
-    apresMidi: [createEmptyRow()],
+    jour: [createEmptyRow()],
     nuit: [createEmptyRow()],
   });
 
   const [techniciens, setTechniciens] = useState({
-    matin: [createTech()],
-    apresMidi: [createTech()],
+    jour: [createTech()],
     nuit: [createTech()],
   });
 
   const currentBloc = blocsOrder[currentPage];
-  // const isActive = activeBloc === currentBloc;
-  const isActive = currentBloc === 'nuit' ? true : activeBloc === currentBloc;
-
+   const isActive = currentBloc === 'nuit' ? true : activeBloc === currentBloc;
+ // const isActive = activeBloc === currentBloc;
   // ---------------- ACTIONS ----------------
 
   const addRow = () => {
@@ -160,14 +225,32 @@ export default function Brigade() {
     }));
   };
 
-  const handleChange = (index, field, value) => {
-    if (!isActive) return;
-    setBlocs((prev) => {
-      const updated = [...prev[currentBloc]];
-      updated[index][field] = value;
-      return { ...prev, [currentBloc]: updated };
-    });
-  };
+const handleChange = (index, field, value) => {
+  if (!isActive) return;
+
+  setBlocs((prev) => {
+    const updated = [...prev[currentBloc]];
+    updated[index][field] = value;
+
+    // Calcul automatique de la durée en minutes
+    const dateDetection = updated[index].dateDetection
+      ? new Date(updated[index].dateDetection)
+      : null;
+    const dateReparation = updated[index].dateReparation
+      ? new Date(updated[index].dateReparation)
+      : null;
+
+    if (dateDetection && dateReparation) {
+      const diffMs = dateReparation - dateDetection;
+      const diffMin = Math.max(0, Math.round(diffMs / 60000)); // millisecondes → minutes
+      updated[index]['DureeEnMinute'] = diffMin; // ⚡ mettre à jour le champ existant
+    } else {
+      updated[index]['DureeEnMinute'] = '';
+    }
+
+    return { ...prev, [currentBloc]: updated };
+  });
+};
 
   const addTech = () => {
     if (!isActive) return;
@@ -190,20 +273,14 @@ export default function Brigade() {
     try {
       const dataToSave = {
         date: new Date(),
-        blocsBrigade: blocs,
-        techniciens,
+        bloc: currentBloc, // 👈 important
+        data: blocs[currentBloc], // 👈 seulement jour OU nuit
       };
+
       const savedFiche = await enregistrerFicheBrigade(dataToSave);
       setFicheId(savedFiche._id);
-      alert('✅ Fiche Brigade sauvegardée avec succès !');
 
-      console.log(`✅ ${currentBloc} enregistré:`, dataToSave);
-
-      // Sauvegarde locale également
-      localStorage.setItem(
-        `brigade_${currentBloc}_${today}`,
-        JSON.stringify(dataToSave)
-      );
+      alert('✅ Bloc sauvegardé avec succès !');
     } catch (err) {
       console.error(err);
       alert('❌ Erreur lors de la sauvegarde.');
@@ -233,7 +310,7 @@ export default function Brigade() {
       alert('❌ Erreur lors de l’envoi.');
     }
   };
- 
+
   // ---------------- UI ----------------
   return (
     <div className="brigade-container">
@@ -278,33 +355,192 @@ export default function Brigade() {
           <table className="brigade-table">
             <thead>
               <tr>
-                <th>Consignes</th>
-                <th>Inspection</th>
+                <th>Type intervention</th>
+                <th>Nature travaux</th>
+                <th>Lieu</th>
+                <th>Nature maintenance</th>
+                <th>Nature maintenance préventive</th>
+                <th>Action effectuée</th>
+                <th>Technicien</th>
+                <th>Panne</th>
+                <th>Cause</th>
+                <th>Date détection</th>
+                <th>Date réparation</th>
+                <th>Durée (min)</th>
+                <th>Pièces remplacées</th>
+                <th>Quantité</th>
               </tr>
             </thead>
             <tbody>
               {blocs[currentBloc].map((row, index) => (
                 <tr key={index}>
+                  {/* Type intervention */}
                   <td>
-                    <textarea
-                      value={row.consigne}
+                    <select
+                      value={row.typeIntervention}
                       disabled={!isActive}
                       onChange={(e) =>
-                        handleChange(index, 'consigne', e.target.value)
+                        handleChange(index, 'typeIntervention', e.target.value)
                       }
-                      rows="2"
-                      placeholder="Saisir les consignes..."
+                    >
+                      <option value="">-- Choisir --</option>
+                      <option value="balisage">Balisage</option>
+                      <option value="production">Production</option>
+                    </select>
+                  </td>
+
+                  {/* Nature travaux */}
+                  <td>
+                    <input
+                      value={row.natureTravaux}
+                      disabled={!isActive}
+                      onChange={(e) =>
+                        handleChange(index, 'natureTravaux', e.target.value)
+                      }
+                    />
+                  </td>
+
+                  {/* Lieu */}
+                  <td>
+                    <input
+                      value={row.lieu}
+                      disabled={!isActive}
+                      onChange={(e) =>
+                        handleChange(index, 'lieu', e.target.value)
+                      }
+                    />
+                  </td>
+
+                  {/* Nature maintenance */}
+                  <td>
+                    <select
+                      value={row.natureMaintenance}
+                      disabled={!isActive}
+                      onChange={(e) =>
+                        handleChange(index, 'natureMaintenance', e.target.value)
+                      }
+                    >
+                      <option value="">-- Choisir --</option>
+                      <option value="preventif">Préventif</option>
+                      <option value="curatif">Curatif</option>
+                    </select>
+                  </td>
+
+                  {/* Nature maintenance préventive */}
+                  <td>
+                    <select
+                      value={row.naturePreventive}
+                      disabled={!isActive}
+                      onChange={(e) =>
+                        handleChange(index, 'naturePreventive', e.target.value)
+                      }
+                    >
+                      <option value="">-- Choisir --</option>
+                      <option value="journaliere">Journalière</option>
+                      <option value="semestrielle">Semestrielle</option>
+                      <option value="annuelle">Annuelle</option>
+                    </select>
+                  </td>
+
+                  {/* Action */}
+                  <td>
+                    <input
+                      value={row.action}
+                      disabled={!isActive}
+                      onChange={(e) =>
+                        handleChange(index, 'action', e.target.value)
+                      }
+                    />
+                  </td>
+
+                  {/* Technicien */}
+                  <td>
+                    <input
+                      value={row.technicien}
+                      disabled={!isActive}
+                      onChange={(e) =>
+                        handleChange(index, 'technicien', e.target.value)
+                      }
+                    />
+                  </td>
+
+                  {/* Panne */}
+                  <td>
+                    <input
+                      value={row.panne}
+                      disabled={!isActive}
+                      onChange={(e) =>
+                        handleChange(index, 'panne', e.target.value)
+                      }
+                    />
+                  </td>
+
+                  {/* Cause */}
+                  <td>
+                    <input
+                      value={row.cause}
+                      disabled={!isActive}
+                      onChange={(e) =>
+                        handleChange(index, 'cause', e.target.value)
+                      }
+                    />
+                  </td>
+
+                  {/* Date détection */}
+                  <td>
+                    <input
+                      type="datetime-local"
+                      value={row.dateDetection}
+                      disabled={!isActive}
+                      onChange={(e) =>
+                        handleChange(index, 'dateDetection', e.target.value)
+                      }
+                    />
+                  </td>
+
+                  {/* Date réparation */}
+                  <td>
+                    <input
+                      type="datetime-local"
+                      value={row.dateReparation}
+                      disabled={!isActive}
+                      onChange={(e) =>
+                        handleChange(index, 'dateReparation', e.target.value)
+                      }
                     />
                   </td>
                   <td>
-                    <textarea
-                      value={row.inspection}
+                    <input
+                      type="number"
+                      value={row.DureeEnMinute}
+                      disabled
+                      placeholder="Auto"
+                    />
+                  </td>
+<td>
+  <select
+    value={row.pieces}
+    disabled={!isActive}
+    onChange={(e) => handleChange(index, 'pieces', e.target.value)}
+  >
+    <option value="">-- Choisir équipement --</option>
+    {equipements.map((eq, idx) => (
+      <option key={idx} value={eq}>
+        {eq}
+      </option>
+    ))}
+  </select>
+</td>
+
+                  {/* Quantité */}
+                  <td>
+                    <input
+                      type="number"
+                      value={row.quantite}
                       disabled={!isActive}
                       onChange={(e) =>
-                        handleChange(index, 'inspection', e.target.value)
+                        handleChange(index, 'quantite', e.target.value)
                       }
-                      rows="2"
-                      placeholder="Saisir les inspections..."
                     />
                   </td>
                 </tr>
@@ -313,35 +549,6 @@ export default function Brigade() {
           </table>
           <button className="add-btn" disabled={!isActive} onClick={addRow}>
             ➕ Ajouter une ligne
-          </button>
-        </div>
-
-        {/* TECHNICIENS */}
-        <div className="section">
-          <h4>Techniciens et Signatures</h4>
-          <table className="techniciens-table">
-            <thead>
-              <tr>
-                <th>Nom du technicien</th>
-                <th>Signature</th>
-              </tr>
-            </thead>
-            <tbody>
-              {techniciens[currentBloc].map((tech, index) => (
-                <TechRow
-                  key={`${currentBloc}-${index}`}
-                  tech={tech}
-                  index={index}
-                  currentBloc={currentBloc}
-                  isActive={isActive}
-                  handleTechChange={handleTechChange}
-                  setTechniciens={setTechniciens}
-                />
-              ))}
-            </tbody>
-          </table>
-          <button className="add-btn" onClick={addTech} disabled={!isActive}>
-            👤 Ajouter un technicien
           </button>
         </div>
 

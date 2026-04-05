@@ -5,9 +5,28 @@ const HistoriqueAction = require('../models/HistoriqueAction');
 // ================= CREATE =================
 exports.creerFicheBrigade = async(req, res) => {
     try {
-        const fiche = new FicheBrigade(req.body);
-        const nouvelleFiche = await fiche.save();
-        res.status(201).json(nouvelleFiche);
+        const { bloc, data } = req.body;
+
+        let fiche = await FicheBrigade.findOne({
+            date: {
+                $gte: new Date().setHours(0, 0, 0, 0),
+                $lte: new Date().setHours(23, 59, 59, 999),
+            },
+        });
+
+        // 🆕 si aucune fiche aujourd’hui → on crée
+        if (!fiche) {
+            fiche = new FicheBrigade({
+                blocsBrigade: { jour: [], nuit: [] },
+            });
+        }
+
+        // ✅ AJOUTER sans écraser
+        fiche.blocsBrigade[bloc].push(...data);
+
+        await fiche.save();
+
+        res.status(200).json(fiche);
     } catch (err) {
         res.status(500).json({
             message: 'Erreur création fiche Brigade',
@@ -71,7 +90,7 @@ exports.validerFicheBrigade = async(req, res) => {
         const fiche = await FicheBrigade.findById(ficheId);
         if (!fiche) return res.status(404).json({ message: 'Fiche non trouvée' });
 
-        fiche.statut = 'validée';
+        fiche.statut = 'validee';
         await fiche.save();
 
         const historique = new HistoriqueAction({

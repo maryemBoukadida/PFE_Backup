@@ -1,34 +1,33 @@
 const mongoose = require('mongoose');
 
-const technicienSchema = new mongoose.Schema({
-    nom: String,
-    signature: String,
-});
-
 const ligneSchema = new mongoose.Schema({
-    consigne: String,
-    inspection: String,
+    typeIntervention: String,
+    natureTravaux: String,
+    lieu: String,
+    natureMaintenance: String,
+    naturePreventive: String,
+    action: String,
+    technicien: String,
+    panne: String,
+    cause: String,
+    dateDetection: { type: Date }, // Date + heure
+    dateReparation: { type: Date }, // Date + heure
+    DureeEnMinute: { type: Number },
+    pieces: String,
+    quantite: Number,
 });
 
 const ficheBrigadeSchema = new mongoose.Schema({
     date: { type: Date, default: Date.now },
 
-    // 🔥 CHANGEMENT ICI
     blocsBrigade: {
-        matin: [ligneSchema],
-        apresMidi: [ligneSchema],
+        jour: [ligneSchema],
         nuit: [ligneSchema],
-    },
-
-    techniciens: {
-        matin: [technicienSchema],
-        apresMidi: [technicienSchema],
-        nuit: [technicienSchema],
     },
 
     statut: {
         type: String,
-        enum: ['brouillon', 'envoyee', 'validée'],
+        enum: ['brouillon', 'envoyee', 'validee'],
         default: 'brouillon',
     },
 });

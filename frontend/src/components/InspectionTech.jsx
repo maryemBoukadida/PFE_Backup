@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getInspections} from './apiservices/api';
+import { getInspections } from './apiservices/api';
 import '../styles/InspectionTech.css';
 import { FaBatteryFull, FaTrafficLight, FaTools, FaBolt } from 'react-icons/fa';
 
