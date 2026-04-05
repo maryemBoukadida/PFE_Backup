@@ -1,6 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { getFichesBrigade } from './apiservices/api';
-import { FaSearch, FaCalendarAlt, FaClock, FaTools, FaUser, FaWrench, FaChartLine } from 'react-icons/fa';
+import {
+  FaSearch,
+  FaCalendarAlt,
+  FaClock,
+  FaTools,
+  FaUser,
+  FaWrench,
+  FaChartLine,
+} from 'react-icons/fa';
+import { FaFilePdf } from 'react-icons/fa';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 export default function Rapport() {
   const [fiches, setFiches] = useState([]);
@@ -12,6 +23,96 @@ export default function Rapport() {
   const [selectedShift, setSelectedShift] = useState('all');
   const [selectedMaintenance, setSelectedMaintenance] = useState('all');
 
+  //exporation pdf
+  const exportToPDF = () => {
+    const moisNom = new Date(selectedYear, selectedMonth).toLocaleString(
+      'fr-FR',
+      { month: 'long' }
+    );
+    const doc = new jsPDF('landscape', 'mm', 'a4');
+
+    // Titre
+    doc.setFontSize(18);
+    doc.setTextColor(40, 40, 40);
+    doc.text(`Rapport des interventions - ${moisNom} ${selectedYear}`, 14, 15);
+
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Généré le ${new Date().toLocaleDateString('fr-FR')}`, 14, 25);
+
+    // Préparer les données du tableau
+    const tableData = [];
+    filteredData.forEach(({ date, lignes }) => {
+      lignes.forEach((ligne) => {
+        tableData.push([
+          date,
+          ligne.shift,
+          ligne.technicien || '-',
+          ligne.typeIntervention || '-',
+          ligne.natureTravaux || '-',
+          ligne.lieu || '-',
+          ligne.natureMaintenance || '-',
+          ligne.naturePreventive || '-',
+          ligne.panne || '-',
+          ligne.cause || '-',
+          ligne.dateDetection
+            ? new Date(ligne.dateDetection).toLocaleString('fr-FR')
+            : '-',
+          ligne.dateReparation
+            ? new Date(ligne.dateReparation).toLocaleString('fr-FR')
+            : '-',
+          ligne.DureeEnMinute ? `${ligne.DureeEnMinute} min` : '-',
+          ligne.pieces || '-',
+          ligne.quantite || '-',
+          ligne.action || '-',
+        ]);
+      });
+    });
+
+    // Créer le tableau avec autoTable
+    autoTable(doc, {
+      startY: 35,
+      head: [
+        [
+          'Date',
+          'Shift',
+          'Technicien',
+          'Type intervention',
+          'Nature Travaux',
+          'Lieu',
+          'Nature Maintenance',
+          'Nature Préventive',
+          'Panne',
+          'Cause',
+          'Date détection',
+          'Date réparation',
+          'Durée',
+          'Pièces',
+          'Qté',
+          'Action',
+        ],
+      ],
+      body: tableData,
+      theme: 'striped',
+      headStyles: {
+        fillColor: [52, 73, 94],
+        textColor: [255, 255, 255],
+        fontSize: 8,
+      },
+      bodyStyles: { fontSize: 7 },
+      columnStyles: {
+        0: { cellWidth: 25 },
+        1: { cellWidth: 15 },
+        10: { cellWidth: 30 },
+        11: { cellWidth: 30 },
+      },
+      margin: { left: 10, right: 10 },
+    });
+
+    // Sauvegarder le PDF
+    doc.save(`rapport_${moisNom}_${selectedYear}.pdf`);
+  };
+
   useEffect(() => {
     async function fetchFiches() {
       try {
@@ -20,7 +121,10 @@ export default function Rapport() {
 
         const filtered = data.filter((f) => {
           const date = new Date(f.date);
-          return date.getMonth() === selectedMonth && date.getFullYear() === selectedYear;
+          return (
+            date.getMonth() === selectedMonth &&
+            date.getFullYear() === selectedYear
+          );
         });
 
         setFiches(filtered);
@@ -66,21 +170,35 @@ export default function Rapport() {
       .filter(([date]) => (selectedDay ? date.includes(selectedDay) : true))
       .forEach(([date, shifts]) => {
         const lignes = [
-          ...shifts.jour.map((l) => ({ ...l, shift: 'Jour', shiftColor: '#f39c12' })),
-          ...shifts.nuit.map((l) => ({ ...l, shift: 'Nuit', shiftColor: '#2c3e50' })),
+          ...shifts.jour.map((l) => ({
+            ...l,
+            shift: 'Jour',
+            shiftColor: '#f39c12',
+          })),
+          ...shifts.nuit.map((l) => ({
+            ...l,
+            shift: 'Nuit',
+            shiftColor: '#2c3e50',
+          })),
         ];
 
         const filteredLignes = lignes.filter((ligne) => {
           const matchSearch =
             searchTerm === '' ||
-            ligne.technicien?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            ligne.typeIntervention?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            ligne.technicien
+              ?.toLowerCase()
+              .includes(searchTerm.toLowerCase()) ||
+            ligne.typeIntervention
+              ?.toLowerCase()
+              .includes(searchTerm.toLowerCase()) ||
             ligne.lieu?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             ligne.panne?.toLowerCase().includes(searchTerm.toLowerCase());
 
-          const matchShift = selectedShift === 'all' || ligne.shift === selectedShift;
+          const matchShift =
+            selectedShift === 'all' || ligne.shift === selectedShift;
           const matchMaintenance =
-            selectedMaintenance === 'all' || ligne.natureMaintenance === selectedMaintenance;
+            selectedMaintenance === 'all' ||
+            ligne.natureMaintenance === selectedMaintenance;
 
           return matchSearch && matchShift && matchMaintenance;
         });
@@ -94,26 +212,47 @@ export default function Rapport() {
   };
 
   const filteredData = getFilteredData();
-  const totalInterventions = filteredData.reduce((acc, curr) => acc + curr.lignes.length, 0);
+  const totalInterventions = filteredData.reduce(
+    (acc, curr) => acc + curr.lignes.length,
+    0
+  );
   const totalDuree = filteredData.reduce(
     (acc, curr) =>
       acc +
-      curr.lignes.reduce((sum, ligne) => sum + (parseInt(ligne.DureeEnMinute) || 0), 0),
+      curr.lignes.reduce(
+        (sum, ligne) => sum + (parseInt(ligne.DureeEnMinute) || 0),
+        0
+      ),
     0
   );
 
   if (loading)
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+        }}
+      >
         <div style={{ textAlign: 'center' }}>
           <div className="spinner"></div>
-          <p style={{ marginTop: '20px', color: '#666' }}>Chargement des données...</p>
+          <p style={{ marginTop: '20px', color: '#666' }}>
+            Chargement des données...
+          </p>
         </div>
       </div>
     );
 
   return (
-    <div style={{ padding: '30px', backgroundColor: '#f5f7fa', minHeight: '100vh' }}>
+    <div
+      style={{
+        padding: '30px',
+        backgroundColor: '#f5f7fa',
+        minHeight: '100vh',
+      }}
+    >
       {/* En-tête */}
       <div
         style={{
@@ -125,10 +264,20 @@ export default function Rapport() {
           boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
         }}
       >
-        <h1 style={{ margin: 0, fontSize: '32px', display: 'flex', alignItems: 'center', gap: '15px' }}>
+        <h1
+          style={{
+            margin: 0,
+            fontSize: '32px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '15px',
+          }}
+        >
           <FaChartLine /> 📊 Rapport complet des interventions
         </h1>
-        <p style={{ margin: '10px 0 0 0', opacity: 0.9 }}>GMAO - Gestion de la Maintenance Assistée par Ordinateur</p>
+        <p style={{ margin: '10px 0 0 0', opacity: 0.9 }}>
+          GMAO - Gestion de la Maintenance Assistée par Ordinateur
+        </p>
       </div>
 
       {/* Cartes statistiques */}
@@ -152,8 +301,18 @@ export default function Rapport() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
             <FaTools style={{ fontSize: '32px', color: '#3498db' }} />
             <div>
-              <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#2c3e50' }}>{totalInterventions}</div>
-              <div style={{ color: '#7f8c8d', fontSize: '14px' }}>Interventions totales</div>
+              <div
+                style={{
+                  fontSize: '28px',
+                  fontWeight: 'bold',
+                  color: '#2c3e50',
+                }}
+              >
+                {totalInterventions}
+              </div>
+              <div style={{ color: '#7f8c8d', fontSize: '14px' }}>
+                Interventions totales
+              </div>
             </div>
           </div>
         </div>
@@ -170,10 +329,18 @@ export default function Rapport() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
             <FaClock style={{ fontSize: '32px', color: '#e67e22' }} />
             <div>
-              <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#2c3e50' }}>
+              <div
+                style={{
+                  fontSize: '28px',
+                  fontWeight: 'bold',
+                  color: '#2c3e50',
+                }}
+              >
                 {Math.floor(totalDuree / 60)}h {totalDuree % 60}min
               </div>
-              <div style={{ color: '#7f8c8d', fontSize: '14px' }}>Durée totale d'intervention</div>
+              <div style={{ color: '#7f8c8d', fontSize: '14px' }}>
+                Durée totale d'intervention
+              </div>
             </div>
           </div>
         </div>
@@ -190,10 +357,20 @@ export default function Rapport() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
             <FaUser style={{ fontSize: '32px', color: '#27ae60' }} />
             <div>
-              <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#2c3e50' }}>
-                {new Date(selectedYear, selectedMonth).toLocaleString('fr-FR', { month: 'long' })}
+              <div
+                style={{
+                  fontSize: '28px',
+                  fontWeight: 'bold',
+                  color: '#2c3e50',
+                }}
+              >
+                {new Date(selectedYear, selectedMonth).toLocaleString('fr-FR', {
+                  month: 'long',
+                })}
               </div>
-              <div style={{ color: '#7f8c8d', fontSize: '14px' }}>{selectedYear}</div>
+              <div style={{ color: '#7f8c8d', fontSize: '14px' }}>
+                {selectedYear}
+              </div>
             </div>
           </div>
         </div>
@@ -209,7 +386,11 @@ export default function Rapport() {
           boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
         }}
       >
-        <h3 style={{ margin: '0 0 20px 0', color: '#2c3e50', fontSize: '18px' }}>🔍 Filtres de recherche</h3>
+        <h3
+          style={{ margin: '0 0 20px 0', color: '#2c3e50', fontSize: '18px' }}
+        >
+          🔍 Filtres de recherche
+        </h3>
         <div
           style={{
             display: 'grid',
@@ -218,7 +399,15 @@ export default function Rapport() {
           }}
         >
           <div>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#555', fontSize: '13px' }}>
+            <label
+              style={{
+                display: 'block',
+                marginBottom: '8px',
+                fontWeight: 'bold',
+                color: '#555',
+                fontSize: '13px',
+              }}
+            >
               Année
             </label>
             <select
@@ -242,7 +431,15 @@ export default function Rapport() {
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#555', fontSize: '13px' }}>
+            <label
+              style={{
+                display: 'block',
+                marginBottom: '8px',
+                fontWeight: 'bold',
+                color: '#555',
+                fontSize: '13px',
+              }}
+            >
               Mois
             </label>
             <select
@@ -266,7 +463,15 @@ export default function Rapport() {
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#555', fontSize: '13px' }}>
+            <label
+              style={{
+                display: 'block',
+                marginBottom: '8px',
+                fontWeight: 'bold',
+                color: '#555',
+                fontSize: '13px',
+              }}
+            >
               Jour spécifique
             </label>
             <input
@@ -285,7 +490,15 @@ export default function Rapport() {
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#555', fontSize: '13px' }}>
+            <label
+              style={{
+                display: 'block',
+                marginBottom: '8px',
+                fontWeight: 'bold',
+                color: '#555',
+                fontSize: '13px',
+              }}
+            >
               Shift
             </label>
             <select
@@ -307,7 +520,15 @@ export default function Rapport() {
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#555', fontSize: '13px' }}>
+            <label
+              style={{
+                display: 'block',
+                marginBottom: '8px',
+                fontWeight: 'bold',
+                color: '#555',
+                fontSize: '13px',
+              }}
+            >
               Type maintenance
             </label>
             <select
@@ -329,7 +550,15 @@ export default function Rapport() {
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#555', fontSize: '13px' }}>
+            <label
+              style={{
+                display: 'block',
+                marginBottom: '8px',
+                fontWeight: 'bold',
+                color: '#555',
+                fontSize: '13px',
+              }}
+            >
               Recherche texte
             </label>
             <input
@@ -348,7 +577,14 @@ export default function Rapport() {
           </div>
         </div>
 
-        <div style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+        <div
+          style={{
+            marginTop: '20px',
+            display: 'flex',
+            gap: '10px',
+            justifyContent: 'flex-end',
+          }}
+        >
           <button
             onClick={() => {
               setSelectedDay('');
@@ -368,6 +604,28 @@ export default function Rapport() {
           >
             Réinitialiser les filtres
           </button>
+          {/* Ajouter ce bouton */}
+          <button
+            onClick={exportToPDF}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: '#dc3545',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+            }}
+          >
+            <FaFilePdf /> Exporter PDF (
+            {new Date(selectedYear, selectedMonth).toLocaleString('fr-FR', {
+              month: 'long',
+            })}{' '}
+            {selectedYear})
+          </button>
         </div>
       </div>
 
@@ -382,31 +640,174 @@ export default function Rapport() {
             color: '#999',
           }}
         >
-          <FaTools style={{ fontSize: '64px', marginBottom: '20px', opacity: 0.3 }} />
+          <FaTools
+            style={{ fontSize: '64px', marginBottom: '20px', opacity: 0.3 }}
+          />
           <h3>Aucune intervention trouvée</h3>
           <p>Essayez de modifier vos filtres de recherche</p>
         </div>
       ) : (
-        <div style={{ overflowX: 'auto', backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+        <div
+          style={{
+            overflowX: 'auto',
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+          }}
+        >
+          <table
+            style={{
+              width: '100%',
+              borderCollapse: 'collapse',
+              fontSize: '13px',
+            }}
+          >
             <thead>
               <tr style={{ backgroundColor: '#34495e', color: 'white' }}>
-                <th style={{ padding: '15px', textAlign: 'left', fontWeight: 'bold' }}>Date</th>
-                <th style={{ padding: '15px', textAlign: 'left', fontWeight: 'bold' }}>Shift</th>
-                <th style={{ padding: '15px', textAlign: 'left', fontWeight: 'bold' }}>Technicien</th>
-                <th style={{ padding: '15px', textAlign: 'left', fontWeight: 'bold' }}>Type</th>
-                <th style={{ padding: '15px', textAlign: 'left', fontWeight: 'bold' }}>Travaux</th>
-                <th style={{ padding: '15px', textAlign: 'left', fontWeight: 'bold' }}>Lieu</th>
-                <th style={{ padding: '15px', textAlign: 'left', fontWeight: 'bold' }}>Maintenance</th>
-                <th style={{ padding: '15px', textAlign: 'left', fontWeight: 'bold' }}>Préventive</th>
-                <th style={{ padding: '15px', textAlign: 'left', fontWeight: 'bold' }}>Panne</th>
-                <th style={{ padding: '15px', textAlign: 'left', fontWeight: 'bold' }}>Cause</th>
-                <th style={{ padding: '15px', textAlign: 'left', fontWeight: 'bold' }}>Date détection</th>
-                <th style={{ padding: '15px', textAlign: 'left', fontWeight: 'bold' }}>Date réparation</th>
-                <th style={{ padding: '15px', textAlign: 'left', fontWeight: 'bold' }}>Durée</th>
-                <th style={{ padding: '15px', textAlign: 'left', fontWeight: 'bold' }}>Pièces</th>
-                <th style={{ padding: '15px', textAlign: 'left', fontWeight: 'bold' }}>Qté</th>
-                <th style={{ padding: '15px', textAlign: 'left', fontWeight: 'bold' }}>Action</th>
+                <th
+                  style={{
+                    padding: '15px',
+                    textAlign: 'left',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Date
+                </th>
+                <th
+                  style={{
+                    padding: '15px',
+                    textAlign: 'left',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Shift
+                </th>
+                <th
+                  style={{
+                    padding: '15px',
+                    textAlign: 'left',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Technicien
+                </th>
+                <th
+                  style={{
+                    padding: '15px',
+                    textAlign: 'left',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Type intervention
+                </th>
+                <th
+                  style={{
+                    padding: '15px',
+                    textAlign: 'left',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Nature Travaux
+                </th>
+                <th
+                  style={{
+                    padding: '15px',
+                    textAlign: 'left',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Lieu
+                </th>
+                <th
+                  style={{
+                    padding: '15px',
+                    textAlign: 'left',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Nature Maintenance
+                </th>
+                <th
+                  style={{
+                    padding: '15px',
+                    textAlign: 'left',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Nature Maintenance Préventive
+                </th>
+                <th
+                  style={{
+                    padding: '15px',
+                    textAlign: 'left',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Panne
+                </th>
+                <th
+                  style={{
+                    padding: '15px',
+                    textAlign: 'left',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Cause
+                </th>
+                <th
+                  style={{
+                    padding: '15px',
+                    textAlign: 'left',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Date détection
+                </th>
+                <th
+                  style={{
+                    padding: '15px',
+                    textAlign: 'left',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Date réparation
+                </th>
+                <th
+                  style={{
+                    padding: '15px',
+                    textAlign: 'left',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Durée(min)
+                </th>
+                <th
+                  style={{
+                    padding: '15px',
+                    textAlign: 'left',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Pièces remplacées
+                </th>
+                <th
+                  style={{
+                    padding: '15px',
+                    textAlign: 'left',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Quantité
+                </th>
+                <th
+                  style={{
+                    padding: '15px',
+                    textAlign: 'left',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Action effectuée
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -419,9 +820,12 @@ export default function Rapport() {
                       backgroundColor: index % 2 === 0 ? '#fff' : '#f8f9fa',
                       transition: 'background-color 0.3s',
                     }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#e8f4f8')}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.backgroundColor = '#e8f4f8')
+                    }
                     onMouseLeave={(e) =>
-                      (e.currentTarget.style.backgroundColor = index % 2 === 0 ? '#fff' : '#f8f9fa')
+                      (e.currentTarget.style.backgroundColor =
+                        index % 2 === 0 ? '#fff' : '#f8f9fa')
                     }
                   >
                     {index === 0 && (
@@ -435,7 +839,9 @@ export default function Rapport() {
                           borderRight: '2px solid #dee2e6',
                         }}
                       >
-                        <FaCalendarAlt style={{ marginRight: '5px', color: '#3498db' }} />
+                        <FaCalendarAlt
+                          style={{ marginRight: '5px', color: '#3498db' }}
+                        />
                         {date}
                       </td>
                     )}
@@ -446,7 +852,8 @@ export default function Rapport() {
                           display: 'inline-block',
                           padding: '4px 12px',
                           borderRadius: '20px',
-                          backgroundColor: ligne.shift === 'Jour' ? '#f39c12' : '#2c3e50',
+                          backgroundColor:
+                            ligne.shift === 'Jour' ? '#f39c12' : '#2c3e50',
                           color: 'white',
                           fontSize: '11px',
                           fontWeight: 'bold',
@@ -458,8 +865,15 @@ export default function Rapport() {
 
                     <td style={{ padding: '12px' }}>
                       {ligne.technicien ? (
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                          <FaUser style={{ color: '#3498db' }} /> {ligne.technicien}
+                        <span
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '5px',
+                          }}
+                        >
+                          <FaUser style={{ color: '#3498db' }} />{' '}
+                          {ligne.technicien}
                         </span>
                       ) : (
                         '-'
@@ -468,42 +882,52 @@ export default function Rapport() {
 
                     <td style={{ padding: '12px' }}>
                       {ligne.typeIntervention === 'balisage' ? (
-                        <span style={{ color: '#e67e22', fontWeight: 'bold' }}>🚧 Balisage</span>
+                        <span style={{ color: '#e67e22', fontWeight: 'bold' }}>
+                          🚧 Balisage
+                        </span>
                       ) : ligne.typeIntervention === 'production' ? (
-                        <span style={{ color: '#27ae60', fontWeight: 'bold' }}>⚙️ Production</span>
+                        <span style={{ color: '#27ae60', fontWeight: 'bold' }}>
+                          ⚙️ Production
+                        </span>
                       ) : (
                         '-'
                       )}
                     </td>
 
-                    <td style={{ padding: '12px' }}>{ligne.natureTravaux || '-'}</td>
+                    <td style={{ padding: '12px' }}>
+                      {ligne.natureTravaux || '-'}
+                    </td>
                     <td style={{ padding: '12px' }}>{ligne.lieu || '-'}</td>
 
                     <td style={{ padding: '12px' }}>
                       {ligne.natureMaintenance === 'preventif' ? (
-                        <span style={{ color: '#3498db', fontWeight: 'bold' }}>🛡️ Préventif</span>
+                        <span style={{ color: '#3498db', fontWeight: 'bold' }}>
+                          🛡️ Préventif
+                        </span>
                       ) : ligne.natureMaintenance === 'curatif' ? (
-                        <span style={{ color: '#e74c3c', fontWeight: 'bold' }}>🔧 Curatif</span>
+                        <span style={{ color: '#e74c3c', fontWeight: 'bold' }}>
+                          🔧 Curatif
+                        </span>
                       ) : (
                         '-'
                       )}
                     </td>
 
                     <td style={{ padding: '12px' }}>
-                      {ligne.naturePreventive === 'journaliere' ? (
-                        '📅 Journalière'
-                      ) : ligne.naturePreventive === 'semestrielle' ? (
-                        '📆 Semestrielle'
-                      ) : ligne.naturePreventive === 'annuelle' ? (
-                        '📅 Annuelle'
-                      ) : (
-                        '-'
-                      )}
+                      {ligne.naturePreventive === 'journaliere'
+                        ? '📅 Journalière'
+                        : ligne.naturePreventive === 'semestrielle'
+                          ? '📆 Semestrielle'
+                          : ligne.naturePreventive === 'annuelle'
+                            ? '📅 Annuelle'
+                            : '-'}
                     </td>
 
                     <td style={{ padding: '12px' }}>
                       {ligne.panne ? (
-                        <span style={{ color: '#e74c3c', fontWeight: 'bold' }}>⚠️ {ligne.panne}</span>
+                        <span style={{ color: '#e74c3c', fontWeight: 'bold' }}>
+                          ⚠️ {ligne.panne}
+                        </span>
                       ) : (
                         '-'
                       )}
@@ -512,16 +936,32 @@ export default function Rapport() {
                     <td style={{ padding: '12px' }}>{ligne.cause || '-'}</td>
 
                     <td style={{ padding: '12px', fontSize: '11px' }}>
-                      {ligne.dateDetection ? new Date(ligne.dateDetection).toLocaleString('fr-FR') : '-'}
+                      {ligne.dateDetection
+                        ? new Date(ligne.dateDetection).toLocaleString('fr-FR')
+                        : '-'}
                     </td>
 
                     <td style={{ padding: '12px', fontSize: '11px' }}>
-                      {ligne.dateReparation ? new Date(ligne.dateReparation).toLocaleString('fr-FR') : '-'}
+                      {ligne.dateReparation
+                        ? new Date(ligne.dateReparation).toLocaleString('fr-FR')
+                        : '-'}
                     </td>
 
-                    <td style={{ padding: '12px', fontWeight: 'bold', color: '#27ae60' }}>
+                    <td
+                      style={{
+                        padding: '12px',
+                        fontWeight: 'bold',
+                        color: '#27ae60',
+                      }}
+                    >
                       {ligne.DureeEnMinute ? (
-                        <span style={{ backgroundColor: '#d5f4e6', padding: '4px 8px', borderRadius: '12px' }}>
+                        <span
+                          style={{
+                            backgroundColor: '#d5f4e6',
+                            padding: '4px 8px',
+                            borderRadius: '12px',
+                          }}
+                        >
                           ⏱️ {ligne.DureeEnMinute} min
                         </span>
                       ) : (
@@ -533,7 +973,9 @@ export default function Rapport() {
                     <td style={{ padding: '12px' }}>{ligne.quantite || '-'}</td>
                     <td style={{ padding: '12px' }}>
                       {ligne.action ? (
-                        <span style={{ color: '#3498db', fontWeight: 'bold' }}>✅ {ligne.action}</span>
+                        <span style={{ color: '#3498db', fontWeight: 'bold' }}>
+                          ✅ {ligne.action}
+                        </span>
                       ) : (
                         '-'
                       )}
@@ -558,8 +1000,12 @@ export default function Rapport() {
         }
 
         @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
         }
       `}</style>
     </div>

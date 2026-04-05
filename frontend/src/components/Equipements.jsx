@@ -399,7 +399,7 @@ export default function EquipementsComponent() {
                   </div>
                 ))
               ) : (
-                <div className="notif-empty">Aucune notification</div>
+                <div></div>
               )}
             </div>
           </div>
